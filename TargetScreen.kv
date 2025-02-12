@@ -28,7 +28,7 @@
 
     Label:
         id: timer
-        text: "Time Left: 15 seconds"
+        text: "Time Left:"
         font_size: 30
         size_hint: None, None
         center_x: root.width * 0.81
@@ -37,3 +37,31 @@
         bold: True
         outline_width: self.font_size * 0.1
         outline_color: 0, 0, 0
+
+    Label:
+        id: full_timer
+        text: "15.0"
+        font_size: 30
+        size_hint: None, None
+        center_x: root.width * 0.94
+        center_y: root.height * 0.97
+        color: 1, 1, 1, 1
+        bold: True
+        outline_width: self.font_size * 0.1
+        outline_color: 0, 0, 0
+
+
+
+
+        SelfUpdatingLabel:
+            id: time_label
+            size_hint: None, None
+            font_size: 30
+            update_property: root.update_label
+            update_property_parameters: None
+            center_x: root.width * 1.5
+            center_y: root.height * 0.97
+            color: 1, 1, 1, 1
+            bold: True
+            outline_width: self.font_size * 0.1
+            outline_color: 0, 0, 0
