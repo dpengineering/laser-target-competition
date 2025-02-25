@@ -82,7 +82,7 @@ class TargetScreen(Screen):
         self.targets = False
         self.points = 0
         self.state = "idle"
-        self.off_screen = None
+        self.off_screen = 800 + 64 - 8
         self.targets_hit = None
 
 
@@ -98,6 +98,13 @@ class TargetScreen(Screen):
         self.targets_are_in = [False, False, False, False]
         self.target_hits = [False, False, False, False]
         self.targets_hit = 0
+        self.move_targets_offscreen()
+
+    def move_targets_offscreen(self):
+        self.ids.target_1.x = self.off_screen
+        self.ids.target_2.x = self.off_screen
+        self.ids.target_3.x = self.off_screen
+        self.ids.target_4.x = self.off_screen
 
     def end(self):
         print("running end")
