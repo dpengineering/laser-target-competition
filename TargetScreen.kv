@@ -26,42 +26,194 @@
         color: 0, 0.65, 0.25, 1
         on_press: root.start()
 
-    Label:
+
+    ImageButton:
         id: timer
-        text: "Time Left:"
-        font_size: 30
-        size_hint: None, None
-        center_x: root.width * 0.81
-        center_y: root.height * 0.97
-        color: 1, 1, 1, 1
-        bold: True
-        outline_width: self.font_size * 0.1
-        outline_color: 0, 0, 0
+        source: 'assets/images/timer/time_left_64.png'
+        center_x: root.width * 0.82
+        center_y: root.height * 0.95
+        size: 128, 64
 
-    Label:
-        id: full_timer
-        text: "15.0"
-        font_size: 30
-        size_hint: None, None
-        center_x: root.width * 0.94
-        center_y: root.height * 0.97
-        color: 1, 1, 1, 1
-        bold: True
-        outline_width: self.font_size * 0.1
-        outline_color: 0, 0, 0
+    ImageButton:
+        id: timer_0
+        source: 'assets/images/timer/timer_0.png'
+        x: root.width
+        y: root.height - 64
+        size: 64, 64
+
+    ImageButton:
+        id: timer_16
+        source: 'assets/images/timer/timer_16.png'
+        x: root.width - 64 - 8
+        y: root.height - 64
+        size: 64, 64
+
+    ImageButton:
+        id: timer_1
+        source: 'assets/images/timer/timer_1.png'
+        x: root.width
+        y: root.height - 64
+        size: 64, 64
+
+    ImageButton:
+        id: timer_2
+        source: 'assets/images/timer/timer_2.png'
+        x: root.width
+        y: root.height - 64
+        size: 64, 64
+
+    ImageButton:
+        id: timer_3
+        source: 'assets/images/timer/timer_3.png'
+        x: root.width
+        y: root.height - 64
+        size: 64, 64
+
+    ImageButton:
+        id: timer_4
+        source: 'assets/images/timer/timer_4.png'
+        x: root.width
+        y: root.height - 64
+        size: 64, 64
+
+    ImageButton:
+        id: timer_5
+        source: 'assets/images/timer/timer_5.png'
+        x: root.width
+        y: root.height - 64
+        size: 64, 64
+
+    ImageButton:
+        id: timer_6
+        source: 'assets/images/timer/timer_6.png'
+        x: root.width
+        y: root.height - 64
+        size: 64, 64
+
+    ImageButton:
+        id: timer_7
+        source: 'assets/images/timer/timer_7.png'
+        x: root.width
+        y: root.height - 64
+        size: 64, 64
+
+    ImageButton:
+        id: timer_8
+        source: 'assets/images/timer/timer_8.png'
+        x: root.width
+        y: root.height - 64
+        size: 64, 64
+
+    ImageButton:
+        id: timer_9
+        source: 'assets/images/timer/timer_9.png'
+        x: root.width
+        y: root.height - 64
+        size: 64, 64
+
+    ImageButton:
+        id: timer_10
+        source: 'assets/images/timer/timer_10.png'
+        x: root.width
+        y: root.height - 64
+        size: 64, 64
+
+    ImageButton:
+        id: timer_11
+        source: 'assets/images/timer/timer_11.png'
+        x: root.width
+        y: root.height - 64
+        size: 64, 64
+
+    ImageButton:
+        id: timer_12
+        source: 'assets/images/timer/timer_12.png'
+        x: root.width
+        y: root.height - 64
+        size: 64, 64
+
+    ImageButton:
+        id: timer_13
+        source: 'assets/images/timer/timer_13.png'
+        x: root.width
+        y: root.height - 64
+        size: 64, 64
+
+    ImageButton:
+        id: timer_14
+        source: 'assets/images/timer/timer_14.png'
+        x: root.width
+        y: root.height - 64
+        size: 64, 64
+
+    ImageButton:
+        id: timer_15
+        source: 'assets/images/timer/timer_15.png'
+        x: 800 - 64 - 8
+        y: root.height - 64
+        size: 64, 64
+
+    ImageButton:
+        id: pedestal_1
+        source: 'assets/images/pedestal_64.png'
+        x: 0
+        y: root.height - 64
+        size: 64, 64
+
+    ImageButton:
+        id: pedestal_2
+        source: 'assets/images/pedestal_64.png'
+        x: 64
+        y: root.height - 64
+        size: 64, 64
 
 
+    ImageButton:
+        id: pedestal_3
+        source: 'assets/images/pedestal_64.png'
+        x: 128
+        y: root.height - 64
+        size: 64, 64
 
 
-        SelfUpdatingLabel:
-            id: time_label
-            size_hint: None, None
-            font_size: 30
-            update_property: root.update_label
-            update_property_parameters: None
-            center_x: root.width * 1.5
-            center_y: root.height * 0.97
-            color: 1, 1, 1, 1
-            bold: True
-            outline_width: self.font_size * 0.1
-            outline_color: 0, 0, 0
+    ImageButton:
+        id: pedestal_4
+        source: 'assets/images/pedestal_64.png'
+        x: 64 + 128
+        y: root.height - 64
+        size: 64, 64
+
+    ImageButton:
+        id: target_1
+        source: 'assets/images/amethyst_64.png'
+        on_press: root.target_hit(1)
+        x: 150
+        y: 300
+        size: 64, 64
+
+
+    ImageButton:
+        id: target_2
+        source: 'assets/images/emerald_64.png'
+        on_press: root.target_hit(2)
+        x: 700
+        y: 200
+        size: 64, 64
+
+    ImageButton:
+        id: target_3
+        source: 'assets/images/diamond_64.png'
+        on_press: root.target_hit(3)
+        x: 400
+        y: 500
+        size: 64, 64
+
+    ImageButton:
+        id: target_4
+        source: 'assets/images/prismatic_shard_64.png'
+        on_press: root.target_hit(4)
+        x: 50
+        y: 50
+        size: 64, 64
+
+
