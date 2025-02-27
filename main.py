@@ -107,8 +107,8 @@ class TargetScreen(Screen):
         self.ids.target_4.x = self.off_screen
 
     def end(self):
-        print("running end")
         self.state = "idle"
+        print(f"state={self.state}")
         self.ids.start.center_x = 400
         self.update_time_left_image(15)
 
@@ -116,17 +116,14 @@ class TargetScreen(Screen):
 
 
     def update_all(self, dt=None): # dt for clock scheduling
-        print(f"targets_hit={self.targets_hit}")
+        print(f"state={self.state}, points={self.points}")
         self.update_time_left_image(self.update_time_left())
-
         if screen_manager.current == target_screen_name:
-            if self.targets and self.targets_hit < 4:
+            if self.targets and self.targets_hit < 4 and self.time_s > 0:
                 self.move_targets()
-                print("moving target in")
-            elif self.time_s <= 0 or self.targets_hit == 4:
+            elif self.time_s == 0 or self.targets_hit == 4:
                 self.clock_scheduled = False
                 self.end()
-
         return self.clock_scheduled
 
     def schedule_clock(self):
@@ -142,8 +139,8 @@ class TargetScreen(Screen):
         return self.time_s
 
     def update_time_left_image(self, num):
-        print("updating time left")
-        print(f"num={num}")
+        #print("updating time left")
+        #print(f"time_left={num}")
         on_screen = 800 - 64 - 8
         self.off_screen = 800 + 64
         if num == 0:
@@ -196,6 +193,7 @@ class TargetScreen(Screen):
             self.ids.timer_15.x = self.off_screen
             self.ids.timer_14.x = on_screen
         else:
+            self.ids.timer_0.x = self.off_screen
             self.ids.timer_1.x = self.off_screen
             self.ids.timer_2.x = self.off_screen
             self.ids.timer_3.x = self.off_screen
@@ -215,26 +213,27 @@ class TargetScreen(Screen):
 
 
     def move_targets(self):
-        print("moving targets")
-        rand_128 = round(random() * 64)
-        rand_x = round(random() * 700)
-        rand_y = round(random() * 400)
+        if self.clock_scheduled:
+            #print("moving targets")
+            rand_32 = round(random() * 64)
+            rand_x = round(random() * 1400 + 100)
+            rand_y = round(random() * 400 + 100)
 
-        print(f"rand_128={rand_128}rand_x={rand_x}rand_y={rand_y}")
+        #print(f"rand_32={rand_32}rand_x={rand_x}rand_y={rand_y}")
 
-        if rand_128 == 1 and not self.target_hits[0]:
+        if rand_32 == 1 and not self.target_hits[0]:
             self.ids.target_1.x = rand_x
             self.ids.target_1.y = rand_y
             self.targets_are_in[0] = True
-        if rand_128 == 2 and not self.target_hits[1]:
+        if rand_32 == 2 and not self.target_hits[1]:
             self.ids.target_2.x = rand_x
             self.ids.target_2.y = rand_y
             self.targets_are_in[1] = True
-        if rand_128 == 3 and not self.target_hits[2]:
+        if rand_32 == 3 and not self.target_hits[2]:
             self.ids.target_3.x = rand_x
             self.ids.target_3.y = rand_y
             self.targets_are_in[2] = True
-        if rand_128 == 4 and not self.target_hits[3]:
+        if rand_32 == 4 and not self.target_hits[3]:
             self.ids.target_4.x = rand_x
             self.ids.target_4.y = rand_y
             self.targets_are_in[3] = True
@@ -246,7 +245,7 @@ class TargetScreen(Screen):
         pedestal_y = 600 - 64
         if self.state == "targets":
             self.targets_hit += 1
-            print(f"Target {target_num} Hit!")
+            #print(f"Target {target_num} Hit!")
             self.points += 100
             if self.points == 100:
                 pedestal_x = 0
