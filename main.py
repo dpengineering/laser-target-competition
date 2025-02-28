@@ -229,8 +229,6 @@ class TargetScreen(Screen):
             self.targets_are_in[3] = True
 
 
-
-
     def move_targets(self):
         if self.clock_scheduled:
             #print("moving targets")
