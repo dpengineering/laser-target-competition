@@ -15,7 +15,8 @@ from time import time, time_ns
 
 from pidev.kivy.selfupdatinglabel import SelfUpdatingLabel
 from pidev.kivy.ImageButton import ImageButton
-from pidev.kivy import DPEAButton # I know these are grey buts it's required trust me
+from pidev.kivy import DPEAButton
+# I know these are grey buts it's required trust me
 
 time = time
 
@@ -154,15 +155,12 @@ class TargetScreen(Screen):
             self.ids.timer_3.x = self.off_screen
             self.ids.timer_2.x = on_screen
         elif num == 3:
-
             self.ids.timer_4.x = self.off_screen
             self.ids.timer_3.x = on_screen
         elif num == 4:
-
             self.ids.timer_5.x = self.off_screen
             self.ids.timer_4.x = on_screen
         elif num == 5:
-
             self.ids.timer_6.x = self.off_screen
             self.ids.timer_5.x = on_screen
         elif num == 6:
@@ -210,33 +208,43 @@ class TargetScreen(Screen):
             self.ids.timer_14.x = self.off_screen
             self.ids.timer_15.x = on_screen
 
+    def move_specific_target(self, target_num):
+        rand_x = round(random() * 1200 + 100)
+        rand_y = round(random() * 400 + 100)
+        if target_num == 1:
+            self.ids.target_1.x = rand_x
+            self.ids.target_1.y = rand_y
+            self.targets_are_in[0] = True
+        if target_num == 2:
+            self.ids.target_2.x = rand_x
+            self.ids.target_2.y = rand_y
+            self.targets_are_in[1] = True
+        if target_num == 3:
+            self.ids.target_3.x = rand_x
+            self.ids.target_3.y = rand_y
+            self.targets_are_in[2] = True
+        if target_num == 4:
+            self.ids.target_4.x = rand_x
+            self.ids.target_4.y = rand_y
+            self.targets_are_in[3] = True
+
+
 
 
     def move_targets(self):
         if self.clock_scheduled:
             #print("moving targets")
-            rand_32 = round(random() * 64)
-            rand_x = round(random() * 1400 + 100)
-            rand_y = round(random() * 400 + 100)
+            rand_64 = round(random() * 64)
 
-        #print(f"rand_32={rand_32}rand_x={rand_x}rand_y={rand_y}")
-
-        if rand_32 == 1 and not self.target_hits[0]:
-            self.ids.target_1.x = rand_x
-            self.ids.target_1.y = rand_y
-            self.targets_are_in[0] = True
-        if rand_32 == 2 and not self.target_hits[1]:
-            self.ids.target_2.x = rand_x
-            self.ids.target_2.y = rand_y
-            self.targets_are_in[1] = True
-        if rand_32 == 3 and not self.target_hits[2]:
-            self.ids.target_3.x = rand_x
-            self.ids.target_3.y = rand_y
-            self.targets_are_in[2] = True
-        if rand_32 == 4 and not self.target_hits[3]:
-            self.ids.target_4.x = rand_x
-            self.ids.target_4.y = rand_y
-            self.targets_are_in[3] = True
+            #print(f"rand_64={rand_64}rand_x={rand_x}rand_y={rand_y}")
+            if rand_64 == 1 and not self.target_hits[0]:
+                self.move_specific_target(1)
+            if rand_64 == 2 and not self.target_hits[1]:
+                self.move_specific_target(2)
+            if rand_64 == 3 and not self.target_hits[2]:
+                self.move_specific_target(3)
+            if rand_64 == 4 and not self.target_hits[3]:
+                self.move_specific_target(4)
 
 
 
