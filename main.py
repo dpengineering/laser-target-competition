@@ -4,6 +4,7 @@ from timeit import timeit
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.lang import Builder
+from kivy.uix.image import Image
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
 
@@ -16,6 +17,7 @@ from time import time, time_ns
 from pidev.kivy.selfupdatinglabel import SelfUpdatingLabel
 from pidev.kivy.ImageButton import ImageButton
 from pidev.kivy import DPEAButton
+
 # I know these are grey buts it's required trust me
 
 time = time
