@@ -1,25 +1,15 @@
-import json
 
-# Python dictionary
-data = {
-    "rank": 1,
-    "name": "HLS",
-    "score": 12800
-}
+from leaderboard import Leaderboard
 
-# Convert Python dictionary to JSON string
-json_string = json.dumps(data, indent=4)
-print("JSON string:", json_string)
+leaderboard = Leaderboard()
 
-# Convert JSON string to Python dictionary
-new_data = json.loads(json_string)
-print("Python dictionary:", new_data)
+level = 1
 
-# Writing JSON data to a file
-with open("data.json", "w") as f:
-    json.dump(data, f, indent=4)
 
-# Reading JSON data from a file
-with open("data.json", "r") as f:
-    loaded_data = json.load(f)
-print("Loaded data from file:", loaded_data)
+print(leaderboard.in_top_ten(1, 120))
+
+for i , score in enumerate(leaderboard.scores[level]):
+    print(str((i+1)) + ". " + str(score['name']) + " " + str(score['points']))
+
+
+

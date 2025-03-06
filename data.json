@@ -1,5 +1,16 @@
 {
-    "rank": 1,
-    "name": "HLS",
-    "score": 12800
+    "1": [
+        {
+            "name": "LACH",
+            "time": 9.2
+        },
+        {
+            "name": "A",
+            "time": 9.62
+        },
+        {
+            "name": "LACH",
+            "time": 9.98
+        }
+    ]
 }
