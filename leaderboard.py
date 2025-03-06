@@ -15,7 +15,7 @@ class Leaderboard:
     def in_top_ten(self, level, points):
         if len(self.scores[level]) < 10:
             return True
-        return points < self.scores[level][9]['points']
+        return points > self.scores[level][9]['points']
 
     def get_placement(self, level, points):
         print(f"level={level}, points={points}")
@@ -35,4 +35,17 @@ class Leaderboard:
         with open("assets/leaderboard/leaderboard.json", 'r') as file:
             loaded_scores = json.load(file)
             self.scores = {int(level): scores for level, scores in loaded_scores.items()}
+
+    def draw_leaderboard(self):
+        default_pos = 800 + 64 - 8
+        next_entry_distance = 44
+        self.name_x = default_pos
+        self.y = default_pos
+        self.points_x = default_pos
+
+        for i, score in enumerate(self.scores[1]):
+            self.y += next_entry_distance
+            print(str((i + 1)) + ". " + str(score['name']) + " " + str(score['points']))
+
+
 

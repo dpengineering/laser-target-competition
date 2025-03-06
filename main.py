@@ -18,6 +18,8 @@ from pidev.kivy.selfupdatinglabel import SelfUpdatingLabel
 from pidev.kivy.ImageButton import ImageButton
 from pidev.kivy import DPEAButton
 
+from leaderboard import Leaderboard
+
 # I know these are grey buts it's required trust me
 
 time = time
@@ -27,6 +29,7 @@ time = time
 screen_manager = ScreenManager()
 target_screen_name = 'target'
 player_screen_name = 'player'
+leaderboard = Leaderboard()
 
 
 class LaserTargetCompetitionUI(App):
@@ -45,13 +48,8 @@ class PlayerScreen(Screen):
     """
         Class to handle player screen
     """
-
-    def right_button_pressed(self):
-        print("Left button pressed")
-
-
-    def left_button_pressed(self):
-        print("Right button pressed")
+    for i, score in enumerate(leaderboard.scores[1]): # 1 is the level
+        print(str((i + 1)) + ". " + str(score['name']) + " " + str(score['points']))
 
 
     @staticmethod
@@ -114,6 +112,10 @@ class TargetScreen(Screen):
         print(f"state={self.state}")
         self.ids.start.center_x = 400
         self.update_time_left_image(15)
+
+        if leaderboard.in_top_ten(1, self.points):
+            leaderboard.add_score("HLS", self.points, 1)
+            leaderboard.draw_leaderboard()
 
 
 
