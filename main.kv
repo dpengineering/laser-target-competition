@@ -13,67 +13,248 @@
         y: root.height - 50
         color: 0.65, 0, 0.25, 1
         on_press: root.transition_to_target_screen()
+        font_name: 'PixelFont'
+        font_size: '20sp'
+
+    Label:
+        text: "PLAY"
+        center_x: 800 / 16
+        y: root.height / 2 - 24
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
 
 
-    ImageButton:
-        id: leaderboard
-        source: 'assets/images/text/leaderboard.png'
-        x: root.width / 2 - 396 / 2
-        y: root.height - 44*3
-        size: 396, 44
+    Label:
+        text: "LEADERBOARD"
+        center_x: 800 / 16
+        y: root.height / 3
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
+    Label:
+        text: "SCORE"
+        center_x: 800 / 3
+        y: root.height / 4
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
+    Label:
+        text: "RANK"
+        center_x: -250
+        y: root.height / 4
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
+    Label:
+        text: "NAME"
+        center_x: 800 / 16 -50
+        y: root.height / 4
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
 
 
-    ImageButton:
-        id: score
-        source: 'assets/images/text/score.png'
-        x: root.width / 2 + 120
-        y: root.height - 44 * 4
-        size: 180, 44
+    Label:
+        text: "1ST"
+        center_x: -250
+        y: root.height / 4 - 44
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
+    Label:
+        text: "2ND"
+        center_x: -250
+        y: root.height / 4 - 44 * 2
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
 
 
-    ImageButton:
-        id: rank
-        source: 'assets/images/text/rank.png'
-        x: 31
-        y: root.height - 44 *4
-        size: 144, 44
+    Label:
+        text: "3RD"
+        center_x: -250
+        y: root.height / 4 - 44 * 3
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
 
 
-    ImageButton:
-        id: name
-        source: 'assets/images/text/name.png'
-        x: root.width / 2 - 144
-        y: root.height - 44 * 4
-        size: 144, 44
+    Label:
+        text: "4TH"
+        center_x: -250
+        y: root.height / 4 - 44 * 4
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
+    Label:
+        text: "5TH"
+        center_x: -250
+        y: root.height / 4 - 44 * 5
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
+    Label:
+        text: "6TH"
+        center_x: -250
+        y: root.height / 4 - 44 * 6
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
+    Label:
+        text: "7TH"
+        center_x: -250
+        y: root.height / 4 - 44 * 7
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
 
 
-    ImageButton:
-        id: 1st
-        source: 'assets/images/text/1st.png'
-        x: 44
-        y: root.height - 44 * 5
-        size: 108, 44
+    # empty leaderboard labels that will be filled.
+    Label:
+        id: name_1
+        text: "AAA"
+        center_x: 800 / 16 -50
+        y: root.height / 4 - 44
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
 
-    ImageButton:
-        id: 2nd
-        source: 'assets/images/text/2nd.png'
-        x: 44
-        y: root.height - 44 * 6
-        size: 108, 44
 
-    ImageButton:
-        id: 3rd
-        source: 'assets/images/text/3rd.png'
-        x: 44
-        y: root.height - 44 * 7
-        size: 108, 44
+    #score for 1st place
+    Label:
+        id:score_1
+        text: "000000"
+        center_x: 800 / 3
+        y: root.height / 4 - 44
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
 
-    ImageButton:
-        id: 4th
-        source: 'assets/images/text/4th.png'
-        x: 44
-        y: root.height - 44 * 8
-        size: 108, 44
+    Label:
+        id: name_2
+        text: "BBB"
+        center_x: 800 / 16 -50
+        y: root.height / 4 - 44 * 2
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
+    #score for 2nd place
+    Label:
+        id:score_2
+        text: "000000"
+        center_x: 800 / 3
+        y: root.height / 4 - 44 * 2
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
+    Label:
+        id: name_3
+        text: "CCC"
+        center_x: 800 / 16 -50
+        y: root.height / 4 - 44 * 3
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
+    #score for 3rd place
+    Label:
+        id: score_3
+        text: "000000"
+        center_x: 800 / 3
+        y: root.height / 4 - 44 * 3
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
+    Label:
+        id: name_4
+        text: "DDD"
+        center_x: 800 / 16 -50
+        y: root.height / 4 - 44 * 4
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
+
+    Label:
+        id: score_4
+        text: "000000"
+        center_x: 800 / 3
+        y: root.height / 4 - 44 * 4
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
+    Label:
+        id: name_5
+        text: "DDD"
+        center_x: 800 / 16 -50
+        y: root.height / 4 - 44 * 5
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
+
+    Label:
+        id: score_5
+        text: "000000"
+        center_x: 800 / 3
+        y: root.height / 4 - 44 * 5
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
+    Label:
+        id: name_6
+        text: "DDD"
+        center_x: 800 / 16 -50
+        y: root.height / 4 - 44 * 6
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
+
+    Label:
+        id: score_6
+        text: "000000"
+        center_x: 800 / 3
+        y: root.height / 4 - 44 * 6
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
+    Label:
+        id: name_7
+        text: "DDD"
+        center_x: 800 / 16 -50
+        y: root.height / 4 - 44 * 7
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
+
+    Label:
+        id: score_7
+        text: "000000"
+        center_x: 800 / 3
+        y: root.height / 4 - 44 * 7
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
+
+
+
 
 
 

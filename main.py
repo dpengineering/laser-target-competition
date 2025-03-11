@@ -3,6 +3,7 @@ from timeit import timeit
 
 from kivy.app import App
 from kivy.clock import Clock
+from kivy.core.text import LabelBase
 from kivy.lang import Builder
 from kivy.uix.image import Image
 from kivy.uix.screenmanager import ScreenManager, Screen
@@ -48,8 +49,35 @@ class PlayerScreen(Screen):
     """
         Class to handle player screen
     """
-    for i, score in enumerate(leaderboard.scores[1]): # 1 is the level
-        print(str((i + 1)) + ". " + str(score['name']) + " " + str(score['points']))
+    def __init__(self, **kw):
+        super().__init__(**kw)
+        self.get_leaderboard()
+
+
+    def get_leaderboard(self):
+        for i, score in enumerate(leaderboard.scores[1]): # 1 is the level
+            if (i + 1) == 1:
+                self.ids.name_1.text = str(score['name'])
+                self.ids.score_1.text = str(score['points'])
+            elif (i+1) == 2:
+                self.ids.name_2.text = str(score['name'])
+                self.ids.score_2.text = str(score['points'])
+            elif (i+1) == 3:
+                self.ids.name_3.text = str(score['name'])
+                self.ids.score_3.text = str(score['points'])
+            elif (i+1) == 4:
+                self.ids.name_4.text = str(score['name'])
+                self.ids.score_4.text = str(score['points'])
+            elif (i+1) == 5:
+                self.ids.name_5.text = str(score['name'])
+                self.ids.score_5.text = str(score['points'])
+            elif (i+1) == 6:
+                self.ids.name_6.text = str(score['name'])
+                self.ids.score_6.text = str(score['points'])
+            elif (i+1) == 7:
+                self.ids.name_7.text = str(score['name'])
+                self.ids.score_7.text = str(score['points'])
+            print(str((i + 1)) + ". " + str(score['name']) + " " + str(score['points']))
 
 
     @staticmethod
@@ -65,6 +93,7 @@ class TargetScreen(Screen):
         that simulates the lasers hitting targets
     """
 
+
     def __init__(self, **kwargs):
         """
         Loads the TargetScreen.kv file instead of having everything in main.kv
@@ -75,7 +104,6 @@ class TargetScreen(Screen):
         self.target_hits = None
         self.targets_are_in = None
         Builder.load_file('TargetScreen.kv')
-
         super(TargetScreen, self).__init__(**kwargs)
         self.clock_scheduled = False
         self.time_start = time_ns()
@@ -293,6 +321,7 @@ class TargetScreen(Screen):
 
 
 Builder.load_file('main.kv')
+LabelBase.register(name='PixelFont', fn_regular='assets/fonts/Tiny5-Regular.ttf')
 screen_manager.add_widget(PlayerScreen(name=player_screen_name))
 screen_manager.add_widget(TargetScreen(name=target_screen_name))
 
