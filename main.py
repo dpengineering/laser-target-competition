@@ -114,6 +114,9 @@ class TargetScreen(Screen):
         self.off_screen = 800 + 64 - 8
         self.targets_hit = None
 
+        #unused(for now)
+        self.difficulty = "easy"
+
 
     def start(self):
         print("Starting target game - setting state to targets")
@@ -174,75 +177,55 @@ class TargetScreen(Screen):
     def update_time_left_image(self, num):
         #print("updating time left")
         #print(f"time_left={num}")
-        on_screen = 800 - 64 - 8
+        #please someone make this whole timer system a SelfUpdatingLabel!!!!!!
+        #I don't have the time for that so this will do, but still please
         self.off_screen = 800 + 64
         if num == 0:
             self.end()
-            self.ids.timer_1.x = self.off_screen
-            self.ids.timer_0.x = on_screen
+            self.ids.time_left.text = "00"
         elif num == 1:
-            self.ids.timer_2.x = self.off_screen
-            self.ids.timer_1.x = on_screen
+            self.ids.time_left.text = "01"
         elif num == 2:
-            self.ids.timer_3.x = self.off_screen
-            self.ids.timer_2.x = on_screen
+            self.ids.time_left.text = "02"
         elif num == 3:
-            self.ids.timer_4.x = self.off_screen
-            self.ids.timer_3.x = on_screen
+            self.ids.time_left.text = "03"
         elif num == 4:
-            self.ids.timer_5.x = self.off_screen
-            self.ids.timer_4.x = on_screen
+            self.ids.time_left.text = "04"
         elif num == 5:
-            self.ids.timer_6.x = self.off_screen
-            self.ids.timer_5.x = on_screen
+            self.ids.time_left.text = "05"
         elif num == 6:
-            self.ids.timer_7.x = self.off_screen
-            self.ids.timer_6.x = on_screen
+            self.ids.time_left.text = "06"
         elif num == 7:
-            self.ids.timer_8.x = self.off_screen
-            self.ids.timer_7.x = on_screen
+            self.ids.time_left.text = "07"
         elif num == 8:
-            self.ids.timer_9.x = self.off_screen
-            self.ids.timer_8.x = on_screen
+            self.ids.time_left.text = "08"
         elif num == 9:
-            self.ids.timer_10.x = self.off_screen
-            self.ids.timer_9.x = on_screen
+            self.ids.time_left.text = "09"
         elif num == 10:
-            self.ids.timer_11.x = self.off_screen
-            self.ids.timer_10.x = on_screen
+            self.ids.time_left.text = "10"
         elif num == 11:
-            self.ids.timer_12.x = self.off_screen
-            self.ids.timer_11.x = on_screen
+            self.ids.time_left.text = "11"
         elif num == 12:
-            self.ids.timer_13.x = self.off_screen
-            self.ids.timer_12.x = on_screen
+            self.ids.time_left.text = "12"
         elif num == 13:
-            self.ids.timer_14.x = self.off_screen
-            self.ids.timer_13.x = on_screen
+            self.ids.time_left.text = "13"
         elif num == 14:
-            self.ids.timer_15.x = self.off_screen
-            self.ids.timer_14.x = on_screen
+            self.ids.time_left.text = "14"
         else:
-            self.ids.timer_0.x = self.off_screen
-            self.ids.timer_1.x = self.off_screen
-            self.ids.timer_2.x = self.off_screen
-            self.ids.timer_3.x = self.off_screen
-            self.ids.timer_4.x = self.off_screen
-            self.ids.timer_5.x = self.off_screen
-            self.ids.timer_6.x = self.off_screen
-            self.ids.timer_7.x = self.off_screen
-            self.ids.timer_8.x = self.off_screen
-            self.ids.timer_9.x = self.off_screen
-            self.ids.timer_10.x = self.off_screen
-            self.ids.timer_11.x = self.off_screen
-            self.ids.timer_12.x = self.off_screen
-            self.ids.timer_13.x = self.off_screen
-            self.ids.timer_14.x = self.off_screen
-            self.ids.timer_15.x = on_screen
+            self.ids.time_left.text = "15"
 
     def move_specific_target(self, target_num):
-        rand_x = round(random() * 1200 + 100)
-        rand_y = round(random() * 400 + 100)
+        if self.targets_are_in[target_num - 1]:
+            return
+        rand_x = round(random() * 800) - 64 # 800 - 64 = screen width - target size
+                                           # targets can't spawn offscreen
+        rand_y = round(random() * 600) - 64 # 600 = 64 = screen height - target size
+
+        if rand_y < 0:
+            rand_y = 0
+        if rand_x < 0:
+            rand_x = 0
+
         if target_num == 1:
             self.ids.target_1.x = rand_x
             self.ids.target_1.y = rand_y
@@ -264,16 +247,41 @@ class TargetScreen(Screen):
     def move_targets(self):
         if self.clock_scheduled:
             #print("moving targets")
-            rand_64 = round(random() * 64)
+            rand = round(random() * 128)
 
-            #print(f"rand_64={rand_64}rand_x={rand_x}rand_y={rand_y}")
-            if rand_64 == 1 and not self.target_hits[0]:
+            #print(f"rand={rand}rand_x={rand_x}rand_y={rand_y}")
+
+
+            # difficulty
+            # easy - one target at a time
+            # medium - multiple targets at once, but the same total number of targets as easy
+            # hard - multiple targets at once, more targets than easy or medium, and targets spawn faster
+
+
+            # gameplay
+            # move a random target on the screen
+            # player clicks that target, gets points for the quality of target clicked
+            # that target starts as a prismatic shard, then loses quality
+            # after 300ms it becomes a diamond (0.3 seconds after appearing)
+            # 300ms after that it becomes an emerald (600ms/0.6s aa)
+            # 600ms after that it becomes an amethyst (1200ms/1.2s aa)
+            # 1800ms after that it becomes a gold bar (3000ms/3s aa)
+
+
+            # Points:
+            # Prismatic Shard - 1200 points
+            # Diamond - 900p
+            # Emerald - 600p
+            # Amethyst - 300p
+            # Gold Bar - 100p
+
+            if rand == 1 and not self.target_hits[0]:
                 self.move_specific_target(1)
-            if rand_64 == 2 and not self.target_hits[1]:
+            if rand == 2 and not self.target_hits[1]:
                 self.move_specific_target(2)
-            if rand_64 == 3 and not self.target_hits[2]:
+            if rand == 3 and not self.target_hits[2]:
                 self.move_specific_target(3)
-            if rand_64 == 4 and not self.target_hits[3]:
+            if rand == 4 and not self.target_hits[3]:
                 self.move_specific_target(4)
 
 
