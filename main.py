@@ -109,10 +109,14 @@ class TargetScreen(Screen):
         self.time_start = time_ns()
         self.time_s = None
         self.targets = False
-        self.points = 0
+        self.points = None
+        self.target_move_to_pedestal_num = 0
         self.state = "idle"
-        self.off_screen = 800 + 64 - 8
         self.targets_hit = None
+        self.off_screen = 800 + 64
+        self.target_quality = {"t1": "rainbow", "t2": "rainbow", "t3": "rainbow", "t4": "rainbow",
+                               "t5": "rainbow", "t6": "rainbow", "t7": "rainbow", "t8": "rainbow",
+                               "t9": "rainbow", "t10": "rainbow"}
 
         #unused(for now)
         self.difficulty = "easy"
@@ -126,6 +130,7 @@ class TargetScreen(Screen):
         self.time_start = time_ns()
         self.time_s = 0
         self.targets = True
+        self.target_move_to_pedestal_num = 0
         self.points = 0
         self.targets_are_in = [False, False, False, False]
         self.target_hits = [False, False, False, False]
@@ -146,13 +151,13 @@ class TargetScreen(Screen):
 
         if leaderboard.in_top_ten(1, self.points):
             leaderboard.add_score("HLS", self.points, 1)
-            leaderboard.draw_leaderboard()
+
 
 
 
 
     def update_all(self, dt=None): # dt for clock scheduling
-        print(f"state={self.state}, points={self.points}")
+        print(f"state={self.state}, target_move_to_pedestal_num={self.target_move_to_pedestal_num}, points={self.points}")
         self.update_time_left_image(self.update_time_left())
         if screen_manager.current == target_screen_name:
             if self.targets and self.targets_hit < 4 and self.time_s > 0:
@@ -179,7 +184,7 @@ class TargetScreen(Screen):
         #print(f"time_left={num}")
         #please someone make this whole timer system a SelfUpdatingLabel!!!!!!
         #I don't have the time for that so this will do, but still please
-        self.off_screen = 800 + 64
+
         if num == 0:
             self.end()
             self.ids.time_left.text = "00"
@@ -284,7 +289,18 @@ class TargetScreen(Screen):
             if rand == 4 and not self.target_hits[3]:
                 self.move_specific_target(4)
 
-
+    def update_points(self, target):
+        match self.target_quality[target]:
+            case "rainbow":
+                self.points += 1200
+            case "diamond":
+                self.points += 900
+            case "emerald":
+                self.points += 600
+            case "amethyst":
+                self.points += 300
+            case "gold":
+                self.points += 100
 
     def target_hit(self, target_num):
         pedestal_x = 0
@@ -292,33 +308,53 @@ class TargetScreen(Screen):
         if self.state == "targets":
             self.targets_hit += 1
             #print(f"Target {target_num} Hit!")
-            self.points += 100
-            if self.points == 100:
+            self.target_move_to_pedestal_num += 1
+            if self.target_move_to_pedestal_num == 1:
                 pedestal_x = 0
-            elif self.points == 200:
+            elif self.target_move_to_pedestal_num == 2:
                 pedestal_x = 64
-            elif self.points == 300:
+            elif self.target_move_to_pedestal_num == 3:
                 pedestal_x = 128
-            elif self.points == 400:
+            elif self.target_move_to_pedestal_num == 4:
                 pedestal_x = 128 + 64
+            elif self.target_move_to_pedestal_num == 5:
+                pedestal_x = 128 + 64 * 2
+            elif self.target_move_to_pedestal_num == 6:
+                pedestal_x = 128 + 64 * 3
+            elif self.target_move_to_pedestal_num == 7:
+                pedestal_x = 128 + 64 * 4
+            elif self.target_move_to_pedestal_num == 8:
+                pedestal_x = 128 + 64 * 5
+            elif self.target_move_to_pedestal_num == 9:
+                pedestal_x = 128 + 64 * 6
+            elif self.target_move_to_pedestal_num == 10:
+                pedestal_x = 128 + 64 * 7
             match target_num:
                 case 1:
                     self.target_hits[0] = True
                     self.ids.target_1.x = pedestal_x
                     self.ids.target_1.y = pedestal_y
+                    self.update_points("t1")
                 case 2:
                     self.target_hits[1] = True
                     self.ids.target_2.x = pedestal_x
                     self.ids.target_2.y = pedestal_y
+                    self.update_points("t2")
                 case 3:
                     self.target_hits[2] = True
                     self.ids.target_3.x = pedestal_x
                     self.ids.target_3.y = pedestal_y
+                    self.update_points("t3")
                 case 4:
                     self.target_hits[3] = True
                     self.ids.target_4.x = pedestal_x
                     self.ids.target_4.y = pedestal_y
-
+                    self.update_points("t4")
+                case 5:
+                    self.target_hits[4] = True
+                    self.ids.target_4.x = pedestal_x
+                    self.ids.target_4.y = pedestal_y
+                    self.update_points("t5")
 
     @staticmethod
     def transition_to_player_screen():
