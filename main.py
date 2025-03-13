@@ -52,6 +52,42 @@ class InstructionsScreen(Screen):
     def __init__(self, **kw):
         Builder.load_file('InstructionsScreen.kv')
         super(InstructionsScreen, self).__init__(**kw)
+        self.can_play = True # change to false
+        self.clock_scheduled = False
+        self.enter_pressed
+
+    def blink_cursor(self):
+        print()
+
+    def blink_letter(self):
+        print()
+
+    def update_all(self, dt=None): # dt for clock scheduling
+        print("running clock!")
+        if screen_manager.current == instructions_screen_name:
+            if not self.is_letter_typed and not self.enter_pressed:
+                self.blink_cursor()
+            elif self.is_letter_typed and not self.enter_pressed:
+                self.blink_letter()
+            elif self.enter_pressed:
+                self.clock_scheduled = False
+        return self.clock_scheduled
+
+    def schedule_clock(self):
+        if not self.clock_scheduled:
+            Clock.schedule_interval(self.update_all, 0)
+            self.clock_scheduled = True
+        else:
+            self.clock_scheduled = False
+
+    def on_enter(self, *args):
+        self.schedule_clock()
+
+    def play_button_pressed(self):
+        if self.can_play:
+            self.transition_to_target_screen()
+        else:
+            print("cannot play, enter name first")
 
     @staticmethod
     def transition_to_player_screen():
@@ -60,7 +96,7 @@ class InstructionsScreen(Screen):
 
     @staticmethod
     def transition_to_target_screen():
-        screen_manager.transition.direction = "right"
+        screen_manager.transition.direction = "left"
         screen_manager.current = target_screen_name
 
 
