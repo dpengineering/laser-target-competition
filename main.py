@@ -1,5 +1,6 @@
 from random import random
 from timeit import timeit
+from pynput import keyboard
 
 from kivy.app import App
 from kivy.clock import Clock
@@ -19,6 +20,7 @@ from pidev.kivy.selfupdatinglabel import SelfUpdatingLabel
 from pidev.kivy.ImageButton import ImageButton
 from pidev.kivy import DPEAButton
 
+from keyboard_handler import on_press, on_release
 from leaderboard import Leaderboard
 
 # I know these are grey buts it's required trust me
@@ -45,33 +47,91 @@ class LaserTargetCompetitionUI(App):
 
 Window.clearcolor = (0, 0, 0, 1)
 
+
 class InstructionsScreen(Screen):
     """
         Class to handle instructions screen
     """
+
     def __init__(self, **kw):
         Builder.load_file('InstructionsScreen.kv')
         super(InstructionsScreen, self).__init__(**kw)
         self.can_play = True # change to false
         self.clock_scheduled = False
-        self.enter_pressed
+        self.enter_pressed = False
+        self.is_letter_typed = False
+        self.time_s = 0
+        self.highlighted_letter = "q"
+        listener = keyboard.Listener(
+            on_press=self.on_press,
+            on_release=self.on_release)
+        listener.start()
+    def move_highlight_down(self):
+        print("moving highlight down")
+
+    def move_highlight_up(self):
+        print("moving highlight up")
+
+    def move_highlight_left(self):
+        print("moving highlight left")
+
+    def move_highlight_right(self):
+        print("moving highlight right")
+    def letter_selected(self):
+        print(f"letter selected={self.highlighted_letter}")
+    def on_press(self, key):
+        if key == keyboard.Key.down:
+            self.move_highlight_down()
+        if key == keyboard.Key.up:
+            self.move_highlight_up()
+        if key == keyboard.Key.right:
+            self.move_highlight_right()
+        if key == keyboard.Key.left:
+            self.move_highlight_left()
+        if key == keyboard.Key.enter:
+            self.letter_selected()
+        try:
+            print('alphanumeric key {0} pressed'.format(
+                key.char))
+        except AttributeError:
+            print('special key {0} pressed'.format(
+                key))
+
+    def on_release(self, key):
+        print('{0} released'.format(
+            key))
+        if key == keyboard.Key.esc:
+            # Stop listener
+            return False
 
     def blink_cursor(self):
-        print()
+        if self.time_s % 2:
+            self.ids.name.text = "l"
+        else:
+            self.ids.name.text = ""
 
-    def blink_letter(self):
-        print()
+    def blink_letter(self, letter):
+        if self.time_s % 2:
+            self.ids.name.text = letter
+        else:
+            self.ids.name.text = ""
+
 
     def update_all(self, dt=None): # dt for clock scheduling
-        print("running clock!")
+        #print("running clock!")
+        self.update_time()
         if screen_manager.current == instructions_screen_name:
             if not self.is_letter_typed and not self.enter_pressed:
                 self.blink_cursor()
             elif self.is_letter_typed and not self.enter_pressed:
-                self.blink_letter()
+                self.blink_letter(self.highlighted_letter)
             elif self.enter_pressed:
                 self.clock_scheduled = False
         return self.clock_scheduled
+
+    def update_time(self):
+        self.time_s = round((time_ns() / 1000000000))
+        #print(f"time_s={self.time_s}")
 
     def schedule_clock(self):
         if not self.clock_scheduled:
@@ -98,6 +158,7 @@ class InstructionsScreen(Screen):
     def transition_to_target_screen():
         screen_manager.transition.direction = "left"
         screen_manager.current = target_screen_name
+
 
 
 class PlayerScreen(Screen):
