@@ -54,6 +54,7 @@ class InstructionsScreen(Screen):
     """
 
     def __init__(self, **kw):
+
         Builder.load_file('InstructionsScreen.kv')
         super(InstructionsScreen, self).__init__(**kw)
         self.can_play = True # change to false
@@ -61,41 +62,39 @@ class InstructionsScreen(Screen):
         self.enter_pressed = False
         self.is_letter_typed = False
         self.time_s = 0
-        self.highlighted_letter = "q"
+        self.highlighted_letter = "l"
+        self.player_name = "HLS"
+
         listener = keyboard.Listener(
             on_press=self.on_press,
             on_release=self.on_release)
         listener.start()
-    def move_highlight_down(self):
-        print("moving highlight down")
 
-    def move_highlight_up(self):
-        print("moving highlight up")
 
-    def move_highlight_left(self):
-        print("moving highlight left")
-
-    def move_highlight_right(self):
-        print("moving highlight right")
-    def letter_selected(self):
-        print(f"letter selected={self.highlighted_letter}")
     def on_press(self, key):
-        if key == keyboard.Key.down:
-            self.move_highlight_down()
-        if key == keyboard.Key.up:
-            self.move_highlight_up()
-        if key == keyboard.Key.right:
-            self.move_highlight_right()
-        if key == keyboard.Key.left:
-            self.move_highlight_left()
-        if key == keyboard.Key.enter:
-            self.letter_selected()
+        if self.ids.name.text == "l":
+            self.ids.name.text = ""
+        try:
+            if key.char.isalpha():
+                self.ids.name.text += key.char.upper()
+                self.player_name = self.ids.name.text
+
+        except AttributeError:
+            if key == keyboard.Key.backspace:
+                self.ids.name.text = self.ids.name.text[:-1]
+            if key == keyboard.Key.enter:
+                self.player_name = self.ids.name.text
+                self.transition_to_target_screen()
+
         try:
             print('alphanumeric key {0} pressed'.format(
                 key.char))
         except AttributeError:
             print('special key {0} pressed'.format(
                 key))
+
+    def get_player_name(self):
+        return self.player_name
 
     def on_release(self, key):
         print('{0} released'.format(
@@ -104,51 +103,6 @@ class InstructionsScreen(Screen):
             # Stop listener
             return False
 
-    def blink_cursor(self):
-        if self.time_s % 2:
-            self.ids.name.text = "l"
-        else:
-            self.ids.name.text = ""
-
-    def blink_letter(self, letter):
-        if self.time_s % 2:
-            self.ids.name.text = letter
-        else:
-            self.ids.name.text = ""
-
-
-    def update_all(self, dt=None): # dt for clock scheduling
-        #print("running clock!")
-        self.update_time()
-        if screen_manager.current == instructions_screen_name:
-            if not self.is_letter_typed and not self.enter_pressed:
-                self.blink_cursor()
-            elif self.is_letter_typed and not self.enter_pressed:
-                self.blink_letter(self.highlighted_letter)
-            elif self.enter_pressed:
-                self.clock_scheduled = False
-        return self.clock_scheduled
-
-    def update_time(self):
-        self.time_s = round((time_ns() / 1000000000))
-        #print(f"time_s={self.time_s}")
-
-    def schedule_clock(self):
-        if not self.clock_scheduled:
-            Clock.schedule_interval(self.update_all, 0)
-            self.clock_scheduled = True
-        else:
-            self.clock_scheduled = False
-
-    def on_enter(self, *args):
-        self.schedule_clock()
-
-    def play_button_pressed(self):
-        if self.can_play:
-            self.transition_to_target_screen()
-        else:
-            print("cannot play, enter name first")
-
     @staticmethod
     def transition_to_player_screen():
         screen_manager.transition.direction = "left"
@@ -156,6 +110,7 @@ class InstructionsScreen(Screen):
 
     @staticmethod
     def transition_to_target_screen():
+
         screen_manager.transition.direction = "left"
         screen_manager.current = target_screen_name
 
@@ -258,8 +213,11 @@ class TargetScreen(Screen):
         self.level = 1
 
 
+
+
         #unused(for now)
         self.difficulty = "easy"
+
 
 
     def start(self):
@@ -300,7 +258,8 @@ class TargetScreen(Screen):
         if leaderboard.in_top_ten(1, self.points):
             print("CONGRATS! Your score is on the leaderboard!")
             self.transition_to_player_screen()
-            leaderboard.add_score("HLS", self.points, 1)
+            print(f"player_name={InstructionsScreen.get_player_name(screen_manager.get_screen(instructions_screen_name))}")
+            leaderboard.add_score(InstructionsScreen.get_player_name(screen_manager.get_screen(instructions_screen_name)), self.points, 1)
 
 
 
@@ -532,11 +491,11 @@ class TargetScreen(Screen):
     def update_points(self, target):
         match self.target_quality[target]:
             case "prismatic_shard":
-                self.points += 1200
+                self.points += 5000
             case "diamond":
-                self.points += 900
+                self.points += 1000
             case "emerald":
-                self.points += 600
+                self.points += 500
             case "amethyst":
                 self.points += 300
             case "gold":
