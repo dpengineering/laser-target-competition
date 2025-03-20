@@ -199,7 +199,6 @@ class TargetScreen(Screen):
         self.time_start = None
         self.time_s = None
         self.time_ms = None
-        self.targets = False
         self.points = None
         self.target_move_to_pedestal_num = 0
         self.state = "idle"
@@ -211,6 +210,8 @@ class TargetScreen(Screen):
         self.target_move_time = 0
         self.target_time = 0
         self.level = 1
+        self.leds_0 = ["red", "red", "red", "red", "red", "red", "red",  "red", "red", "red", "red",  "red",  "red"]
+        self.leds_100 = ["red", "red", "red",  "red", "red",  "red",  "red", "red", "red",  "red",  "red", "red", "red"]
 
 
 
@@ -227,9 +228,8 @@ class TargetScreen(Screen):
         self.schedule_clock()
         self.time_start = time_ns()
         self.time_s = 0
-        self.targets = True
-        self.target_move_to_pedestal_num = 0
         self.points = 0
+        self.target_move_to_pedestal_num = 0
         self.targets_are_in = [False, False, False, False, False,
                                False, False, False, False, False]
         self.target_hits = [False, False, False, False, False,
@@ -262,17 +262,14 @@ class TargetScreen(Screen):
             leaderboard.add_score(InstructionsScreen.get_player_name(screen_manager.get_screen(instructions_screen_name)), self.points, 1)
 
 
-
-
-
-
     def update_all(self, dt=None): # dt for clock scheduling
         print(f"state={self.state}, target_move_to_pedestal_num={self.target_move_to_pedestal_num}, points={self.points}")
         self.update_time_left_image(self.update_time())
         self.update_target_quality()
+
         if screen_manager.current == target_screen_name:
-            if self.targets and self.targets_hit < 10 and self.time_s > 0:
-                self.move_targets()
+            if self.state == "targets" and self.targets_hit < 10 and self.time_s > 0:
+                self.get_new_target()
             elif self.time_s == 0 or self.targets_hit == 10:
                 self.clock_scheduled = False
                 self.end()
@@ -284,7 +281,6 @@ class TargetScreen(Screen):
             self.clock_scheduled = True
         else:
             self.clock_scheduled = False
-
 
 
     def update_time(self):
@@ -351,9 +347,37 @@ class TargetScreen(Screen):
 
 
 
-
     def move_specific_target(self, target_num):
-        print(f"{target_num}")
+
+        pos_0 = [16, 600 - 16*3]
+        pos_1 = [16 + 64, 600 - 16*3]
+        pos_2 = [16 + 64 * 2, 600 - 16 * 3]
+        pos_3 = [16 + 64 * 3, 600 - 16 * 3]
+        pos_100 = [800 - 16, 600 - 16*3]
+        pos_101 = [800 - 16 + 64, 600 - 16 * 3]
+
+
+        positions_1 = [pos_0, pos_1, pos_2, pos_3]
+        positions_2 = [pos_100, pos_101]
+
+        pos_player_1 = positions_1[0]
+        pos_player_2 = positions_2[0]
+        if target_num < 100:
+            for i in range(0, 12):
+                if target_num == i:
+                    print(f"PLAYER 1: i {i} target_num {target_num}")
+                    pos_player_1 = positions_1[i]
+                    print("pos_player_1[i] = " + str(pos_player_1[i]))
+
+        elif target_num > 99:
+            for i in range(100, 112):
+                if target_num == i:
+                    print(f"PLAYER 2: i {i} target_num {target_num}")
+                    pos_player_2 = positions_2[i]
+
+
+
+        print(f"t_num{target_num}")
         if self.targets_are_in[target_num - 1]:
             return
         rand_x = round(random() * 800) - 64 # 800 - 64 = screen width - target size
@@ -418,7 +442,21 @@ class TargetScreen(Screen):
 
 
 
-    def move_targets(self):
+    def get_new_target(self):
+        r = round(random() * 13)
+
+        print(f"r={r}")
+
+        for i, v in enumerate(self.leds_0):
+            print(f" i {i},  r {r}, v {v}")
+            if i == r:
+                print(f"selected LED # {i} or {r}")
+                n = r
+
+
+
+
+
         num = 0
         if self.clock_scheduled:
             if self.level == 1:
@@ -502,6 +540,10 @@ class TargetScreen(Screen):
                 self.points += 100
 
     def target_hit(self, target_num):
+        if target_num < 100:
+            print("Player 1")
+        elif target_num >= 100:
+            print("Player 2")
         pedestal_x = 0
         pedestal_y = 600 - 64
         if self.state == "targets":
