@@ -1,4 +1,4 @@
-from random import random
+
 from timeit import timeit
 from pynput import keyboard
 
@@ -9,6 +9,7 @@ from kivy.lang import Builder
 from kivy.uix.image import Image
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
+import random
 
 
 
@@ -201,7 +202,17 @@ class TargetScreen(Screen):
         self.time_ms = None
         self.points = None
         self.target_move_to_pedestal_num = 0
+
+
         self.state = "idle"
+        # List of states:
+        #   - idle -> doing nothing, game hasn't started yet
+        #   - get_new_leds -> get new leds to light up
+        #   - wait_for_target_hit -> we lit up the leds, now we have to wait for the correct target to be hit
+        #   - game_ending -> game is ending, score is calculating
+        #
+
+
         self.targets_hit = None
         self.off_screen = 800 + 64
         self.target_quality = {"t1": "prismatic_shard", "t2": "prismatic_shard", "t3": "prismatic_shard", "t4": "prismatic_shard",
@@ -223,7 +234,7 @@ class TargetScreen(Screen):
 
     def start(self):
         print("Starting target game - setting state to targets")
-        self.state = "targets"
+        self.state = "get_new_leds"
         self.ids.start.x = self.width + 300
         self.schedule_clock()
         self.time_start = time_ns()
@@ -238,6 +249,7 @@ class TargetScreen(Screen):
         self.move_targets_offscreen()
 
     def move_targets_offscreen(self):
+        #todo change to for loop
         self.ids.target_1.x = self.off_screen
         self.ids.target_2.x = self.off_screen
         self.ids.target_3.x = self.off_screen
@@ -268,8 +280,8 @@ class TargetScreen(Screen):
         self.update_target_quality()
 
         if screen_manager.current == target_screen_name:
-            if self.state == "targets" and self.targets_hit < 10 and self.time_s > 0:
-                self.get_new_target()
+            if self.state == "get_new_leds" and self.targets_hit < 10 and self.time_s > 0:
+                self.get_new_leds()
             elif self.time_s == 0 or self.targets_hit == 10:
                 self.clock_scheduled = False
                 self.end()
@@ -377,12 +389,12 @@ class TargetScreen(Screen):
 
 
 
-        print(f"t_num{target_num}")
+        print(f"target_num={target_num}")
         if self.targets_are_in[target_num - 1]:
             return
-        rand_x = round(random() * 800) - 64 # 800 - 64 = screen width - target size
+        rand_x = round(random.random() * 800) - 64 # 800 - 64 = screen width - target size
                                            # targets can't spawn offscreen
-        rand_y = round(random() * 600) - 64 # 600 = 64 = screen height - target size
+        rand_y = round(random.random() * 600) - 64 # 600 = 64 = screen height - target size
 
         if rand_y < 0:
             rand_y = 0
@@ -443,7 +455,7 @@ class TargetScreen(Screen):
     def light_up_led(self, num, rang):
         leds = [self.ids.led_0, self.ids.led_1, self.ids.led_2, self.ids.led_3, self.ids.led_4,
                 self.ids.led_5, self.ids.led_6, self.ids.led_7, self.ids.led_8, self.ids.led_9,
-                self.ids.led_10, self.ids.led_11, self.ids.led_12, ]
+                self.ids.led_10, self.ids.led_11, self.ids.led_12]
         print(f"num={num},rang={rang}")
 
 
@@ -456,38 +468,42 @@ class TargetScreen(Screen):
 
 
 
-    def get_new_target(self):
+    def get_new_leds(self):
+        if self.state == "get_new_leds":
+            leds = [self.ids.led_0, self.ids.led_1, self.ids.led_2, self.ids.led_3, self.ids.led_4,
+                    self.ids.led_5, self.ids.led_6, self.ids.led_7, self.ids.led_8, self.ids.led_9,
+                    self.ids.led_10, self.ids.led_11, self.ids.led_12]
+
+            # Reset all LEDs to red first
+            for led in leds:
+                led.source = 'assets/images/buttons/red.png'
+
+            # Create a list to track which LEDs have been lit
+            lit_leds = []
+
+            # Pick at least one LED to light up
+            available_leds = leds.copy()
+            first_led = random.choice(available_leds)
+            first_led.source = 'assets/images/buttons/green.png'
+            lit_leds.append(first_led)
+            available_leds.remove(first_led)
+
+            # Chance to light up additional LEDs
+            led_chance = random.random()
+            while led_chance <= 0.1 and available_leds:
+                next_led = random.choice(available_leds)
+                next_led.source = 'assets/images/buttons/green.png'
+                lit_leds.append(next_led)
+                available_leds.remove(next_led)
+                led_chance = random.random()
+            self.state = "wait_for_target_hit"
 
 
-        led_chance = random()
-        num_leds_lit = 1
-        r = 1
-
-        while led_chance <= 0.1: #rolls a one in ten change for a second led to be lit. continues until the check fails
-            num_leds_lit =+ 1
-            led_chance = random()
-
-        for i in range(0, num_leds_lit):
-            r = round(random() * 13)
-
-
-        self.light_up_led(r, num_leds_lit)
-
-
-
-        for i, v in enumerate(self.leds_0):
-            #print(f" i {i},  r {r}, v {v}")
-            if i == r:
-                print(f"selected LED # {i} or {r}")
-                n = r
-
-
-
-
+    def move_target_in(self):
         num = 0
         if self.clock_scheduled:
             if self.level == 1:
-                rand = round(random() * 64)
+                rand = round(random.random() * 64)
                 if rand == 1 and not self.target_hits[0] and self.targets_hit == 0:
                     num = 1
                 if rand == 2 and not self.target_hits[1] and self.targets_hit == 1:
@@ -511,7 +527,7 @@ class TargetScreen(Screen):
 
 
             elif self.level == 2:
-                rand = round(random() * 128)
+                rand = round(random.random() * 128)
                 if rand == 1 and not self.target_hits[0]:
                     num = 1
                 if rand == 2 and not self.target_hits[1]:
@@ -573,7 +589,8 @@ class TargetScreen(Screen):
             print("Player 2")
         pedestal_x = 0
         pedestal_y = 600 - 64
-        if self.state == "targets":
+        if self.state == "wait_for_target_hit":
+            self.state = "get_new_leds"
             self.targets_hit += 1
             #print(f"Target {target_num} Hit!")
             self.target_move_to_pedestal_num += 1
@@ -648,6 +665,8 @@ class TargetScreen(Screen):
                     self.ids.target_10.x = pedestal_x
                     self.ids.target_10.y = pedestal_y
                     self.update_points("t10")
+
+
 
     def update_time_left_image(self, num):
         # print("updating time left")
