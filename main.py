@@ -440,19 +440,46 @@ class TargetScreen(Screen):
             self.targets_are_in[9] = True
             self.target_move_time = self.time_ms
 
+    def light_up_led(self, num, rang):
+        leds = [self.ids.led_0, self.ids.led_1, self.ids.led_2, self.ids.led_3, self.ids.led_4,
+                self.ids.led_5, self.ids.led_6, self.ids.led_7, self.ids.led_8, self.ids.led_9,
+                self.ids.led_10, self.ids.led_11, self.ids.led_12, ]
+        print(f"num={num},rang={rang}")
+
+
+        for i in range(0, rang):
+            print(f"i={i}")
+        chosen_led = leds[num]
+        chosen_led.source = 'assets/images/buttons/green.png'
+
+
+
 
 
     def get_new_target(self):
-        r = round(random() * 13)
 
-        print(f"r={r}")
+
+        led_chance = random()
+        num_leds_lit = 1
+        r = 1
+
+        while led_chance <= 0.1: #rolls a one in ten change for a second led to be lit. continues until the check fails
+            num_leds_lit =+ 1
+            led_chance = random()
+
+        for i in range(0, num_leds_lit):
+            r = round(random() * 13)
+
+
+        self.light_up_led(r, num_leds_lit)
+
+
 
         for i, v in enumerate(self.leds_0):
-            print(f" i {i},  r {r}, v {v}")
+            #print(f" i {i},  r {r}, v {v}")
             if i == r:
                 print(f"selected LED # {i} or {r}")
                 n = r
-
 
 
 
