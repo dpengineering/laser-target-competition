@@ -42,6 +42,22 @@
         font_name: 'PixelFont'
         font_size: '55sp'
 
+    Label:
+        id:player_1_points
+        text: "00000"
+        x: - 250
+        center_y: root.height * 0.532 - 64
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
+    Label:
+        id:player_2_points
+        text: "00000"
+        x: 250
+        center_y: root.height * 0.532 - 64
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
 
 
     ImageButton:
@@ -214,7 +230,7 @@
 
     ####PLAYER 2####
     ImageButton:
-        id: led_109
+        id: led_100
         source: 'assets/images/buttons/red.png'
         x:root.width - 64 - 16
         y: root.height - 64 * 3
@@ -316,11 +332,28 @@
         y: 300
         size: 64, 64
 
+    ImageButton:
+        id: target_101
+        source: 'assets/images/prismatic_shard_64.png'
+        on_press: root.target_hit(101)
+        x: 810
+        y: 200
+        size: 64, 64
+
 
     ImageButton:
         id: target_2
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(2)
+        x: 810
+        y: 200
+        size: 64, 64
+
+
+    ImageButton:
+        id: target_102
+        source: 'assets/images/prismatic_shard_64.png'
+        on_press: root.target_hit(102)
         x: 810
         y: 200
         size: 64, 64
@@ -334,9 +367,25 @@
         size: 64, 64
 
     ImageButton:
+        id: target_103
+        source: 'assets/images/prismatic_shard_64.png'
+        on_press: root.target_hit(103)
+        x: 810
+        y: 200
+        size: 64, 64
+
+    ImageButton:
         id: target_4
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(4)
+        x: 810
+        y: 50
+        size: 64, 64
+
+    ImageButton:
+        id: target_104
+        source: 'assets/images/prismatic_shard_64.png'
+        on_press: root.target_hit(104)
         x: 810
         y: 50
         size: 64, 64
@@ -350,9 +399,25 @@
         size: 64, 64
 
     ImageButton:
+        id: target_105
+        source: 'assets/images/prismatic_shard_64.png'
+        on_press: root.target_hit(105)
+        x: 810
+        y: 50
+        size: 64, 64
+
+    ImageButton:
         id: target_6
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(6)
+        x: 810
+        y: 50
+        size: 64, 64
+
+    ImageButton:
+        id: target_106
+        source: 'assets/images/prismatic_shard_64.png'
+        on_press: root.target_hit(106)
         x: 810
         y: 50
         size: 64, 64
@@ -366,9 +431,25 @@
         size: 64, 64
 
     ImageButton:
+        id: target_107
+        source: 'assets/images/prismatic_shard_64.png'
+        on_press: root.target_hit(107)
+        x: 810
+        y: 50
+        size: 64, 64
+
+    ImageButton:
         id: target_8
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(8)
+        x: 810
+        y: 50
+        size: 64, 64
+
+    ImageButton:
+        id: target_108
+        source: 'assets/images/prismatic_shard_64.png'
+        on_press: root.target_hit(108)
         x: 810
         y: 50
         size: 64, 64
@@ -382,6 +463,13 @@
         y: 50
         size: 64, 64
 
+    ImageButton:
+        id: target_109
+        source: 'assets/images/prismatic_shard_64.png'
+        on_press: root.target_hit(109)
+        x: 810
+        y: 50
+        size: 64, 64
 
     ImageButton:
         id: target_10
@@ -392,5 +480,44 @@
         size: 64, 64
 
 
+    ImageButton:
+        id: target_110
+        source: 'assets/images/prismatic_shard_64.png'
+        on_press: root.target_hit(110)
+        x: 810
+        y: 50
+        size: 64, 64
 
+    ImageButton:
+        id: target_11
+        source: 'assets/images/prismatic_shard_64.png'
+        on_press: root.target_hit(11)
+        x: 810
+        y: 50
+        size: 64, 64
+
+    ImageButton:
+        id: target_111
+        source: 'assets/images/prismatic_shard_64.png'
+        on_press: root.target_hit(111)
+        x: 810
+        y: 50
+        size: 64, 64
+
+
+    ImageButton:
+        id: target_12
+        source: 'assets/images/prismatic_shard_64.png'
+        on_press: root.target_hit(12)
+        x: 810
+        y: 50
+        size: 64, 64
+
+    ImageButton:
+        id: target_112
+        source: 'assets/images/prismatic_shard_64.png'
+        on_press: root.target_hit(112)
+        x: 810
+        y: 50
+        size: 64, 64
 

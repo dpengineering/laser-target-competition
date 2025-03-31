@@ -161,7 +161,7 @@ class PlayerScreen(Screen):
             elif (i+1) == 10:
                 self.ids.name_10.text = str(score['name'])
                 self.ids.score_10.text = str(score['points'])
-            print(str((i + 1)) + ". " + str(score['name']) + " " + str(score['points']))
+            #print(str((i + 1)) + ". " + str(score['name']) + " " + str(score['points']))
 
 
 
@@ -224,11 +224,15 @@ class TargetScreen(Screen):
         self.leds_0 = ["red", "red", "red", "red", "red", "red", "red",  "red", "red", "red", "red",  "red",  "red"]
         self.leds_100 = ["red", "red", "red",  "red", "red",  "red",  "red", "red", "red",  "red",  "red", "red", "red"]
 
-
+        self.lit_led_indices = []
 
 
         #unused(for now)
-        self.difficulty = "easy"
+        easy = 0.1
+        medium = 0.3
+        hard = 0.5
+        impossible = 0.7
+        self.difficulty = easy
 
 
 
@@ -275,13 +279,13 @@ class TargetScreen(Screen):
 
 
     def update_all(self, dt=None): # dt for clock scheduling
-        print(f"state={self.state}, target_move_to_pedestal_num={self.target_move_to_pedestal_num}, points={self.points}")
+        #print(f"state={self.state}, target_move_to_pedestal_num={self.target_move_to_pedestal_num}, points={self.points}")
         self.update_time_left_image(self.update_time())
         self.update_target_quality()
 
         if screen_manager.current == target_screen_name:
             if self.state == "get_new_leds" and self.targets_hit < 10 and self.time_s > 0:
-                self.get_new_leds()
+                self.get_new_leds(self.difficulty)
             elif self.time_s == 0 or self.targets_hit == 10:
                 self.clock_scheduled = False
                 self.end()
@@ -299,7 +303,7 @@ class TargetScreen(Screen):
         self.time_s = -round((time_ns() / 1000000000) - (self.time_start / 1000000000 + 15.5)) # seconds counting down from 15 after start has been pressed
         self.time_ms = round((time_ns() / 1000000) - (self.time_start / 1000000)) # ms since start has been pressed
         self.target_time = self.time_ms - self.target_move_time
-        print(f"target_move_time={self.target_move_time}, time_ms={self.time_ms}, target_time={self.target_time}")
+        #print(f"target_move_time={self.target_move_time}, time_ms={self.time_ms}, target_time={self.target_time}")
         return self.time_s
 
 
@@ -346,16 +350,16 @@ class TargetScreen(Screen):
                 self.target_quality['t10'] = quality
                 self.ids.target_10.source = f"assets/images/{quality}_64.png"
 
-        print(f"t1={self.target_quality['t1']}, "
-              f"t2={self.target_quality['t2']}, "
-              f"t3={self.target_quality['t3']}, "
-              f"t4={self.target_quality['t3']}, "
-              f"t5={self.target_quality['t3']}, "
-              f"t6={self.target_quality['t3']}, "
-              f"t7={self.target_quality['t3']}, "
-              f"t8={self.target_quality['t3']}, "
-              f"t9={self.target_quality['t3']}, "
-              f"t10={self.target_quality['t4']}")
+        #print(f"t1={self.target_quality['t1']}, "
+        #      f"t2={self.target_quality['t2']}, "
+        #      f"t3={self.target_quality['t3']}, "
+        #      f"t4={self.target_quality['t3']}, "
+        #      f"t5={self.target_quality['t3']}, "
+        #      f"t6={self.target_quality['t3']}, "
+        #      f"t7={self.target_quality['t3']}, "
+        #      f"t8={self.target_quality['t3']}, "
+        #      f"t9={self.target_quality['t3']}, "
+        #      f"t10={self.target_quality['t4']}")
 
 
 
@@ -452,37 +456,32 @@ class TargetScreen(Screen):
             self.targets_are_in[9] = True
             self.target_move_time = self.time_ms
 
-    def light_up_led(self, num, rang):
-        leds = [self.ids.led_0, self.ids.led_1, self.ids.led_2, self.ids.led_3, self.ids.led_4,
-                self.ids.led_5, self.ids.led_6, self.ids.led_7, self.ids.led_8, self.ids.led_9,
-                self.ids.led_10, self.ids.led_11, self.ids.led_12]
-        print(f"num={num},rang={rang}")
 
-
-        for i in range(0, rang):
-            print(f"i={i}")
-        chosen_led = leds[num]
-        chosen_led.source = 'assets/images/buttons/green.png'
-
-
-
-
-
-    def get_new_leds(self):
+    def get_new_leds(self, difficulty):
+        # todo add a player parameter so that one player can get new leds while the other does not
+        print("getting new targets, lighting up leds")
         if self.state == "get_new_leds":
-            leds = [self.ids.led_0, self.ids.led_1, self.ids.led_2, self.ids.led_3, self.ids.led_4,
-                    self.ids.led_5, self.ids.led_6, self.ids.led_7, self.ids.led_8, self.ids.led_9,
-                    self.ids.led_10, self.ids.led_11, self.ids.led_12]
+            player1_leds = [self.ids.get(f'led_{i}') for i in range(12)]  # led_0 to led_11
+            player2_leds = [self.ids.get(f'led_{100 + i}') for i in range(12)]  # led_100 to led_111
+
+            targets_p1 = [self.ids.get(f'target_{i + 1}') for i in range(12)]  # target_1 to target_12
+            targets_p2 = [self.ids.get(f'target_{101 + i}') for i in range(12)]
 
             # Reset all LEDs to red first
-            for led in leds:
+            for led in player1_leds + player2_leds:
                 led.source = 'assets/images/buttons/red.png'
+
+                # Reset all targets off-screen
+            for target in targets_p1 + targets_p2:
+                target.x = 810  # Move them off-screen
 
             # Create a list to track which LEDs have been lit
             lit_leds = []
 
             # Pick at least one LED to light up
-            available_leds = leds.copy()
+            available_leds = player1_leds.copy()
+
+            # Pick at least one LED at random
             first_led = random.choice(available_leds)
             first_led.source = 'assets/images/buttons/green.png'
             lit_leds.append(first_led)
@@ -490,59 +489,39 @@ class TargetScreen(Screen):
 
             # Chance to light up additional LEDs
             led_chance = random.random()
-            while led_chance <= 0.1 and available_leds:
+            while led_chance <= difficulty and available_leds:
                 next_led = random.choice(available_leds)
                 next_led.source = 'assets/images/buttons/green.png'
                 lit_leds.append(next_led)
                 available_leds.remove(next_led)
                 led_chance = random.random()
+
+
+
+
+            lit_led_names = [name for name, widget in self.ids.items() if widget in lit_leds]
+            # Find numeric indices of the lit LEDs
+            lit_led_indices = [player1_leds.index(led) for led in lit_leds]
+
+            for index in lit_led_indices:
+                player2_leds[index].source = 'assets/images/buttons/green.png'
+
+            for i in lit_led_indices:
+                led_x, led_y = player1_leds[i].x, player1_leds[i].y
+                led_x_p2, led_y_p2 = player2_leds[i].x, player2_leds[i].y
+
+                # Move Player 1's target next to the lit LED
+                targets_p1[i].x, targets_p1[i].y = led_x + 80, led_y  # Offset to the right
+
+                # Move Player 2's target next to the lit LED
+                targets_p2[i].x, targets_p2[i].y = led_x_p2 + 80, led_y_p2  # Offset for Player 2
+                self.target_move_time = self.time_ms
+
+            # Print the lit LED names
+            print(f"Got LEDs to light up, they are: {lit_led_names}")
+            print(f"Got LEDs to light up, they are: {lit_led_indices}")
+
             self.state = "wait_for_target_hit"
-
-
-    def move_target_in(self):
-        num = 0
-        if self.clock_scheduled:
-            if self.level == 1:
-                rand = round(random.random() * 64)
-                if rand == 1 and not self.target_hits[0] and self.targets_hit == 0:
-                    num = 1
-                if rand == 2 and not self.target_hits[1] and self.targets_hit == 1:
-                    num = 2
-                if rand == 3 and not self.target_hits[2] and self.targets_hit == 2:
-                    num = 3
-                if rand == 4 and not self.target_hits[3] and self.targets_hit == 3:
-                    num = 4
-                if rand == 5 and not self.target_hits[4] and self.targets_hit == 4:
-                    num = 5
-                if rand == 6 and not self.target_hits[5] and self.targets_hit == 5:
-                    num = 6
-                if rand == 7 and not self.target_hits[6] and self.targets_hit == 6:
-                    num = 7
-                if rand == 8 and not self.target_hits[7] and self.targets_hit == 7:
-                    num = 8
-                if rand == 9 and not self.target_hits[8] and self.targets_hit == 8:
-                    num = 9
-                if rand == 10 and not self.target_hits[9] and self.targets_hit == 9:
-                    num = 10
-
-
-            elif self.level == 2:
-                rand = round(random.random() * 128)
-                if rand == 1 and not self.target_hits[0]:
-                    num = 1
-                if rand == 2 and not self.target_hits[1]:
-                    num = 2
-                if rand == 3 and not self.target_hits[2]:
-                    num = 3
-                if rand == 4 and not self.target_hits[3]:
-                    num = 4
-
-
-            self.move_specific_target(num)
-
-
-            #print(f"rand={rand}rand_x={rand_x}rand_y={rand_y}")
-
 
             # difficulty - tutuorial mode
             # easy - one target at a time
@@ -581,89 +560,34 @@ class TargetScreen(Screen):
                 self.points += 300
             case "gold":
                 self.points += 100
+        self.ids.player_1_points.text = str(self.points)
+        self.target_quality[target] = "prismatic_shard" #resets the target to its original quality
 
     def target_hit(self, target_num):
-        if target_num < 100:
-            print("Player 1")
-        elif target_num >= 100:
-            print("Player 2")
-        pedestal_x = 0
-        pedestal_y = 600 - 64
+        print(f"target {target_num} hit")
+
         if self.state == "wait_for_target_hit":
             self.state = "get_new_leds"
-            self.targets_hit += 1
-            #print(f"Target {target_num} Hit!")
-            self.target_move_to_pedestal_num += 1
-            if self.target_move_to_pedestal_num == 1:
-                pedestal_x = 0
-            elif self.target_move_to_pedestal_num == 2:
-                pedestal_x = 64
-            elif self.target_move_to_pedestal_num == 3:
-                pedestal_x = 128
-            elif self.target_move_to_pedestal_num == 4:
-                pedestal_x = 128 + 64
-            elif self.target_move_to_pedestal_num == 5:
-                pedestal_x = 128 + 64 * 2
-            elif self.target_move_to_pedestal_num == 6:
-                pedestal_x = 128 + 64 * 3
-            elif self.target_move_to_pedestal_num == 7:
-                pedestal_x = 128 + 64 * 4
-            elif self.target_move_to_pedestal_num == 8:
-                pedestal_x = 128 + 64 * 5
-            elif self.target_move_to_pedestal_num == 9:
-                pedestal_x = 128 + 64 * 6
-            elif self.target_move_to_pedestal_num == 10:
-                pedestal_x = 128 + 64 * 7
             match target_num:
                 case 1:
-                    self.target_hits[0] = True
-                    self.ids.target_1.x = pedestal_x
-                    self.ids.target_1.y = pedestal_y
                     self.update_points("t1")
                 case 2:
-                    self.target_hits[1] = True
-                    self.ids.target_2.x = pedestal_x
-                    self.ids.target_2.y = pedestal_y
                     self.update_points("t2")
                 case 3:
-                    self.target_hits[2] = True
-                    self.ids.target_3.x = pedestal_x
-                    self.ids.target_3.y = pedestal_y
                     self.update_points("t3")
                 case 4:
-                    self.target_hits[3] = True
-                    self.ids.target_4.x = pedestal_x
-                    self.ids.target_4.y = pedestal_y
                     self.update_points("t4")
                 case 5:
-                    self.target_hits[4] = True
-                    self.ids.target_5.x = pedestal_x
-                    self.ids.target_5.y = pedestal_y
                     self.update_points("t5")
                 case 6:
-                    self.target_hits[5] = True
-                    self.ids.target_6.x = pedestal_x
-                    self.ids.target_6.y = pedestal_y
                     self.update_points("t6")
                 case 7:
-                    self.target_hits[6] = True
-                    self.ids.target_7.x = pedestal_x
-                    self.ids.target_7.y = pedestal_y
                     self.update_points("t7")
                 case 8:
-                    self.target_hits[7] = True
-                    self.ids.target_8.x = pedestal_x
-                    self.ids.target_8.y = pedestal_y
                     self.update_points("t8")
                 case 9:
-                    self.target_hits[8] = True
-                    self.ids.target_9.x = pedestal_x
-                    self.ids.target_9.y = pedestal_y
                     self.update_points("t9")
                 case 10:
-                    self.target_hits[9] = True
-                    self.ids.target_10.x = pedestal_x
-                    self.ids.target_10.y = pedestal_y
                     self.update_points("t10")
 
 
