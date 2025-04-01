@@ -192,7 +192,7 @@ class TargetScreen(Screen):
         **kwargs is normal kivy.uix.screenmanager.Screen attributes
         """
 
-        self.target_hits = None
+
         self.targets_are_in = None
         Builder.load_file('TargetScreen.kv')
         super(TargetScreen, self).__init__(**kwargs)
@@ -201,7 +201,7 @@ class TargetScreen(Screen):
         self.time_s = None
         self.time_ms = None
         self.points = None
-        self.target_move_to_pedestal_num = 0
+        self.highlighted_target = None
 
 
         self.state = "idle"
@@ -220,10 +220,6 @@ class TargetScreen(Screen):
                                "t9": "prismatic_shard", "t10": "prismatic_shard"}
         self.target_move_time = 0
         self.target_time = 0
-        self.level = 1
-        self.leds_0 = ["red", "red", "red", "red", "red", "red", "red",  "red", "red", "red", "red",  "red",  "red"]
-        self.leds_100 = ["red", "red", "red",  "red", "red",  "red",  "red", "red", "red",  "red",  "red", "red", "red"]
-
         self.lit_led_indices = []
 
 
@@ -244,11 +240,8 @@ class TargetScreen(Screen):
         self.time_start = time_ns()
         self.time_s = 0
         self.points = 0
-        self.target_move_to_pedestal_num = 0
         self.targets_are_in = [False, False, False, False, False,
                                False, False, False, False, False]
-        self.target_hits = [False, False, False, False, False,
-                            False, False, False, False, False]
         self.targets_hit = 0
         self.move_targets_offscreen()
 
@@ -281,7 +274,7 @@ class TargetScreen(Screen):
     def update_all(self, dt=None): # dt for clock scheduling
         #print(f"state={self.state}, target_move_to_pedestal_num={self.target_move_to_pedestal_num}, points={self.points}")
         self.update_time_left_image(self.update_time())
-        self.update_target_quality()
+        self.update_target_quality(self.highlighted_target)
 
         if screen_manager.current == target_screen_name:
             if self.state == "get_new_leds" and self.targets_hit < 10 and self.time_s > 0:
@@ -308,7 +301,7 @@ class TargetScreen(Screen):
 
 
 
-    def update_target_quality(self):
+    def update_target_quality(self, target):
         quality = "prismatic_shard"
         if self.target_time > 3000:
             quality = "gold"
@@ -318,6 +311,9 @@ class TargetScreen(Screen):
             quality = "emerald"
         elif self.target_time > 300:
             quality = "diamond"
+
+        target.source = f"assets/images/{quality}_64.png"
+
         match self.targets_hit:
             case 0:
                 self.target_quality['t1'] = quality

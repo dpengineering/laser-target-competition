@@ -32,13 +32,7 @@ class Leaderboard:
             json.dump(truncated_scores, file)
             # json.dump(self.scores, file) IDK why this is here
 
-
     def load_from_json(self):
         with open("assets/data/leaderboard/leaderboard.json", 'r') as file:
             loaded_scores = json.load(file)
             self.scores = {int(level): scores for level, scores in loaded_scores.items()}
-
-
-
-
-
