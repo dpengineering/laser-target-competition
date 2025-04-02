@@ -446,7 +446,6 @@ class TargetScreen(Screen):
             print(f"Adding 100 points, new points: {self.points}")
 
 
-
         self.ids.player_1_points.text = str(self.points)
         target.quality = "prismatic_shard" #resets the target to its original quality
 
@@ -459,9 +458,6 @@ class TargetScreen(Screen):
             else:
                 self.update_points(self.targets_p1[target_num - 1])
                 self.state = "get_new_leds"
-
-
-
 
 
     def update_time_left_image(self, num):
@@ -507,8 +503,6 @@ class TargetScreen(Screen):
     def transition_to_player_screen():
         screen_manager.transition.direction = "right"
         screen_manager.current = player_screen_name
-
-
 
 
 Builder.load_file('main.kv')
