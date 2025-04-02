@@ -193,7 +193,7 @@ class TargetScreen(Screen):
         """
 
 
-        self.targets_are_in = None
+
         Builder.load_file('TargetScreen.kv')
         super(TargetScreen, self).__init__(**kwargs)
         self.clock_scheduled = False
@@ -205,7 +205,7 @@ class TargetScreen(Screen):
         self.highlighted_target_p2 = None
         self.targets_p1 = [self.ids.get(f'target_{i + 1}') for i in range(12)]  # target_1 to target_12
         self.targets_p2 = [self.ids.get(f'target_{101 + i}') for i in range(12)]
-
+        self.visible_targets = []
         self.state = "idle"
         # List of states:
         #   - idle -> doing nothing, game hasn't started yet
@@ -239,8 +239,6 @@ class TargetScreen(Screen):
         self.time_start = time_ns()
         self.time_s = 0
         self.points = 0
-        self.targets_are_in = [False, False, False, False, False,
-                               False, False, False, False, False]
         self.targets_hit = 0
         self.move_targets_offscreen()
 
@@ -273,11 +271,11 @@ class TargetScreen(Screen):
     def update_all(self, dt=None): # dt for clock scheduling
         #print(f"state={self.state}, target_move_to_pedestal_num={self.target_move_to_pedestal_num}, points={self.points}")
         self.update_time_left_image(self.update_time())
-        self.update_target_quality(self.highlighted_target_p1, self.highlighted_target_p2)
+        self.update_target_quality()
 
         if screen_manager.current == target_screen_name:
             if self.state == "get_new_leds" and self.targets_hit < 10 and self.time_s > 0:
-                self.get_new_leds(self.difficulty)
+                self.get_new_targets(self.difficulty)
             elif self.time_s == 0 or self.targets_hit == 10:
                 self.clock_scheduled = False
                 self.end()
@@ -300,7 +298,7 @@ class TargetScreen(Screen):
 
 
 
-    def update_target_quality(self, target_p1, target_p2):
+    def update_target_quality(self):
         quality = "prismatic_shard"
         if self.target_time > 1000:
             quality = "gold"
@@ -311,45 +309,14 @@ class TargetScreen(Screen):
         elif self.target_time > 200:
             quality = "diamond"
 
-        try:
-            target_p1.source = f"assets/images/{quality}_64.png"
-            target_p1.quality = quality
-            target_p2.source = f"assets/images/{quality}_64.png"
-            target_p2.quality = quality
-        except AttributeError:
-            print("Attribute Error")
+        for i in range(0, len(self.visible_targets)):
+            try:
+                self.visible_targets[i].source = f"assets/images/{quality}_64.png"
+                self.visible_targets[i].quality = quality
+            except AttributeError:
+                print("Attribute Error")
 
-        match self.targets_hit:
-            case 0:
-                #self.target_quality['t1'] = quality
-                self.ids.target_1.source = f"assets/images/{quality}_64.png"
-            case 1:
-                #self.target_quality['t2'] = quality
-                self.ids.target_2.source = f"assets/images/{quality}_64.png"
-            case 2:
-                #self.target_quality['t3'] = quality
-                self.ids.target_3.source = f"assets/images/{quality}_64.png"
-            case 3:
-                #self.target_quality['t4'] = quality
-                self.ids.target_4.source = f"assets/images/{quality}_64.png"
-            case 4:
 
-                self.ids.target_5.source = f"assets/images/{quality}_64.png"
-            case 5:
-
-                self.ids.target_6.source = f"assets/images/{quality}_64.png"
-            case 6:
-
-                self.ids.target_7.source = f"assets/images/{quality}_64.png"
-            case 7:
-
-                self.ids.target_8.source = f"assets/images/{quality}_64.png"
-            case 8:
-
-                self.ids.target_9.source = f"assets/images/{quality}_64.png"
-            case 9:
-
-                self.ids.target_10.source = f"assets/images/{quality}_64.png"
 
         #print(f"t1={self.target_quality['t1']}, "
         #      f"t2={self.target_quality['t2']}, "
@@ -364,101 +331,7 @@ class TargetScreen(Screen):
 
 
 
-    def move_specific_target(self, target_num):
-
-        pos_0 = [16, 600 - 16*3]
-        pos_1 = [16 + 64, 600 - 16*3]
-        pos_2 = [16 + 64 * 2, 600 - 16 * 3]
-        pos_3 = [16 + 64 * 3, 600 - 16 * 3]
-        pos_100 = [800 - 16, 600 - 16*3]
-        pos_101 = [800 - 16 + 64, 600 - 16 * 3]
-
-
-        positions_1 = [pos_0, pos_1, pos_2, pos_3]
-        positions_2 = [pos_100, pos_101]
-
-        pos_player_1 = positions_1[0]
-        pos_player_2 = positions_2[0]
-        if target_num < 100:
-            for i in range(0, 12):
-                if target_num == i:
-                    print(f"PLAYER 1: i {i} target_num {target_num}")
-                    pos_player_1 = positions_1[i]
-                    print("pos_player_1[i] = " + str(pos_player_1[i]))
-
-        elif target_num > 99:
-            for i in range(100, 112):
-                if target_num == i:
-                    print(f"PLAYER 2: i {i} target_num {target_num}")
-                    pos_player_2 = positions_2[i]
-
-
-
-        print(f"target_num={target_num}")
-        if self.targets_are_in[target_num - 1]:
-            return
-        rand_x = round(random.random() * 800) - 64 # 800 - 64 = screen width - target size
-                                           # targets can't spawn offscreen
-        rand_y = round(random.random() * 600) - 64 # 600 = 64 = screen height - target size
-
-        if rand_y < 0:
-            rand_y = 0
-        if rand_x < 0:
-            rand_x = 0
-
-        if target_num == 1:
-            self.ids.target_1.x = rand_x
-            self.ids.target_1.y = rand_y
-            self.targets_are_in[0] = True
-            self.target_move_time = self.time_ms
-        if target_num == 2:
-            self.ids.target_2.x = rand_x
-            self.ids.target_2.y = rand_y
-            self.targets_are_in[1] = True
-            self.target_move_time = self.time_ms
-        if target_num == 3:
-            self.ids.target_3.x = rand_x
-            self.ids.target_3.y = rand_y
-            self.targets_are_in[2] = True
-            self.target_move_time = self.time_ms
-        if target_num == 4:
-            self.ids.target_4.x = rand_x
-            self.ids.target_4.y = rand_y
-            self.targets_are_in[3] = True
-            self.target_move_time = self.time_ms
-        if target_num == 5:
-            self.ids.target_5.x = rand_x
-            self.ids.target_5.y = rand_y
-            self.targets_are_in[4] = True
-            self.target_move_time = self.time_ms
-        if target_num == 6:
-            self.ids.target_6.x = rand_x
-            self.ids.target_6.y = rand_y
-            self.targets_are_in[5] = True
-            self.target_move_time = self.time_ms
-        if target_num == 7:
-            self.ids.target_7.x = rand_x
-            self.ids.target_7.y = rand_y
-            self.targets_are_in[6] = True
-            self.target_move_time = self.time_ms
-        if target_num == 8:
-            self.ids.target_8.x = rand_x
-            self.ids.target_8.y = rand_y
-            self.targets_are_in[7] = True
-            self.target_move_time = self.time_ms
-        if target_num == 9:
-            self.ids.target_9.x = rand_x
-            self.ids.target_9.y = rand_y
-            self.targets_are_in[8] = True
-            self.target_move_time = self.time_ms
-        if target_num == 10:
-            self.ids.target_10.x = rand_x
-            self.ids.target_10.y = rand_y
-            self.targets_are_in[9] = True
-            self.target_move_time = self.time_ms
-
-
-    def get_new_leds(self, difficulty):
+    def get_new_targets(self, difficulty):
         # todo add a player parameter so that one player can get new leds while the other does not
         print("getting new targets, lighting up leds")
         if self.state == "get_new_leds":
@@ -510,12 +383,14 @@ class TargetScreen(Screen):
                 led_x_p2, led_y_p2 = player2_leds[i].x, player2_leds[i].y
 
                 # Move Player 1's target next to the lit LED
-                self.targets_p1[i].x, self.targets_p1[i].y = led_x + 80, led_y  # Offset to the right
-                self.highlighted_target_p1 = self.targets_p1[i]
+                self.targets_p1[i].x, self.targets_p1[i].y = led_x + 80, led_y # Offset to the right
+                self.visible_targets.append(self.targets_p1[i])
+
 
                 # Move Player 2's target next to the lit LED
                 self.targets_p2[i].x, self.targets_p2[i].y = led_x_p2 + 80, led_y_p2  # Offset for Player 2
-                self.highlighted_target_p2 = self.targets_p2[i]
+                self.visible_targets.append(self.targets_p2[i])
+
                 self.target_move_time = self.time_ms
 
             # Print the lit LED names
