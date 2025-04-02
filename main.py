@@ -203,7 +203,8 @@ class TargetScreen(Screen):
         self.points = None
         self.highlighted_target_p1 = None
         self.highlighted_target_p2 = None
-
+        self.targets_p1 = [self.ids.get(f'target_{i + 1}') for i in range(12)]  # target_1 to target_12
+        self.targets_p2 = [self.ids.get(f'target_{101 + i}') for i in range(12)]
 
         self.state = "idle"
         # List of states:
@@ -216,9 +217,6 @@ class TargetScreen(Screen):
 
         self.targets_hit = None
         self.off_screen = 800 + 64
-        self.target_quality = {"t1": "prismatic_shard", "t2": "prismatic_shard", "t3": "prismatic_shard", "t4": "prismatic_shard",
-                               "t5": "prismatic_shard", "t6": "prismatic_shard", "t7": "prismatic_shard", "t8": "prismatic_shard",
-                               "t9": "prismatic_shard", "t10": "prismatic_shard"}
         self.target_move_time = 0
         self.target_time = 0
         self.lit_led_indices = []
@@ -304,51 +302,53 @@ class TargetScreen(Screen):
 
     def update_target_quality(self, target_p1, target_p2):
         quality = "prismatic_shard"
-        if self.target_time > 3000:
+        if self.target_time > 1000:
             quality = "gold"
-        elif self.target_time > 1200:
-            quality = "amethyst"
         elif self.target_time > 600:
+            quality = "amethyst"
+        elif self.target_time > 400:
             quality = "emerald"
-        elif self.target_time > 300:
+        elif self.target_time > 200:
             quality = "diamond"
 
         try:
             target_p1.source = f"assets/images/{quality}_64.png"
+            target_p1.quality = quality
             target_p2.source = f"assets/images/{quality}_64.png"
+            target_p2.quality = quality
         except AttributeError:
             print("Attribute Error")
 
         match self.targets_hit:
             case 0:
-                self.target_quality['t1'] = quality
+                #self.target_quality['t1'] = quality
                 self.ids.target_1.source = f"assets/images/{quality}_64.png"
             case 1:
-                self.target_quality['t2'] = quality
+                #self.target_quality['t2'] = quality
                 self.ids.target_2.source = f"assets/images/{quality}_64.png"
             case 2:
-                self.target_quality['t3'] = quality
+                #self.target_quality['t3'] = quality
                 self.ids.target_3.source = f"assets/images/{quality}_64.png"
             case 3:
-                self.target_quality['t4'] = quality
+                #self.target_quality['t4'] = quality
                 self.ids.target_4.source = f"assets/images/{quality}_64.png"
             case 4:
-                self.target_quality['t5'] = quality
+
                 self.ids.target_5.source = f"assets/images/{quality}_64.png"
             case 5:
-                self.target_quality['t6'] = quality
+
                 self.ids.target_6.source = f"assets/images/{quality}_64.png"
             case 6:
-                self.target_quality['t7'] = quality
+
                 self.ids.target_7.source = f"assets/images/{quality}_64.png"
             case 7:
-                self.target_quality['t8'] = quality
+
                 self.ids.target_8.source = f"assets/images/{quality}_64.png"
             case 8:
-                self.target_quality['t9'] = quality
+
                 self.ids.target_9.source = f"assets/images/{quality}_64.png"
             case 9:
-                self.target_quality['t10'] = quality
+
                 self.ids.target_10.source = f"assets/images/{quality}_64.png"
 
         #print(f"t1={self.target_quality['t1']}, "
@@ -465,15 +465,13 @@ class TargetScreen(Screen):
             player1_leds = [self.ids.get(f'led_{i}') for i in range(12)]  # led_0 to led_11
             player2_leds = [self.ids.get(f'led_{100 + i}') for i in range(12)]  # led_100 to led_111
 
-            targets_p1 = [self.ids.get(f'target_{i + 1}') for i in range(12)]  # target_1 to target_12
-            targets_p2 = [self.ids.get(f'target_{101 + i}') for i in range(12)]
 
             # Reset all LEDs to red first
             for led in player1_leds + player2_leds:
                 led.source = 'assets/images/buttons/red.png'
 
                 # Reset all targets off-screen
-            for target in targets_p1 + targets_p2:
+            for target in self.targets_p1 + self.targets_p2:
                 target.x = 810  # Move them off-screen
 
             # Create a list to track which LEDs have been lit
@@ -512,12 +510,12 @@ class TargetScreen(Screen):
                 led_x_p2, led_y_p2 = player2_leds[i].x, player2_leds[i].y
 
                 # Move Player 1's target next to the lit LED
-                targets_p1[i].x, targets_p1[i].y = led_x + 80, led_y  # Offset to the right
-                self.highlighted_target_p1 = targets_p1[i]
+                self.targets_p1[i].x, self.targets_p1[i].y = led_x + 80, led_y  # Offset to the right
+                self.highlighted_target_p1 = self.targets_p1[i]
 
                 # Move Player 2's target next to the lit LED
-                targets_p2[i].x, targets_p2[i].y = led_x_p2 + 80, led_y_p2  # Offset for Player 2
-                self.highlighted_target_p2 = targets_p2[i]
+                self.targets_p2[i].x, self.targets_p2[i].y = led_x_p2 + 80, led_y_p2  # Offset for Player 2
+                self.highlighted_target_p2 = self.targets_p2[i]
                 self.target_move_time = self.time_ms
 
             # Print the lit LED names
@@ -550,48 +548,44 @@ class TargetScreen(Screen):
             # Gold Bar - 100p
 
 
-
     def update_points(self, target):
-        match self.target_quality[target]:
-            case "prismatic_shard":
-                self.points += 5000
-            case "diamond":
-                self.points += 1000
-            case "emerald":
-                self.points += 500
-            case "amethyst":
-                self.points += 300
-            case "gold":
-                self.points += 100
+        if target.quality == "prismatic_shard":
+            print(f"About to add 5000 points, old points: {self.points}")
+            self.points += 5000
+            print(f"Adding 5000 points, new points: {self.points}")
+        elif target.quality == "diamond":
+            print(f"About to add 1000 points, old points: {self.points}")
+            self.points += 1000
+            print(f"Adding 1000 points, new points: {self.points}")
+        elif target.quality == "emerald":
+            print(f"About to add 500 points, old points: {self.points}")
+            self.points += 500
+            print(f"Adding 500 points, new points: {self.points}")
+        elif target.quality == "amethyst":
+            print(f"About to add 300 points, old points: {self.points}")
+            self.points += 300
+            print(f"Adding 300 points, new points: {self.points}")
+        elif target.quality == "gold":
+            print(f"About to add 100 points, old points: {self.points}")
+            self.points += 100
+            print(f"Adding 100 points, new points: {self.points}")
+
+
+
         self.ids.player_1_points.text = str(self.points)
-        self.target_quality[target] = "prismatic_shard" #resets the target to its original quality
+        target.quality = "prismatic_shard" #resets the target to its original quality
 
     def target_hit(self, target_num):
         print(f"target {target_num} hit")
-
         if self.state == "wait_for_target_hit":
-            self.state = "get_new_leds"
-            match target_num:
-                case 1:
-                    self.update_points("t1")
-                case 2:
-                    self.update_points("t2")
-                case 3:
-                    self.update_points("t3")
-                case 4:
-                    self.update_points("t4")
-                case 5:
-                    self.update_points("t5")
-                case 6:
-                    self.update_points("t6")
-                case 7:
-                    self.update_points("t7")
-                case 8:
-                    self.update_points("t8")
-                case 9:
-                    self.update_points("t9")
-                case 10:
-                    self.update_points("t10")
+            if target_num > 100:
+                self.update_points(self.targets_p2[target_num - 1])
+                self.state = "get_new_leds"
+            else:
+                self.update_points(self.targets_p1[target_num - 1])
+                self.state = "get_new_leds"
+
+
 
 
 
