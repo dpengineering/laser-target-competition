@@ -201,7 +201,8 @@ class TargetScreen(Screen):
         self.time_s = None
         self.time_ms = None
         self.points = None
-        self.highlighted_target = None
+        self.highlighted_target_p1 = None
+        self.highlighted_target_p2 = None
 
 
         self.state = "idle"
@@ -274,7 +275,7 @@ class TargetScreen(Screen):
     def update_all(self, dt=None): # dt for clock scheduling
         #print(f"state={self.state}, target_move_to_pedestal_num={self.target_move_to_pedestal_num}, points={self.points}")
         self.update_time_left_image(self.update_time())
-        self.update_target_quality(self.highlighted_target)
+        self.update_target_quality(self.highlighted_target_p1, self.highlighted_target_p2)
 
         if screen_manager.current == target_screen_name:
             if self.state == "get_new_leds" and self.targets_hit < 10 and self.time_s > 0:
@@ -301,7 +302,7 @@ class TargetScreen(Screen):
 
 
 
-    def update_target_quality(self, target):
+    def update_target_quality(self, target_p1, target_p2):
         quality = "prismatic_shard"
         if self.target_time > 3000:
             quality = "gold"
@@ -312,7 +313,11 @@ class TargetScreen(Screen):
         elif self.target_time > 300:
             quality = "diamond"
 
-        target.source = f"assets/images/{quality}_64.png"
+        try:
+            target_p1.source = f"assets/images/{quality}_64.png"
+            target_p2.source = f"assets/images/{quality}_64.png"
+        except AttributeError:
+            print("Attribute Error")
 
         match self.targets_hit:
             case 0:
@@ -508,9 +513,11 @@ class TargetScreen(Screen):
 
                 # Move Player 1's target next to the lit LED
                 targets_p1[i].x, targets_p1[i].y = led_x + 80, led_y  # Offset to the right
+                self.highlighted_target_p1 = targets_p1[i]
 
                 # Move Player 2's target next to the lit LED
                 targets_p2[i].x, targets_p2[i].y = led_x_p2 + 80, led_y_p2  # Offset for Player 2
+                self.highlighted_target_p2 = targets_p2[i]
                 self.target_move_time = self.time_ms
 
             # Print the lit LED names
