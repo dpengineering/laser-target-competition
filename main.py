@@ -193,6 +193,7 @@ class TargetScreen(Screen):
         **kwargs is normal kivy.uix.screenmanager.Screen attributes
         """
 
+
         self.prev_lit_leds = []
         Builder.load_file('TargetScreen.kv')
         super(TargetScreen, self).__init__(**kwargs)
@@ -204,24 +205,30 @@ class TargetScreen(Screen):
         #Player Variables
         self.p1_points = None
         self.p2_points = None
-        self.p1_state = "idle"
-        self.p2_state = "idle"
+
         self.targets_p1 = [self.ids.get(f'target_{i + 1}') for i in range(12)]  # target_1 to target_12
         self.targets_p2 = [self.ids.get(f'target_{101 + i}') for i in range(12)]
-        self.visible_targets = []
-
+        self.p1_target_move_time = 0
+        self.p2_target_move_time = 0
+        self.p1_target_time = 0
+        self.p2_target_time = 0
+        self.p1_state = "idle"
+        self.p2_state = "idle"
         # List of states:
         #   - idle -> doing nothing, game hasn't started yet
         #   - get_new_leds -> get new leds to light up
         #   - wait_for_target_hit -> we lit up the leds, now we have to wait for the correct target to be hit
-        #   - game_ending -> game is ending, score is calculating
-        #
+        #   - game_ending(unused) -> game is ending, score is calculating
+        self.p1_visible_targets = []
+        self.p2_visible_targets = []
+
+
+
 
 
 
         self.off_screen = 800 + 64
-        self.target_move_time = 0
-        self.target_time = 0
+
         self.lit_led_indices = []
 
 
@@ -298,27 +305,45 @@ class TargetScreen(Screen):
     def update_time(self):
         self.time_s = -round((time_ns() / 1000000000) - (self.time_start / 1000000000 + 15.5)) # seconds counting down from 15 after start has been pressed
         self.time_ms = round((time_ns() / 1000000) - (self.time_start / 1000000)) # ms since start has been pressed
-        self.target_time = self.time_ms - self.target_move_time
+        self.p1_target_time = self.time_ms - self.p1_target_move_time
+        self.p2_target_time = self.time_ms - self.p2_target_move_time
         #print(f"target_move_time={self.target_move_time}, time_ms={self.time_ms}, target_time={self.target_time}")
         return self.time_s
 
 
 
     def update_target_quality(self):
-        quality = "prismatic_shard"
-        if self.target_time > 900:
-            quality = "gold"
-        elif self.target_time > 650:
-            quality = "amethyst"
-        elif self.target_time > 450:
-            quality = "emerald"
-        elif self.target_time > 325:
-            quality = "diamond"
+        p2_quality = "prismatic_shard"
+        if self.p2_target_time > 900:
+            p2_quality = "gold"
+        elif self.p2_target_time > 650:
+            p2_quality = "amethyst"
+        elif self.p2_target_time > 450:
+            p2_quality = "emerald"
+        elif self.p2_target_time > 325:
+            p2_quality = "diamond"
 
-        for i in range(0, len(self.visible_targets)):
+        for i in range(0, len(self.p2_visible_targets)):
             try:
-                self.visible_targets[i].source = f"assets/images/{quality}_64.png"
-                self.visible_targets[i].quality = quality
+                self.p2_visible_targets[i].source = f"assets/images/{p2_quality}_64.png"
+                self.p2_visible_targets[i].quality = p2_quality
+            except AttributeError:
+                print("Attribute Error")
+
+        p1_quality = "prismatic_shard"
+        if self.p1_target_time > 900:
+            p1_quality = "gold"
+        elif self.p1_target_time > 650:
+            p1_quality = "amethyst"
+        elif self.p1_target_time > 450:
+            p1_quality = "emerald"
+        elif self.p1_target_time > 325:
+            p1_quality = "diamond"
+
+        for i in range(0, len(self.p1_visible_targets)):
+            try:
+                self.p1_visible_targets[i].source = f"assets/images/{p1_quality}_64.png"
+                self.p1_visible_targets[i].quality = p1_quality
             except AttributeError:
                 print("Attribute Error")
 
@@ -340,13 +365,71 @@ class TargetScreen(Screen):
     def get_new_targets(self, difficulty):
         # todo add a player parameter so that one player can get new leds while the other does not
         #print("getting new targets, lighting up leds")
+        if self.p2_state == "get_new_leds":
+            player2_leds = [self.ids.get(f'led_{100 + i}') for i in range(12)]  # led_100 to led_111
+
+            for led in player2_leds:
+                led.source = 'assets/images/buttons/red.png'
+
+
+            # Reset all targets off-screen
+            for target in self.targets_p2:
+                target.x = 810  # Move them off-screen
+
+            lit_leds = []
+
+            # Pick at least one LED to light up
+            available_leds = player2_leds.copy()
+
+            for led in self.prev_lit_leds:
+                if led in available_leds:
+                    available_leds.remove(led)
+
+            # Pick at least one LED at random
+            first_led = random.choice(available_leds)
+            first_led.source = 'assets/images/buttons/green.png'
+            lit_leds.append(first_led)
+            available_leds.remove(first_led)
+
+            # Chance to light up additional LEDs
+            led_chance = random.random()
+            while led_chance <= difficulty and available_leds:
+                next_led = random.choice(available_leds)
+                next_led.source = 'assets/images/buttons/green.png'
+                lit_leds.append(next_led)
+                available_leds.remove(next_led)
+                led_chance = random.random()
+
+            self.prev_lit_leds = set(lit_leds)
+
+            lit_led_names = [name for name, widget in self.ids.items() if widget in lit_leds]
+            # Find numeric indices of the lit LEDs
+            lit_led_indices = [player2_leds.index(led) for led in lit_leds]
+
+            for index in lit_led_indices:
+                player2_leds[index].source = 'assets/images/buttons/green.png'
+
+            for i in lit_led_indices:
+                led_x_p2, led_y_p2 = player2_leds[i].x, player2_leds[i].y
+
+                # Move Player 2's target next to the lit LED
+                self.targets_p2[i].x, self.targets_p2[i].y = led_x_p2 + 80, led_y_p2  # Offset for Player 2
+                self.p2_visible_targets.append(self.targets_p2[i])
+
+                self.p2_target_move_time = self.time_ms
+
+            # Print the lit LED names
+            print(f"Got p2 LEDs to light up, they are: {lit_led_names}")
+            print(f"Got p2 LEDs to light up, they are: {lit_led_indices}")
+
+            self.p2_state = "wait_for_target_hit"
 
         if self.p1_state == "get_new_leds":
             player1_leds = [self.ids.get(f'led_{i}') for i in range(12)]  # led_0 to led_11
-            player2_leds = [self.ids.get(f'led_{100 + i}') for i in range(12)]  # led_100 to led_111
+
 
             # Reset all LEDs to red first
-            for led in player1_leds + player2_leds:
+            for led in player1_leds:
                 led.source = 'assets/images/buttons/red.png'
 
                 # Reset all targets off-screen
@@ -385,22 +468,16 @@ class TargetScreen(Screen):
             lit_led_indices = [player1_leds.index(led) for led in lit_leds]
 
             for index in lit_led_indices:
-                player2_leds[index].source = 'assets/images/buttons/green.png'
+                player1_leds[index].source = 'assets/images/buttons/green.png'
 
             for i in lit_led_indices:
                 led_x, led_y = player1_leds[i].x, player1_leds[i].y
-                led_x_p2, led_y_p2 = player2_leds[i].x, player2_leds[i].y
 
                 # Move Player 1's target next to the lit LED
                 self.targets_p1[i].x, self.targets_p1[i].y = led_x + 80, led_y # Offset to the right
-                self.visible_targets.append(self.targets_p1[i])
+                self.p1_visible_targets.append(self.targets_p1[i])
 
-
-                # Move Player 2's target next to the lit LED
-                self.targets_p2[i].x, self.targets_p2[i].y = led_x_p2 + 80, led_y_p2  # Offset for Player 2
-                self.visible_targets.append(self.targets_p2[i])
-
-                self.target_move_time = self.time_ms
+                self.p1_target_move_time = self.time_ms
 
             # Print the lit LED names
             #print(f"Got LEDs to light up, they are: {lit_led_names}")
