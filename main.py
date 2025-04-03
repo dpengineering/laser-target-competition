@@ -399,28 +399,7 @@ class TargetScreen(Screen):
 
             self.state = "wait_for_target_hit"
 
-            # difficulty - tutuorial mode
-            # easy - one target at a time
-            # medium - multiple targets at once, but the same total number of targets as easy
-            # hard - multiple targets at once, more targets than easy or medium, and targets spawn faster
-
-
-            # gameplay
-            # move a random target on the screen
-            # player clicks that target, gets points for the quality of target clicked
-            # that target starts as a prismatic shard, then loses quality
-            # after 300ms it becomes a diamond (0.3 seconds after appearing)
-            # 300ms after that it becomes an emerald (600ms/0.6s aa)
-            # 600ms after that it becomes an amethyst (1200ms/1.2s aa)
-            # 1800ms after that it becomes a gold bar (3000ms/3s aa)
-
-
-            # Points:
-            # Prismatic Shard - 1200 points
-            # Diamond - 900p
-            # Emerald - 600p
-            # Amethyst - 300p
-            # Gold Bar - 100p
+    
 
 
     def update_points(self, target):
