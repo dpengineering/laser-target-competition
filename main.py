@@ -10,6 +10,7 @@ from kivy.uix.image import Image
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
 import random
+from termcolor import cprint
 
 
 
@@ -192,21 +193,23 @@ class TargetScreen(Screen):
         **kwargs is normal kivy.uix.screenmanager.Screen attributes
         """
 
-
-
+        self.prev_lit_leds = []
         Builder.load_file('TargetScreen.kv')
         super(TargetScreen, self).__init__(**kwargs)
         self.clock_scheduled = False
         self.time_start = None
         self.time_s = None
         self.time_ms = None
-        self.points = None
-        self.highlighted_target_p1 = None
-        self.highlighted_target_p2 = None
+
+        #Player Variables
+        self.p1_points = None
+        self.p2_points = None
+        self.p1_state = "idle"
+        self.p2_state = "idle"
         self.targets_p1 = [self.ids.get(f'target_{i + 1}') for i in range(12)]  # target_1 to target_12
         self.targets_p2 = [self.ids.get(f'target_{101 + i}') for i in range(12)]
         self.visible_targets = []
-        self.state = "idle"
+
         # List of states:
         #   - idle -> doing nothing, game hasn't started yet
         #   - get_new_leds -> get new leds to light up
@@ -215,7 +218,7 @@ class TargetScreen(Screen):
         #
 
 
-        self.targets_hit = None
+
         self.off_screen = 800 + 64
         self.target_move_time = 0
         self.target_time = 0
@@ -233,13 +236,14 @@ class TargetScreen(Screen):
 
     def start(self):
         print("Starting target game - setting state to targets")
-        self.state = "get_new_leds"
+        self.p1_state = "get_new_leds"
+        self.p2_state = "get_new_leds"
         self.ids.start.x = self.width + 300
         self.schedule_clock()
         self.time_start = time_ns()
         self.time_s = 0
-        self.points = 0
-        self.targets_hit = 0
+        self.p1_points = 0
+        self.p2_points = 0
         self.move_targets_offscreen()
 
     def move_targets_offscreen(self):
@@ -256,16 +260,18 @@ class TargetScreen(Screen):
         self.ids.target_10.x = self.off_screen
 
     def end(self):
-        self.state = "idle"
-        print(f"state={self.state}")
+        self.p1_state = "idle"
+        self.p2_state = "idle"
+        print(f"p1_state={self.p1_state}")
+        print(f"p2_state={self.p2_state}")
         self.ids.start.center_x = 400
         self.update_time_left_image(15)
 
-        if leaderboard.in_top_ten(1, self.points):
+        if leaderboard.in_top_ten(1, self.p1_points):
             print("CONGRATS! Your score is on the leaderboard!")
             self.transition_to_player_screen()
             print(f"player_name={InstructionsScreen.get_player_name(screen_manager.get_screen(instructions_screen_name))}")
-            leaderboard.add_score(InstructionsScreen.get_player_name(screen_manager.get_screen(instructions_screen_name)), self.points, 1)
+            leaderboard.add_score(InstructionsScreen.get_player_name(screen_manager.get_screen(instructions_screen_name)), self.p1_points, 1)
 
 
     def update_all(self, dt=None): # dt for clock scheduling
@@ -274,9 +280,9 @@ class TargetScreen(Screen):
         self.update_target_quality()
 
         if screen_manager.current == target_screen_name:
-            if self.state == "get_new_leds" and self.targets_hit < 10 and self.time_s > 0:
+            if self.time_s > 0:
                 self.get_new_targets(self.difficulty)
-            elif self.time_s == 0 or self.targets_hit == 10:
+            elif self.time_s == 0:
                 self.clock_scheduled = False
                 self.end()
         return self.clock_scheduled
@@ -300,13 +306,13 @@ class TargetScreen(Screen):
 
     def update_target_quality(self):
         quality = "prismatic_shard"
-        if self.target_time > 1000:
+        if self.target_time > 900:
             quality = "gold"
-        elif self.target_time > 600:
+        elif self.target_time > 650:
             quality = "amethyst"
-        elif self.target_time > 400:
+        elif self.target_time > 450:
             quality = "emerald"
-        elif self.target_time > 200:
+        elif self.target_time > 325:
             quality = "diamond"
 
         for i in range(0, len(self.visible_targets)):
@@ -333,11 +339,11 @@ class TargetScreen(Screen):
 
     def get_new_targets(self, difficulty):
         # todo add a player parameter so that one player can get new leds while the other does not
-        print("getting new targets, lighting up leds")
-        if self.state == "get_new_leds":
+        #print("getting new targets, lighting up leds")
+
+        if self.p1_state == "get_new_leds":
             player1_leds = [self.ids.get(f'led_{i}') for i in range(12)]  # led_0 to led_11
             player2_leds = [self.ids.get(f'led_{100 + i}') for i in range(12)]  # led_100 to led_111
-
 
             # Reset all LEDs to red first
             for led in player1_leds + player2_leds:
@@ -352,6 +358,10 @@ class TargetScreen(Screen):
 
             # Pick at least one LED to light up
             available_leds = player1_leds.copy()
+
+            for led in self.prev_lit_leds:
+                if led in available_leds:
+                    available_leds.remove(led)
 
             # Pick at least one LED at random
             first_led = random.choice(available_leds)
@@ -368,8 +378,7 @@ class TargetScreen(Screen):
                 available_leds.remove(next_led)
                 led_chance = random.random()
 
-
-
+            self.prev_lit_leds = set(lit_leds)
 
             lit_led_names = [name for name, widget in self.ids.items() if widget in lit_leds]
             # Find numeric indices of the lit LEDs
@@ -394,49 +403,70 @@ class TargetScreen(Screen):
                 self.target_move_time = self.time_ms
 
             # Print the lit LED names
-            print(f"Got LEDs to light up, they are: {lit_led_names}")
-            print(f"Got LEDs to light up, they are: {lit_led_indices}")
+            #print(f"Got LEDs to light up, they are: {lit_led_names}")
+            #print(f"Got LEDs to light up, they are: {lit_led_indices}")
 
-            self.state = "wait_for_target_hit"
-
-    
+            self.p1_state = "wait_for_target_hit"
 
 
     def update_points(self, target):
-        if target.quality == "prismatic_shard":
-            print(f"About to add 5000 points, old points: {self.points}")
-            self.points += 5000
-            print(f"Adding 5000 points, new points: {self.points}")
-        elif target.quality == "diamond":
-            print(f"About to add 1000 points, old points: {self.points}")
-            self.points += 1000
-            print(f"Adding 1000 points, new points: {self.points}")
-        elif target.quality == "emerald":
-            print(f"About to add 500 points, old points: {self.points}")
-            self.points += 500
-            print(f"Adding 500 points, new points: {self.points}")
-        elif target.quality == "amethyst":
-            print(f"About to add 300 points, old points: {self.points}")
-            self.points += 300
-            print(f"Adding 300 points, new points: {self.points}")
-        elif target.quality == "gold":
-            print(f"About to add 100 points, old points: {self.points}")
-            self.points += 100
-            print(f"Adding 100 points, new points: {self.points}")
+        if target.player == 1:
+            if target.quality == "prismatic_shard":
+                self.p1_points += 2000
+                cprint(f"Hit a prismatic shard! You have {self.p1_points} points", "red")
+            elif target.quality == "diamond":
+                self.p1_points += 1000
+                cprint(f"Hit a diamond! You have {self.p1_points} points", "cyan")
+            elif target.quality == "emerald":
 
+                self.p1_points += 700
+                cprint(f"Hit an emerald! You have {self.p1_points} points", "light_green")
+            elif target.quality == "amethyst":
 
-        self.ids.player_1_points.text = str(self.points)
-        target.quality = "prismatic_shard" #resets the target to its original quality
+                self.p1_points += 500
+                cprint(f"Hit an amethyst! You have {self.p1_points} points", "magenta")
+            elif target.quality == "gold":
+
+                self.p1_points += 250
+                cprint(f"Hit gold! You have {self.p1_points} points", "yellow")
+
+            self.ids.player_1_points.text = str(self.p1_points)
+            target.quality = "prismatic_shard" #resets the target to its original quality
+        else:
+            if target.quality == "prismatic_shard":
+                self.p2_points += 2000
+                cprint(f"Hit a prismatic shard! You have {self.p2_points} points", "red")
+            elif target.quality == "diamond":
+                self.p2_points += 1000
+                cprint(f"Hit a diamond! You have {self.p2_points} points", "cyan")
+            elif target.quality == "emerald":
+
+                self.p2_points += 700
+                cprint(f"Hit an emerald! You have {self.p2_points} points", "light_green")
+            elif target.quality == "amethyst":
+
+                self.p2_points += 500
+                cprint(f"Hit an amethyst! You have {self.p2_points} points", "magenta")
+            elif target.quality == "gold":
+
+                self.p2_points += 250
+                cprint(f"Hit gold! You have {self.p2_points} points", "yellow")
+
+            self.ids.player_2_points.text = str(self.p2_points)
+            target.quality = "prismatic_shard"  # resets the target to its original quality
+
 
     def target_hit(self, target_num):
-        print(f"target {target_num} hit")
-        if self.state == "wait_for_target_hit":
+        #print(f"target {target_num} hit")
+        if self.p1_state == "wait_for_target_hit":
             if target_num > 100:
-                self.update_points(self.targets_p2[target_num - 1])
-                self.state = "get_new_leds"
+                #print("Player two target hit!")
+                self.update_points(self.targets_p2[target_num - 101])
+                self.p1_state = "get_new_leds"
             else:
+                #print("Player one target hit!")
                 self.update_points(self.targets_p1[target_num - 1])
-                self.state = "get_new_leds"
+                self.p1_state = "get_new_leds"
 
 
     def update_time_left_image(self, num):
