@@ -275,17 +275,17 @@ class TargetScreen(Screen):
         self.update_time_left_image(15)
 
         if leaderboard.in_top_ten(1, self.p1_points):
-            print("CONGRATS! Your score is on the leaderboard!")
+            print(f"CONGRATS {InstructionsScreen.get_player_name(screen_manager.get_screen(instructions_screen_name))}! Your score is on the leaderboard!")
             self.transition_to_player_screen()
-            print(f"player_name={InstructionsScreen.get_player_name(screen_manager.get_screen(instructions_screen_name))}")
-            leaderboard.add_score(InstructionsScreen.get_player_name(screen_manager.get_screen(instructions_screen_name)), self.p1_points, 1)
+        if leaderboard.in_top_ten(1, self.p2_points):
+            print(f"CONGRATS {InstructionsScreen.get_player_name(screen_manager.get_screen(instructions_screen_name))}! Your score is on the leaderboard!")
+            self.transition_to_player_screen()
 
 
     def update_all(self, dt=None): # dt for clock scheduling
         #print(f"state={self.state}, target_move_to_pedestal_num={self.target_move_to_pedestal_num}, points={self.points}")
         self.update_time_left_image(self.update_time())
         self.update_target_quality()
-
         if screen_manager.current == target_screen_name:
             if self.time_s > 0:
                 self.get_new_targets(self.difficulty)
@@ -366,8 +366,7 @@ class TargetScreen(Screen):
         # todo add a player parameter so that one player can get new leds while the other does not
         #print("getting new targets, lighting up leds")
         if self.p2_state == "get_new_leds":
-            player2_leds = [self.ids.get(f'led_{100 + i}') for i in range(12)]  # led_100 to led_111
-
+            player2_leds = [self.ids.get(f'led_{101 + i}') for i in range(12)]  # led_101 to led_112
             for led in player2_leds:
                 led.source = 'assets/images/buttons/red.png'
 
@@ -414,6 +413,7 @@ class TargetScreen(Screen):
 
                 # Move Player 2's target next to the lit LED
                 self.targets_p2[i].x, self.targets_p2[i].y = led_x_p2 + 80, led_y_p2  # Offset for Player 2
+                print(f"Player 2: Moving target_{101 + i} to x={self.targets_p2[i].x}, y={self.targets_p2[i].y} next to LED {i}")
                 self.p2_visible_targets.append(self.targets_p2[i])
 
                 self.p2_target_move_time = self.time_ms
@@ -421,7 +421,6 @@ class TargetScreen(Screen):
             # Print the lit LED names
             print(f"Got p2 LEDs to light up, they are: {lit_led_names}")
             print(f"Got p2 LEDs to light up, they are: {lit_led_indices}")
-
             self.p2_state = "wait_for_target_hit"
 
         if self.p1_state == "get_new_leds":
@@ -433,7 +432,7 @@ class TargetScreen(Screen):
                 led.source = 'assets/images/buttons/red.png'
 
                 # Reset all targets off-screen
-            for target in self.targets_p1 + self.targets_p2:
+            for target in self.targets_p1:
                 target.x = 810  # Move them off-screen
 
             # Create a list to track which LEDs have been lit
@@ -535,15 +534,13 @@ class TargetScreen(Screen):
 
     def target_hit(self, target_num):
         #print(f"target {target_num} hit")
-        if self.p1_state == "wait_for_target_hit":
-            if target_num > 100:
-                #print("Player two target hit!")
-                self.update_points(self.targets_p2[target_num - 101])
-                self.p1_state = "get_new_leds"
-            else:
-                #print("Player one target hit!")
-                self.update_points(self.targets_p1[target_num - 1])
-                self.p1_state = "get_new_leds"
+        if target_num > 100 and self.p2_state == "wait_for_target_hit":
+            print("Player two target hit!")
+            self.update_points(self.targets_p2[target_num - 101])
+            self.p2_state = "get_new_leds"
+        elif target_num <= 100 and self.p1_state == "wait_for_target_hit":
+            self.update_points(self.targets_p1[target_num - 1])
+            self.p1_state = "get_new_leds"
 
 
     def update_time_left_image(self, num):
