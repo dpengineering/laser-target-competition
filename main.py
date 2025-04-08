@@ -247,20 +247,8 @@ class TargetScreen(Screen):
         self.time_s = 0
         self.p1_points = 0
         self.p2_points = 0
-        self.move_targets_offscreen()
 
-    def move_targets_offscreen(self):
-        #todo change to for loop
-        self.ids.target_1.x = self.off_screen
-        self.ids.target_2.x = self.off_screen
-        self.ids.target_3.x = self.off_screen
-        self.ids.target_4.x = self.off_screen
-        self.ids.target_5.x = self.off_screen
-        self.ids.target_6.x = self.off_screen
-        self.ids.target_7.x = self.off_screen
-        self.ids.target_8.x = self.off_screen
-        self.ids.target_9.x = self.off_screen
-        self.ids.target_10.x = self.off_screen
+
 
     def end(self):
         self.p1_state = "idle"
@@ -271,10 +259,22 @@ class TargetScreen(Screen):
         self.update_time_left_image(15)
 
         if leaderboard.in_top_ten(1, self.p1_points):
-            print(f"CONGRATS {InstructionsScreen.get_player_name(screen_manager.get_screen(instructions_screen_name))}! Your score is on the leaderboard!")
+
+            print(f"CONGRATS  PLAYER 1 {InstructionsScreen.get_player_name(screen_manager.get_screen(instructions_screen_name))}! Your score is on the leaderboard!")
+            print(f"Your score is: {self.p1_points}")
+            leaderboard.add_score(
+                InstructionsScreen.get_player_name(
+                    screen_manager.get_screen(
+                        instructions_screen_name)), self.p1_points, 1)
             self.transition_to_player_screen()
+
         if leaderboard.in_top_ten(1, self.p2_points):
-            print(f"CONGRATS {InstructionsScreen.get_player_name(screen_manager.get_screen(instructions_screen_name))}! Your score is on the leaderboard!")
+            print(f"CONGRATS PLAYER 2 {InstructionsScreen.get_player_name(screen_manager.get_screen(instructions_screen_name))}! Your score is on the leaderboard!")
+            print(f"Your score is: {self.p2_points}")
+            leaderboard.add_score(
+                InstructionsScreen.get_player_name(
+                    screen_manager.get_screen(
+                        instructions_screen_name)), self.p2_points, 1)
             self.transition_to_player_screen()
 
 
@@ -547,43 +547,11 @@ class TargetScreen(Screen):
 
 
     def update_time_left_image(self, num):
-        # print("updating time left")
-        # print(f"time_left={num}")
-        # please someone make this whole timer system a SelfUpdatingLabel!!!!!!
-        # I don't have the time for that so this will do, but still please
-
-        if num == 0:
-            self.ids.time_left.text = "00"
-        elif num == 1:
-            self.ids.time_left.text = "01"
-        elif num == 2:
-            self.ids.time_left.text = "02"
-        elif num == 3:
-            self.ids.time_left.text = "03"
-        elif num == 4:
-            self.ids.time_left.text = "04"
-        elif num == 5:
-            self.ids.time_left.text = "05"
-        elif num == 6:
-            self.ids.time_left.text = "06"
-        elif num == 7:
-            self.ids.time_left.text = "07"
-        elif num == 8:
-            self.ids.time_left.text = "08"
-        elif num == 9:
-            self.ids.time_left.text = "09"
-        elif num == 10:
-            self.ids.time_left.text = "10"
-        elif num == 11:
-            self.ids.time_left.text = "11"
-        elif num == 12:
-            self.ids.time_left.text = "12"
-        elif num == 13:
-            self.ids.time_left.text = "13"
-        elif num == 14:
-            self.ids.time_left.text = "14"
+        if num > 9:
+            self.ids.time_left.text = str(num)
         else:
-            self.ids.time_left.text = "15"
+            self.ids.time_left.text = "0" + str(num)
+
 
     @staticmethod
     def transition_to_player_screen():

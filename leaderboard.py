@@ -2,8 +2,6 @@ import json
 
 
 class Leaderboard:
-    # TODO if an entry has the same name as an another entry, remove the entry with the lower value
-    # ex - HLS 3000 pts and HLS 8100 points, the 8100 point one will stay and the 3000 point one will get deleted
     def __init__(self):
         self.scores = {level: [] for level in range(1, 6)}
         self.load_from_json()
