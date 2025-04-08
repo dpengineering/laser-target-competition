@@ -250,6 +250,26 @@
     #################TARGETS######################
 
     ImageButton:
+        id: target_0
+        quality: "prismatic_shard"
+        player: 1
+        source: 'assets/images/prismatic_shard_64.png'
+        on_press: root.target_hit(0)
+        x: 810
+        y: 300
+        size: 64, 64
+
+    ImageButton:
+        id: target_100
+        quality: "prismatic_shard"
+        player: 2
+        source: 'assets/images/prismatic_shard_64.png'
+        on_press: root.target_hit(100)
+        x: 810
+        y: 300
+        size: 64, 64
+
+    ImageButton:
         id: target_1
         quality: "prismatic_shard"
         player: 1
