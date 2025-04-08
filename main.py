@@ -1,18 +1,14 @@
 
-from timeit import timeit
-from pynput import keyboard
 
+from pynput import keyboard
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.text import LabelBase
 from kivy.lang import Builder
-from kivy.uix.image import Image
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
 import random
 from termcolor import cprint
-
-
 
 
 from datetime import datetime
@@ -24,7 +20,6 @@ from pidev.kivy import DPEAButton
 
 from keyboard_handler import on_press, on_release
 from leaderboard import Leaderboard
-
 # I know these are grey buts it's required trust me
 
 time = time
@@ -215,6 +210,9 @@ class TargetScreen(Screen):
         self.p2_target_time = 0
         self.p1_state = "idle"
         self.p2_state = "idle"
+        self.player1_leds = [self.ids.get(f'led_{i}') for i in range(13)]  # led_0 to led_12
+        self.player2_leds = [self.ids.get(f'led_{100 + i}') for i in range(13)]  # led_100 to led_112
+
         # List of states:
         #   - idle -> doing nothing, game hasn't started yet
         #   - get_new_leds -> get new leds to light up
@@ -352,8 +350,8 @@ class TargetScreen(Screen):
         if self.p2_state == "get_new_leds":
             x_offset = 64
             y_offset = 0
-            player2_leds = [self.ids.get(f'led_{100 + i}') for i in range(13)]  # led_100 to led_112
-            for led in player2_leds:
+
+            for led in self.player2_leds:
                 led.source = 'assets/images/buttons/red.png'
 
 
@@ -364,7 +362,7 @@ class TargetScreen(Screen):
             lit_leds = []
 
             # Pick at least one LED to light up
-            available_leds = player2_leds.copy()
+            available_leds = self.player2_leds.copy()
 
             for led in self.prev_lit_leds:
                 if led in available_leds:
@@ -389,13 +387,11 @@ class TargetScreen(Screen):
 
             lit_led_names = [name for name, widget in self.ids.items() if widget in lit_leds]
             # Find numeric indices of the lit LEDs
-            lit_led_indices = [player2_leds.index(led) for led in lit_leds]
-            print(lit_led_indices)
+            lit_led_indices = [self.player2_leds.index(led) for led in lit_leds]
 
-            for index in lit_led_indices:
-                player2_leds[index].source = 'assets/images/buttons/green.png'
 
             for i in lit_led_indices:
+                self.player2_leds[i].source = 'assets/images/buttons/green.png'
                 if i < 4:
                     x_offset = 0
                     y_offset = -64
@@ -406,7 +402,7 @@ class TargetScreen(Screen):
                     x_offset = 0
                     y_offset = 64
 
-                led_x_p2, led_y_p2 = player2_leds[i].x, player2_leds[i].y
+                led_x_p2, led_y_p2 = self.player2_leds[i].x, self.player2_leds[i].y
 
                 # Move Player 2's target next to the lit LED
                 self.targets_p2[i].x, self.targets_p2[i].y = led_x_p2 + x_offset, led_y_p2 + y_offset
@@ -424,11 +420,10 @@ class TargetScreen(Screen):
         if self.p1_state == "get_new_leds":
             x_offset = 64
             y_offset = 0
-            player1_leds = [self.ids.get(f'led_{i}') for i in range(13)]  # led_0 to led_12
 
 
             # Reset all LEDs to red first
-            for led in player1_leds:
+            for led in self.player1_leds:
                 led.source = 'assets/images/buttons/red.png'
 
                 # Reset all targets off-screen
@@ -439,7 +434,7 @@ class TargetScreen(Screen):
             lit_leds = []
 
             # Pick at least one LED to light up
-            available_leds = player1_leds.copy()
+            available_leds = self.player1_leds.copy()
 
             for led in self.prev_lit_leds:
                 if led in available_leds:
@@ -464,11 +459,11 @@ class TargetScreen(Screen):
 
             lit_led_names = [name for name, widget in self.ids.items() if widget in lit_leds]
             # Find numeric indices of the lit LEDs
-            lit_led_indices = [player1_leds.index(led) for led in lit_leds]
+            lit_led_indices = [self.player1_leds.index(led) for led in lit_leds]
 
 
             for i in lit_led_indices:
-                player1_leds[i].source = 'assets/images/buttons/green.png'
+                self.player1_leds[i].source = 'assets/images/buttons/green.png'
                 if i < 4:
                     x_offset = 0
                     y_offset = -64
@@ -478,7 +473,7 @@ class TargetScreen(Screen):
                 elif i < 13:
                     x_offset = 0
                     y_offset = 64
-                led_x, led_y = player1_leds[i].x, player1_leds[i].y
+                led_x, led_y = self.player1_leds[i].x, self.player1_leds[i].y
 
                 # Move Player 1's target next to the lit LED
                 self.targets_p1[i].x, self.targets_p1[i].y = led_x + x_offset, led_y + y_offset # Offset to the right
