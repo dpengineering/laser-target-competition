@@ -6,23 +6,11 @@
         id: float
         size_hint: None, None
 
-
-    DPEAButton:
-        id: transition
-        text: "Back"
-        size: 100, 50
-        x: 0
-        y: 0
-        color: 0.65, 0, 0.25, 1
-        on_press: root.transition_to_player_screen()
-
-
-
     ImageButton:
         id: start
         source: 'assets/images/buttons/start.png'
-        center_x: root.width * 0.525
-        center_y: root.height * 0.7
+        center_x: root.width / 2
+        center_y: root.height / 2
         size: 216, 44
         on_press: root.start()
 
@@ -36,10 +24,10 @@
     Label:
         id:time_left
         text: "15"
-        center_x: root.width * 0.5245
-        center_y: root.height * 0.532
+        x: 0
+        y: root.height / 2 - 32
         font_name: 'PixelFont'
-        font_size: '55sp'
+        font_size: '70sp'
 
     Label:
         id:player_1_points
@@ -255,7 +243,7 @@
         player: 1
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(0)
-        x: 810
+        x: root.width + 10
         y: 300
         size: 64, 64
 
@@ -265,7 +253,7 @@
         player: 2
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(100)
-        x: 810
+        x: root.width + 10
         y: 300
         size: 64, 64
 
@@ -275,7 +263,7 @@
         player: 1
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(1)
-        x: 810
+        x: root.width + 10
         y: 300
         size: 64, 64
 
@@ -285,7 +273,7 @@
         player: 2
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(101)
-        x: 810
+        x: root.width + 10
         y: 200
         size: 64, 64
 
@@ -296,7 +284,7 @@
         player: 1
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(2)
-        x: 810
+        x: root.width + 10
         y: 200
         size: 64, 64
 
@@ -307,7 +295,7 @@
         player: 2
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(102)
-        x: 810
+        x: root.width + 10
         y: 200
         size: 64, 64
 
@@ -317,7 +305,7 @@
         player: 1
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(3)
-        x: 810
+        x: root.width + 10
         y: 500
         size: 64, 64
 
@@ -327,7 +315,7 @@
         player: 2
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(103)
-        x: 810
+        x: root.width + 10
         y: 200
         size: 64, 64
 
@@ -337,7 +325,7 @@
         player: 1
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(4)
-        x: 810
+        x: root.width + 10
         y: 50
         size: 64, 64
 
@@ -347,7 +335,7 @@
         player: 2
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(104)
-        x: 810
+        x: root.width + 10
         y: 50
         size: 64, 64
 
@@ -357,7 +345,7 @@
         player: 1
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(5)
-        x: 810
+        x: root.width + 10
         y: 50
         size: 64, 64
 
@@ -367,7 +355,7 @@
         player: 2
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(105)
-        x: 810
+        x: root.width + 10
         y: 50
         size: 64, 64
 
@@ -377,7 +365,7 @@
         player: 1
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(6)
-        x: 810
+        x: root.width + 10
         y: 50
         size: 64, 64
 
@@ -387,7 +375,7 @@
         player: 2
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(106)
-        x: 810
+        x: root.width + 10
         y: 50
         size: 64, 64
 
@@ -397,7 +385,7 @@
         player: 1
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(7)
-        x: 810
+        x: root.width + 10
         y: 50
         size: 64, 64
 
@@ -407,7 +395,7 @@
         player: 2
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(107)
-        x: 810
+        x: root.width + 10
         y: 50
         size: 64, 64
 
@@ -417,7 +405,7 @@
         player: 1
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(8)
-        x: 810
+        x: root.width + 10
         y: 50
         size: 64, 64
 
@@ -427,7 +415,7 @@
         player: 2
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(108)
-        x: 810
+        x: root.width + 10
         y: 50
         size: 64, 64
 
@@ -438,7 +426,7 @@
         player: 1
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(9)
-        x: 810
+        x: root.width + 10
         y: 50
         size: 64, 64
 
@@ -448,7 +436,7 @@
         player: 2
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(109)
-        x: 810
+        x: root.width + 10
         y: 50
         size: 64, 64
 
@@ -458,7 +446,7 @@
         player: 1
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(10)
-        x: 810
+        x: root.width + 10
         y: 50
         size: 64, 64
 
@@ -469,7 +457,7 @@
         player: 2
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(110)
-        x: 810
+        x: root.width + 10
         y: 50
         size: 64, 64
 
@@ -479,7 +467,7 @@
         player: 1
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(11)
-        x: 810
+        x: root.width + 10
         y: 50
         size: 64, 64
 
@@ -489,7 +477,7 @@
         player: 2
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(111)
-        x: 810
+        x: root.width + 10
         y: 50
         size: 64, 64
 
@@ -500,7 +488,7 @@
         player: 1
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(12)
-        x: 810
+        x: root.width + 10
         y: 50
         size: 64, 64
 
@@ -510,7 +498,7 @@
         player: 2
         source: 'assets/images/prismatic_shard_64.png'
         on_press: root.target_hit(112)
-        x: 810
+        x: root.width + 10
         y: 50
         size: 64, 64
 

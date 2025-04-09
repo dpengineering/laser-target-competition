@@ -11,6 +11,7 @@ import random
 from termcolor import cprint
 
 
+
 from datetime import datetime
 from time import time, time_ns
 
@@ -43,6 +44,9 @@ class LaserTargetCompetitionUI(App):
 
 
 Window.clearcolor = (0, 0, 0, 1)
+fullscreen = (1920, 1080)
+
+Window.size = fullscreen
 
 
 class InstructionsScreen(Screen):
@@ -200,10 +204,8 @@ class TargetScreen(Screen):
         #Player Variables
         self.p1_points = None
         self.p2_points = None
-
         self.targets_p1 = [self.ids.get(f'target_{i}') for i in range(13)]  # target_1 to target_12
         self.targets_p2 = [self.ids.get(f'target_{100 + i}') for i in range(13)]
-        print(self.targets_p1)
         self.p1_target_move_time = 0
         self.p2_target_move_time = 0
         self.p1_target_time = 0
@@ -222,12 +224,6 @@ class TargetScreen(Screen):
         self.p2_visible_targets = []
 
 
-
-
-
-
-        self.off_screen = 800 + 64
-
         #unused(for now)
         easy = 0.1
         medium = 0.3
@@ -241,12 +237,14 @@ class TargetScreen(Screen):
         print("Starting target game - setting state to targets")
         self.p1_state = "get_new_leds"
         self.p2_state = "get_new_leds"
-        self.ids.start.x = self.width + 300
+        self.ids.start.center_x = self.width + 300
         self.schedule_clock()
         self.time_start = time_ns()
         self.time_s = 0
         self.p1_points = 0
         self.p2_points = 0
+        self.ids.player_1_points.text = "00000"
+        self.ids.player_2_points.text = "00000"
 
 
 
@@ -255,11 +253,11 @@ class TargetScreen(Screen):
         self.p2_state = "idle"
         print(f"p1_state={self.p1_state}")
         print(f"p2_state={self.p2_state}")
-        self.ids.start.center_x = 400
+        self.ids.start.center_x = self.width / 2
         self.update_time_left_image(15)
 
-        if leaderboard.in_top_ten(1, self.p1_points):
 
+        if leaderboard.in_top_ten(1, self.p1_points):
             print(f"CONGRATS  PLAYER 1 {InstructionsScreen.get_player_name(screen_manager.get_screen(instructions_screen_name))}! Your score is on the leaderboard!")
             print(f"Your score is: {self.p1_points}")
             leaderboard.add_score(
@@ -357,7 +355,7 @@ class TargetScreen(Screen):
 
             # Reset all targets off-screen
             for target in self.targets_p2:
-                target.x = 810  # Move them off-screen
+                target.x = self.width + 10  # Move them off-screen
 
             lit_leds = []
 
@@ -428,7 +426,7 @@ class TargetScreen(Screen):
 
                 # Reset all targets off-screen
             for target in self.targets_p1:
-                target.x = 810  # Move them off-screen
+                target.x = self.width + 10  # Move them off-screen
 
             # Create a list to track which LEDs have been lit
             lit_leds = []
@@ -489,50 +487,30 @@ class TargetScreen(Screen):
 
 
     def update_points(self, target):
+        points = 0
+        if target.quality == "prismatic_shard":
+            points += 2000
+            cprint(f"Hit a prismatic shard! You have {points} points", "red")
+        elif target.quality == "diamond":
+            points += 1000
+            cprint(f"Hit a diamond! You have {points} points", "cyan")
+        elif target.quality == "emerald":
+            points += 700
+            cprint(f"Hit an emerald! You have {points} points", "light_green")
+        elif target.quality == "amethyst":
+            points += 500
+            cprint(f"Hit an amethyst! You have {points} points", "magenta")
+        elif target.quality == "gold":
+            points += 250
+            cprint(f"Hit gold! You have {points} points", "yellow")
         if target.player == 1:
-            if target.quality == "prismatic_shard":
-                self.p1_points += 2000
-                cprint(f"Hit a prismatic shard! You have {self.p1_points} points", "red")
-            elif target.quality == "diamond":
-                self.p1_points += 1000
-                cprint(f"Hit a diamond! You have {self.p1_points} points", "cyan")
-            elif target.quality == "emerald":
-
-                self.p1_points += 700
-                cprint(f"Hit an emerald! You have {self.p1_points} points", "light_green")
-            elif target.quality == "amethyst":
-
-                self.p1_points += 500
-                cprint(f"Hit an amethyst! You have {self.p1_points} points", "magenta")
-            elif target.quality == "gold":
-
-                self.p1_points += 250
-                cprint(f"Hit gold! You have {self.p1_points} points", "yellow")
-
+            self.p1_points += points
             self.ids.player_1_points.text = str(self.p1_points)
-            target.quality = "prismatic_shard" #resets the target to its original quality
         else:
-            if target.quality == "prismatic_shard":
-                self.p2_points += 2000
-                cprint(f"Hit a prismatic shard! You have {self.p2_points} points", "red")
-            elif target.quality == "diamond":
-                self.p2_points += 1000
-                cprint(f"Hit a diamond! You have {self.p2_points} points", "cyan")
-            elif target.quality == "emerald":
-
-                self.p2_points += 700
-                cprint(f"Hit an emerald! You have {self.p2_points} points", "light_green")
-            elif target.quality == "amethyst":
-
-                self.p2_points += 500
-                cprint(f"Hit an amethyst! You have {self.p2_points} points", "magenta")
-            elif target.quality == "gold":
-
-                self.p2_points += 250
-                cprint(f"Hit gold! You have {self.p2_points} points", "yellow")
-
+            self.p2_points += points
             self.ids.player_2_points.text = str(self.p2_points)
-            target.quality = "prismatic_shard"  # resets the target to its original quality
+        target.quality = "prismatic_shard" #resets the target to its original quality
+
 
 
     def target_hit(self, target_num):
