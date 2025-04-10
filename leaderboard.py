@@ -8,10 +8,14 @@ class Leaderboard:
         self.load_from_json()
 
     def add_score(self, player_name, points, level):
+
         new_score = {'name': player_name, 'points': points}
         self.scores[level].append(new_score)
         if self.replace_existing_entry(level, points, player_name):
             self.scores[level].remove(self.temp_entry)
+        elif self.in_top_ten(level, points):
+            print(f"Adding score to leaderboard: {player_name} with {points} points")
+            #do nothing, just don't run the else statement
         else:
             self.scores[level].remove(new_score)
         self.scores[level] = sorted(self.scores[level], key=lambda x: x['points'], reverse=True)
@@ -19,8 +23,11 @@ class Leaderboard:
 
     def in_top_ten(self, level, points):
         if len(self.scores[level]) < 10:
+            print("Score should be in top 10")
             return True
         return points > self.scores[level][9]['points']
+
+
     def replace_existing_entry(self, level, points, name):
         for player in self.scores[level]:
             if player['name'] == name and player['points'] < points:
@@ -28,6 +35,8 @@ class Leaderboard:
                 self.temp_entry = player
                 return True
         return False
+
+
 
     def get_placement(self, level, points):
         print(f"level={level}, points={points}")

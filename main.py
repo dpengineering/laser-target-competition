@@ -257,23 +257,19 @@ class TargetScreen(Screen):
         self.update_time_left_image(15)
 
 
-        if leaderboard.in_top_ten(1, self.p1_points):
-            print(f"CONGRATS  PLAYER 1 {InstructionsScreen.get_player_name(screen_manager.get_screen(instructions_screen_name))}! Your score is on the leaderboard!")
-            print(f"Your score is: {self.p1_points}")
-            leaderboard.add_score(
+        print(f"Your score is: {self.p1_points}, Player one")
+        leaderboard.add_score(
                 InstructionsScreen.get_player_name(
                     screen_manager.get_screen(
                         instructions_screen_name)), self.p1_points, 1)
-            self.transition_to_player_screen()
+        self.transition_to_player_screen()
 
-        if leaderboard.in_top_ten(1, self.p2_points):
-            print(f"CONGRATS PLAYER 2 {InstructionsScreen.get_player_name(screen_manager.get_screen(instructions_screen_name))}! Your score is on the leaderboard!")
-            print(f"Your score is: {self.p2_points}")
-            leaderboard.add_score(
+        print(f"Your score is: {self.p2_points}, Player two")
+        leaderboard.add_score(
                 InstructionsScreen.get_player_name(
                     screen_manager.get_screen(
                         instructions_screen_name)), self.p2_points, 1)
-            self.transition_to_player_screen()
+        self.transition_to_player_screen()
 
 
     def update_all(self, dt=None): # dt for clock scheduling
