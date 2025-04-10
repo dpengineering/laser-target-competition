@@ -1,5 +1,5 @@
-
-
+from kivy import Config
+Config.set('kivy', 'keyboard_mode', 'systemanddock')
 from pynput import keyboard
 from kivy.app import App
 from kivy.clock import Clock
@@ -7,6 +7,7 @@ from kivy.core.text import LabelBase
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen
 from kivy.core.window import Window
+from kivy.uix.textinput import TextInput
 import random
 from termcolor import cprint
 
@@ -24,7 +25,6 @@ from leaderboard import Leaderboard
 # I know these are grey buts it's required trust me
 
 time = time
-
 
 
 screen_manager = ScreenManager()
@@ -48,6 +48,11 @@ fullscreen = (1920, 1080)
 
 Window.size = fullscreen
 
+class CapitalInput(TextInput):
+
+    def insert_text(self, substring, from_undo=False):
+        s = substring.upper()
+        return super().insert_text(s, from_undo=from_undo)
 
 class InstructionsScreen(Screen):
     """
@@ -55,21 +60,15 @@ class InstructionsScreen(Screen):
     """
 
     def __init__(self, **kw):
-
         Builder.load_file('InstructionsScreen.kv')
         super(InstructionsScreen, self).__init__(**kw)
-        self.can_play = True # change to false
-        self.clock_scheduled = False
-        self.enter_pressed = False
-        self.is_letter_typed = False
-        self.time_s = 0
-        self.highlighted_letter = "l"
-        self.player_name = "HLS"
+        self.player_name = "HLS" #default name for all the cool people who think they can just put no name (nope! it's gonna be my name!).
 
-        listener = keyboard.Listener(
-            on_press=self.on_press,
-            on_release=self.on_release)
-        listener.start()
+        #listener = keyboard.Listener(
+            #on_press=self.on_press,
+            #on_release=self.on_release)
+        #listener.start()
+
 
 
     def on_press(self, key):
@@ -83,9 +82,6 @@ class InstructionsScreen(Screen):
         except AttributeError:
             if key == keyboard.Key.backspace:
                 self.ids.name.text = self.ids.name.text[:-1]
-            if key == keyboard.Key.enter:
-                self.player_name = self.ids.name.text
-                self.transition_to_target_screen()
 
         try:
             print('alphanumeric key {0} pressed'.format(
@@ -104,6 +100,13 @@ class InstructionsScreen(Screen):
             # Stop listener
             return False
 
+    def reset_text(self):
+        self.ids.text_box.text = ''
+
+    def submit_text(self):
+        print(f"Received Text: {self.ids.text_box.text}")
+        self.ids.text_box.text = ''
+
     @staticmethod
     def transition_to_player_screen():
         screen_manager.transition.direction = "left"
@@ -114,6 +117,8 @@ class InstructionsScreen(Screen):
 
         screen_manager.transition.direction = "left"
         screen_manager.current = target_screen_name
+
+
 
 
 
