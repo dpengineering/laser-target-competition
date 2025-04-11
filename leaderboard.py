@@ -13,6 +13,8 @@ class Leaderboard:
         self.scores[level].append(new_score)
         if self.replace_existing_entry(level, points, player_name):
             self.scores[level].remove(self.temp_entry)
+        elif self.no_new_entry(level, points, player_name):
+            self.scores[level].remove(new_score)
         elif self.in_top_ten(level, points):
             print(f"Adding score to leaderboard: {player_name} with {points} points")
             #do nothing, just don't run the else statement
@@ -27,6 +29,12 @@ class Leaderboard:
             return True
         return points > self.scores[level][9]['points']
 
+    def no_new_entry(self, level, points, name):
+        for player in self.scores[level]:
+            if player['name'] == name and player['points'] > points:
+                print(f"{name} with {points} points shouldn't be added to the leaderboard because {player['name']} with {player['points']} points exists")
+                return True
+        return False
 
     def replace_existing_entry(self, level, points, name):
         for player in self.scores[level]:
