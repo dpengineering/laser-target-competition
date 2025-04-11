@@ -59,10 +59,10 @@ class InstructionsScreen(Screen):
         super(InstructionsScreen, self).__init__(**kw)
         self.player_name = "HLS" #default name for all the cool people who think they can just put no name (nope! it's gonna be my name!).
         self.keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-        #listener = keyboard.Listener(
-            #on_press=self.on_press,
-            #on_release=self.on_release)
-        #listener.start()
+        listener = keyboard.Listener(
+            on_press=self.on_press,
+            on_release=self.on_release)
+        listener.start()
 
 
     def on_press(self, key):
@@ -85,10 +85,14 @@ class InstructionsScreen(Screen):
                 key))
 
     def button_pressed(self, key):
-        for k in self.keys:
-            if key == k:
-                self.ids.name.text += k.upper()
-                self.player_name = self.ids.name.text
+        if self.ids.name.text == "l":
+            self.ids.name.text = ""
+
+        if key == "backspace":
+            self.ids.name.text = self.ids.name.text[:-1]
+        elif key in self.keys:
+            self.ids.name.text += key.upper()
+            self.player_name = self.ids.name.text
 
 
     def get_player_name(self):
