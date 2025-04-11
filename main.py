@@ -57,7 +57,8 @@ class InstructionsScreen(Screen):
     def __init__(self, **kw):
         Builder.load_file('InstructionsScreen.kv')
         super(InstructionsScreen, self).__init__(**kw)
-        self.player_name = "HLS" #default name for all the cool people who think they can just put no name (nope! it's gonna be my name!).
+        self.player_one_name = "HENRY" #default name for all the cool people who think they can just put no name (nope! it's gonna be my name!).
+        self.player_two_name = "HENRY"
         self.keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
         listener = keyboard.Listener(
             on_press=self.on_press,
@@ -71,7 +72,7 @@ class InstructionsScreen(Screen):
         try:
             if key.char.isalpha():
                 self.ids.name.text += key.char.upper()
-                self.player_name = self.ids.name.text
+                self.player_one_name = self.ids.name.text
 
         except AttributeError:
             if key == keyboard.Key.backspace:
@@ -92,11 +93,14 @@ class InstructionsScreen(Screen):
             self.ids.name.text = self.ids.name.text[:-1]
         elif key in self.keys:
             self.ids.name.text += key.upper()
-            self.player_name = self.ids.name.text
+            self.player_one_name = self.ids.name.text
 
 
-    def get_player_name(self):
-        return self.player_name
+    def get_player_one_name(self):
+        return self.player_one_name
+
+    def get_player_two_name(self):
+        return self.player_two_name
 
     def on_release(self, key):
         print('{0} released'.format(
@@ -106,11 +110,12 @@ class InstructionsScreen(Screen):
             return False
 
     def reset_text(self):
-        self.ids.text_box.text = ''
+        self.ids.name.text = ''
 
     def submit_text(self):
-        print(f"Received Text: {self.ids.text_box.text}")
-        self.ids.text_box.text = ''
+        if self.state == "player_one_submit":
+            print(f"Received Text: {self.ids.name.text}")
+            self.ids.name.text = ''
 
     @staticmethod
     def transition_to_player_screen():
@@ -269,14 +274,14 @@ class TargetScreen(Screen):
 
         print(f"Your score is: {self.p1_points}, Player one")
         leaderboard.add_score(
-                InstructionsScreen.get_player_name(
+                InstructionsScreen.get_player_one_name(
                     screen_manager.get_screen(
                         instructions_screen_name)), self.p1_points, 1)
         self.transition_to_player_screen()
 
         print(f"Your score is: {self.p2_points}, Player two")
         leaderboard.add_score(
-                InstructionsScreen.get_player_name(
+                InstructionsScreen.get_player_one_name(
                     screen_manager.get_screen(
                         instructions_screen_name)), self.p2_points, 1)
         self.transition_to_player_screen()
