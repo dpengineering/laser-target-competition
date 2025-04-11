@@ -48,11 +48,6 @@ fullscreen = (1920, 1080)
 
 Window.size = fullscreen
 
-class CapitalInput(TextInput):
-
-    def insert_text(self, substring, from_undo=False):
-        s = substring.upper()
-        return super().insert_text(s, from_undo=from_undo)
 
 class InstructionsScreen(Screen):
     """
@@ -63,12 +58,11 @@ class InstructionsScreen(Screen):
         Builder.load_file('InstructionsScreen.kv')
         super(InstructionsScreen, self).__init__(**kw)
         self.player_name = "HLS" #default name for all the cool people who think they can just put no name (nope! it's gonna be my name!).
-
+        self.keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
         #listener = keyboard.Listener(
             #on_press=self.on_press,
             #on_release=self.on_release)
         #listener.start()
-
 
 
     def on_press(self, key):
@@ -89,6 +83,13 @@ class InstructionsScreen(Screen):
         except AttributeError:
             print('special key {0} pressed'.format(
                 key))
+
+    def button_pressed(self, key):
+        for k in self.keys:
+            if key == k:
+                self.ids.name.text += k.upper()
+                self.player_name = self.ids.name.text
+
 
     def get_player_name(self):
         return self.player_name

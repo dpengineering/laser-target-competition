@@ -5,17 +5,6 @@
         id: float
         size_hint: None, None
 
-    CapitalInput:
-        multiline: False
-        background_color: 0, 0, 0, 1
-        cursor_width: 7
-        cursor_color: 1, 1, 1, 1
-        foreground_color: 1, 1, 1
-        x: root.width / 2 - 100
-        y: - 55 * 5
-        font_name: 'PixelFont'
-        font_size: '55sp'
-
     DPEAButton:
         id: transition_target
         text: ""
@@ -76,237 +65,346 @@
     Label:
         id: q
         text: "Q"
-        x: -root.width / 3 - 70 + 65
+        x: w.x - 60
         y: 55 * 2
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
+
+    DPEAButton:
+        color: 1, 0, 0, 1
+        x: root.width / 2
+        y: root.height * 0.5
+        size: 50, 50
+        on_press: root.button_pressed('q')
 
     Label:
         id: w
         text: "W"
-        x: -root.width / 3 - 70+ 65 * 2
+        x: e.x - 60
         y: 55 * 2
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
+
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('w')
 
     Label:
         id: e
         text: "E"
-        x: -root.width / 3 - 70+ 65 * 3
+        x: r.x - 60
         y: 55 * 2
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
+
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('e')
 
     Label:
         id: r
         text: "R"
-        x: -root.width / 3 - 70+ 65 * 4
+        x: t.x - 60
         y: 55 * 2
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
+
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('r')
 
     Label:
         id: t
         text: "T"
-        x: -root.width / 3 - 70+ 65 * 5
+        x: 0
         y: 55 * 2
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
+
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('t')
 
     Label:
         id: y
         text: "Y"
-        x: -root.width / 3 - 70+ 65 * 6
+        x: t.x + 60
         y: 55 * 2
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
+
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('y')
 
     Label:
         id: u
         text: "U"
-        x: -root.width / 3 - 70+ 65 * 7
+        x: y.x + 60
         y: 55 * 2
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
+
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('u')
 
     Label:
         id: i
         text: "I"
-        x: -root.width / 3 - 70+ 65 * 8
+        x: u.x + 60
         y: 55 * 2
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
+
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('i')
 
     Label:
         id: o
         text: "O"
-        x: -root.width / 3 - 70+ 65 * 9
+        x: i.x + 60
         y: 55 * 2
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
+
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('o')
 
     Label:
         id: p
         text: "P"
-        x: -root.width / 3 - 70+ 65 * 10
+        x: o.x + 60
         y: 55 * 2
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
 
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('p')
+
     Label:
         id: a
         text: "A"
-        x: -root.width / 3 - 70+ 65 * 1 + 10
+        x: q.x + 20
         y: 55
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
+
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('a')
 
     Label:
         id: s
         text: "S"
-        x: -root.width / 3 - 70+ 65 * 2 + 10
+        x: a.x + 60
         y: 55
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
 
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('s')
+
     Label:
         id: d
         text: "D"
-        x: -root.width / 3 - 70+ 65 * 3 + 10
+        x: s.x + 60
         y: 55
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
+
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('d')
 
 
     Label:
         id: f
         text: "F"
-        x: -root.width / 3 - 70+ 65 * 4 + 10
+        x: d.x + 60
         y: 55
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
+
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('f')
 
     Label:
         id: g
         text: "G"
-        x: -root.width / 3 - 70+ 65 * 5 + 10
+        x: f.x + 60
         y: 55
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
+
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('g')
 
     Label:
         id: h
         text: "H"
-        x: -root.width / 3 - 70+ 65 * 6 + 10
+        x: g.x + 60
         y: 55
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
+
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('h')
 
     Label:
         id: j
         text: "J"
-        x: -root.width / 3 - 70+ 65 * 7 + 10
+        x: h.x + 60
         y: 55
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
+
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('j')
 
     Label:
         id: k
         text: "K"
-        x: -root.width / 3 - 70+ 65 * 8 + 10
+        x: j.x + 60
         y: 55
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
+
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('k')
 
     Label:
         id: l
         text: "L"
-        x: -root.width / 3 - 70+ 65 * 9 + 10
+        x: k.x + 60
         y: 55
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
 
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('l')
+
     Label:
-        id: Z
+        id: z
         text: "Z"
-        x: -root.width / 3 - 70+ 65 * 1 + 20
+        x: a.x + 30
         y: 0
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
+
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('z')
 
     Label:
         id: x
         text: "X"
-        x: -root.width / 3 - 70+ 65 * 2 + 10
+        x: z.x + 60
         y: 0
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
 
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('x')
+
     Label:
-        id: C
+        id: c
         text: "C"
-        x: -root.width / 3 - 70+ 65 * 3 + 10
+        x: x.x + 60
         y: 0
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
+
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('c')
 
     Label:
         id: v
         text: "V"
-        x: -root.width / 3 - 70+ 65 * 4 + 10
+        x: c.x + 60
         y: 0
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
+
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('v')
 
     Label:
         id: b
         text: "B"
-        x: -root.width / 3 - 70+ 65 * 5 + 10
+        x: v.x + 60
         y: 0
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
+
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('b')
 
     Label:
         id: n
         text: "N"
-        x: -root.width / 3 - 70+ 65 * 6 + 10
+        x: b.x + 60
         y: 0
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
 
+    DPEAButton:
+        color: 1, 0, 0, 1
+        on_press: root.button_pressed('n')
+
     Label:
         id: m
         text: "M"
-        x: -root.width / 3 - 70 + 65 * 7 + 10
+        x: n.x + 60
         y: 0
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
         font_size: '80sp'
+
+    DPEAButton:
+        color: 1, 0, 0, 1
+        x: -root.width / 3 - 70 + 65 * 7 + 10
+        y: 0
+        on_press: root.button_pressed('m')
 
 
 
