@@ -73,7 +73,6 @@ class InstructionsScreen(Screen):
         try:
             if key.char.isalpha():
                 self.ids.name.text += key.char.upper()
-                self.player_one_name = self.ids.name.text
 
         except AttributeError:
             if key == keyboard.Key.backspace:
@@ -94,10 +93,9 @@ class InstructionsScreen(Screen):
             self.ids.name.text = self.ids.name.text[:-1]
         elif key in self.keys:
             self.ids.name.text += key.upper()
-            self.player_one_name = self.ids.name.text
 
     def get_player_one_name(self):
-        print(self.player_one_name)
+        print(f"p1 name: {self.player_one_name}")
         return self.player_one_name
 
     def get_player_two_name(self):
@@ -106,23 +104,20 @@ class InstructionsScreen(Screen):
 
     def submit_text(self):
         if self.state == "player_one_submit":
-
             self.player_one_name = self.ids.name.text
             self.ids.name.text = ''
             self.ids.player_one_name.text = self.player_one_name
-            print(f"Received Text: {self.player_one_name}")
             self.ids.instructions.text = "PLAYER TWO, ENTER YOUR NAME OR INITIALS"
             self.state = "player_two_submit"
         elif self.state == "player_two_submit":
-            print(self.ids.name.text)
             self.player_two_name = self.ids.name.text
             self.ids.player_two_name.text = self.player_two_name
-            print(f"Received Text: {self.player_two_name}")
             self.state = "play_button_shown"
             self.ids.play.x = 0
             self.ids.play_button.x = self.width / 2 - 110
             self.ids.submit.x = 1245
             self.ids.submit_button.x = self.width + 500
+
 
     @staticmethod
     def on_release(key):
