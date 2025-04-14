@@ -25,20 +25,20 @@
         font_size: '55sp'
 
     DPEAButton:
-        id: transition_target
+        id: play_button
         text: ""
         size: 200, 65
-        x: root.width / 2 - 110
+        x: root.width + 100
         y: root.height / 2 - 100
-        color: 0, 0, 0, 1
+        color: 0, 1, 0.25, 1
         on_press: root.transition_to_target_screen()
         font_name: 'PixelFont'
         font_size: '20sp'
 
     Label:
-        id: transition_target_text
+        id: play
         text: "PLAY"
-        center_x: 45
+        center_x: 1045
         y: -70
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
@@ -46,12 +46,60 @@
 
 
     Label:
+        id: instructions
         text: "PLAYER ONE, ENTER YOUR INITIALS OR NAME:"
         center_x: 800 / 16
         y: 55 * 4
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '55sp'
+        font_size: '80sp'
+
+    DPEAButton:
+        id: submit_button
+        text: ""
+        size: 500, 65
+        center_x: root.width / 2
+        y: root.height / 2 - 100
+        color: 1, 0, 0, 1
+        on_press: root.submit_text()
+        font_name: 'PixelFont'
+        font_size: '20sp'
+
+    Label:
+        id: submit
+        text: "SUBMIT NAME"
+        center_x: 800 / 16
+        y: -(70)
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '80sp'
+
+    Label:
+        id: player_list
+        text: "CURRENT PLAYERS:"
+        center_x: -512
+        y: -300
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '80sp'
+
+    Label:
+        id: player_one_name
+        text: "TEST1"
+        center_x: player_list.x
+        y: player_list.y - 60
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '80sp'
+
+    Label:
+        id: player_two_name
+        text: "TEST2"
+        center_x: player_list.x
+        y: player_one_name.y - 60
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '80sp'
 
     Label:
         id: name

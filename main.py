@@ -60,10 +60,11 @@ class InstructionsScreen(Screen):
         self.player_one_name = "HENRY" #default name for all the cool people who think they can just put no name (nope! it's gonna be my name!).
         self.player_two_name = "HENRY"
         self.keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-        listener = keyboard.Listener(
+        self.state = "player_one_submit"
+        self.listener = keyboard.Listener(
             on_press=self.on_press,
             on_release=self.on_release)
-        listener.start()
+        self.listener.start()
 
 
     def on_press(self, key):
@@ -95,38 +96,53 @@ class InstructionsScreen(Screen):
             self.ids.name.text += key.upper()
             self.player_one_name = self.ids.name.text
 
-
     def get_player_one_name(self):
+        print(self.player_one_name)
         return self.player_one_name
 
     def get_player_two_name(self):
+        print(f"p2 name: {self.player_two_name}")
         return self.player_two_name
 
-    def on_release(self, key):
+    def submit_text(self):
+        if self.state == "player_one_submit":
+
+            self.player_one_name = self.ids.name.text
+            self.ids.name.text = ''
+            self.ids.player_one_name.text = self.player_one_name
+            print(f"Received Text: {self.player_one_name}")
+            self.ids.instructions.text = "PLAYER TWO, ENTER YOUR NAME OR INITIALS"
+            self.state = "player_two_submit"
+        elif self.state == "player_two_submit":
+            print(self.ids.name.text)
+            self.player_two_name = self.ids.name.text
+            self.ids.player_two_name.text = self.player_two_name
+            print(f"Received Text: {self.player_two_name}")
+            self.state = "play_button_shown"
+            self.ids.play.x = 0
+            self.ids.play_button.x = self.width / 2 - 110
+            self.ids.submit.x = 1245
+            self.ids.submit_button.x = self.width + 500
+
+    @staticmethod
+    def on_release(key):
         print('{0} released'.format(
             key))
         if key == keyboard.Key.esc:
             # Stop listener
             return False
 
-    def reset_text(self):
-        self.ids.name.text = ''
-
-    def submit_text(self):
-        if self.state == "player_one_submit":
-            print(f"Received Text: {self.ids.name.text}")
-            self.ids.name.text = ''
-
     @staticmethod
     def transition_to_player_screen():
         screen_manager.transition.direction = "left"
         screen_manager.current = player_screen_name
 
+
     @staticmethod
     def transition_to_target_screen():
-
         screen_manager.transition.direction = "left"
         screen_manager.current = target_screen_name
+
 
 
 
@@ -219,6 +235,8 @@ class TargetScreen(Screen):
         #Player Variables
         self.p1_points = None
         self.p2_points = None
+        self.p1_name = None
+        self.p2_name = None
         self.targets_p1 = [self.ids.get(f'target_{i}') for i in range(13)]  # target_1 to target_12
         self.targets_p2 = [self.ids.get(f'target_{100 + i}') for i in range(13)]
         self.p1_target_move_time = 0
@@ -260,6 +278,9 @@ class TargetScreen(Screen):
         self.p2_points = 0
         self.ids.player_1_points.text = "00000"
         self.ids.player_2_points.text = "00000"
+        self.p1_name = InstructionsScreen.get_player_one_name(screen_manager.get_screen(instructions_screen_name))
+        self.p2_name = InstructionsScreen.get_player_two_name(screen_manager.get_screen(instructions_screen_name))
+        print(f"Player one name: {self.p1_name} Player two name: {self.p2_name}")
 
 
 
@@ -273,17 +294,11 @@ class TargetScreen(Screen):
 
 
         print(f"Your score is: {self.p1_points}, Player one")
-        leaderboard.add_score(
-                InstructionsScreen.get_player_one_name(
-                    screen_manager.get_screen(
-                        instructions_screen_name)), self.p1_points, 1)
+        leaderboard.add_score(self.p1_name, self.p1_points, 1)
         self.transition_to_player_screen()
 
         print(f"Your score is: {self.p2_points}, Player two")
-        leaderboard.add_score(
-                InstructionsScreen.get_player_one_name(
-                    screen_manager.get_screen(
-                        instructions_screen_name)), self.p2_points, 1)
+        leaderboard.add_score(self.p2_name, self.p2_points, 1)
         self.transition_to_player_screen()
 
 
