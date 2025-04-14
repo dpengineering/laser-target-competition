@@ -139,10 +139,6 @@ class InstructionsScreen(Screen):
         screen_manager.current = target_screen_name
 
 
-
-
-
-
 class PlayerScreen(Screen):
     """
         Class to handle player screen
@@ -275,6 +271,8 @@ class TargetScreen(Screen):
         self.ids.player_2_points.text = "00000"
         self.p1_name = InstructionsScreen.get_player_one_name(screen_manager.get_screen(instructions_screen_name))
         self.p2_name = InstructionsScreen.get_player_two_name(screen_manager.get_screen(instructions_screen_name))
+        self.player_1_name.text = self.p1_name
+        self.player_2_name.text = self.p2_name
         print(f"Player one name: {self.p1_name} Player two name: {self.p2_name}")
 
 
