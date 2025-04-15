@@ -24,6 +24,12 @@ from keyboard_handler import on_press, on_release
 from leaderboard import Leaderboard
 # I know these are grey buts it's required trust me
 
+# TODO
+# space bar in name entry
+# key for targets and points awarded
+# two player?  maybe a laser that you move with the arrow keys and wasd
+#
+
 time = time
 
 
