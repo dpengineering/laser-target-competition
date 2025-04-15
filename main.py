@@ -200,12 +200,13 @@ class PlayerScreen(Screen):
 
 
 
+
+
 class TargetScreen(Screen):
     """
         Class to handle a mini target clicker
         that simulates the lasers hitting targets
     """
-
 
     def __init__(self, **kwargs):
         """
@@ -222,6 +223,11 @@ class TargetScreen(Screen):
         self.time_start = None
         self.time_s = None
         self.time_ms = None
+        self.countdown_time_s = None
+        self.countdown_timer_start = None
+        self.countdown = None
+
+
 
         #Player Variables
         self.p1_points = None
@@ -255,10 +261,21 @@ class TargetScreen(Screen):
         impossible = 0.7
         self.difficulty = easy
 
+    def on_enter(self, *args):
+        self.p1_name = InstructionsScreen.get_player_one_name(screen_manager.get_screen(instructions_screen_name))
+        self.p2_name = InstructionsScreen.get_player_two_name(screen_manager.get_screen(instructions_screen_name))
+        self.ids.player_1_name.text = self.p1_name
+        self.ids.player_2_name.text = self.p2_name
 
+
+    def startup_countdown(self):
+        self.countdown = True
+        self.ids.countdown.x = 0
+        self.countdown_timer_start = time_ns()
 
     def start(self):
         print("Starting target game - setting state to targets")
+        self.startup_countdown()
         self.p1_state = "get_new_leds"
         self.p2_state = "get_new_leds"
         self.ids.start.center_x = self.width + 300
@@ -269,10 +286,6 @@ class TargetScreen(Screen):
         self.p2_points = 0
         self.ids.player_1_points.text = "00000"
         self.ids.player_2_points.text = "00000"
-        self.p1_name = InstructionsScreen.get_player_one_name(screen_manager.get_screen(instructions_screen_name))
-        self.p2_name = InstructionsScreen.get_player_two_name(screen_manager.get_screen(instructions_screen_name))
-        self.player_1_name.text = self.p1_name
-        self.player_2_name.text = self.p2_name
         print(f"Player one name: {self.p1_name} Player two name: {self.p2_name}")
 
 
@@ -284,8 +297,6 @@ class TargetScreen(Screen):
         print(f"p2_state={self.p2_state}")
         self.ids.start.center_x = self.width / 2
         self.update_time_left_image(15)
-
-
         print(f"Your score is: {self.p1_points}, Player one")
         leaderboard.add_score(self.p1_name, self.p1_points, 1)
         self.transition_to_player_screen()
@@ -298,9 +309,12 @@ class TargetScreen(Screen):
     def update_all(self, dt=None): # dt for clock scheduling
         #print(f"state={self.state}, target_move_to_pedestal_num={self.target_move_to_pedestal_num}, points={self.points}")
         self.update_time_left_image(self.update_time())
-        self.update_target_quality()
         if screen_manager.current == target_screen_name:
+            if self.time_s > 15:
+                self.p1_target_move_time = self.time_ms
+                self.p2_target_move_time = self.time_ms
             if self.time_s > 0:
+                self.update_target_quality()
                 self.get_new_targets(self.difficulty)
             elif self.time_s == 0:
                 self.clock_scheduled = False
@@ -316,13 +330,13 @@ class TargetScreen(Screen):
 
 
     def update_time(self):
-        self.time_s = -round((time_ns() / 1000000000) - (self.time_start / 1000000000 + 15.5)) # seconds counting down from 15 after start has been pressed
+        self.time_s = -round((time_ns() / 1000000000) - (self.time_start / 1000000000 + 18.5)) # seconds counting down from 15 after start has been pressed
         self.time_ms = round((time_ns() / 1000000) - (self.time_start / 1000000)) # ms since start has been pressed
+        self.countdown_time_s = -round((time_ns() / 1000000000) - (self.countdown_timer_start / 1000000000 + 3.5))
         self.p1_target_time = self.time_ms - self.p1_target_move_time
         self.p2_target_time = self.time_ms - self.p2_target_move_time
         #print(f"target_move_time={self.target_move_time}, time_ms={self.time_ms}, target_time={self.target_time}")
         return self.time_s
-
 
 
     def update_target_quality(self):
@@ -359,7 +373,6 @@ class TargetScreen(Screen):
                 self.p1_visible_targets[i].quality = p1_quality
             except AttributeError:
                 print("Attribute Error")
-
 
 
     def get_new_targets(self, difficulty):
@@ -495,7 +508,8 @@ class TargetScreen(Screen):
                 # Move Player 1's target next to the lit LED
                 self.targets_p1[i].x, self.targets_p1[i].y = led_x + x_offset, led_y + y_offset # Offset to the right
                 self.p1_visible_targets.append(self.targets_p1[i])
-
+                
+                
                 self.p1_target_move_time = self.time_ms
 
             # Print the lit LED names
@@ -534,17 +548,33 @@ class TargetScreen(Screen):
 
     def target_hit(self, target_num):
         #print(f"target {target_num} hit")
-        if target_num > 99 and self.p2_state == "wait_for_target_hit":
-            print("Player two target hit!")
-            self.update_points(self.targets_p2[target_num - 100])
-            self.p2_state = "get_new_leds"
-        elif target_num <= 100 and self.p1_state == "wait_for_target_hit":
-            self.update_points(self.targets_p1[target_num])
-            self.p1_state = "get_new_leds"
+        if self.time_s <= 15:
+            if target_num > 99 and self.p2_state == "wait_for_target_hit":
+                print("Player two target hit!")
+                self.update_points(self.targets_p2[target_num - 100])
+                self.p2_state = "get_new_leds"
+            elif target_num <= 100 and self.p1_state == "wait_for_target_hit":
+                self.update_points(self.targets_p1[target_num])
+                self.p1_state = "get_new_leds"
+
+    def update_countdown_image(self, num):
+        if num > 0:
+            self.ids.countdown.text = str(num)
+        else:
+            self.countdown = False
+            self.ids.countdown.x = self.width + 100
 
 
     def update_time_left_image(self, num):
-        if num > 9:
+        if num > 15:
+            self.ids.countdown.text = str(num - 15)
+        elif num == 15:
+            self.ids.countdown.x = self.width + 100
+            self.ids.go.x = 0
+        elif num == 14:
+            self.ids.go.x = self.width + 100
+            self.ids.time_left.text = str(num)
+        elif num > 9:
             self.ids.time_left.text = str(num)
         else:
             self.ids.time_left.text = "0" + str(num)
