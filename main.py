@@ -25,10 +25,10 @@ from leaderboard import Leaderboard
 # I know these are grey buts it's required trust me
 
 # TODO
-# space bar in name entry
-# key for targets and points awarded
+# space bar in name entry (MAYBE NOT NEEDED)
+# key for targets and points awarded DONE
 # two player?  maybe a laser that you move with the arrow keys and wasd
-# sound
+# sound (PRIORITY)
 # combos?
 # points pop off target when hit?
 
