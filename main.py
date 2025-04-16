@@ -28,7 +28,9 @@ from leaderboard import Leaderboard
 # space bar in name entry
 # key for targets and points awarded
 # two player?  maybe a laser that you move with the arrow keys and wasd
-#
+# sound
+# combos?
+# points pop off target when hit?
 
 time = time
 

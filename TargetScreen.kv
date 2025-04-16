@@ -10,9 +10,88 @@
         id: start
         source: 'assets/images/buttons/start.png'
         center_x: root.width / 2
-        center_y: root.height / 2
+        center_y: root.height / 2 - 128
         size: 216, 44
         on_press: root.start()
+
+    #################KEY######################
+
+    Label:
+        id: key_0_label
+        text: " - 2000 points"
+        x: key_0.x + 256
+        y: key_0.y
+        font_name: 'PixelFont'
+        font_size: '80sp'
+
+    Label:
+        id: key_1_label
+        text: " - 1000p"
+        x: key_0.x + 161
+        y: key_1.y
+        font_name: 'PixelFont'
+        font_size: '80sp'
+
+
+    Label:
+        id: key_2_label
+        text: "- 700p"
+        x: key_0.x + 150
+        y: key_2.y
+        font_name: 'PixelFont'
+        font_size: '80sp'
+
+    Label:
+        id: key_3_label
+        text: "- 500p"
+        x: key_0.x + 150
+        y: key_3.y
+        font_name: 'PixelFont'
+        font_size: '80sp'
+
+    Label:
+        id: key_4_label
+        text: "- 250p"
+        x: key_0.x + 150
+        y: key_4.y
+        font_name: 'PixelFont'
+        font_size: '80sp'
+
+    Image:
+        id: key_0
+        source: 'assets/images/prismatic_shard_64.png'
+        x: -256
+        y: 320
+        size: 64, 64
+
+    Image:
+        id: key_1
+        source: 'assets/images/diamond_64.png'
+        x: key_0.x
+        y: key_0.y - 64
+        size: 64, 64
+
+    Image:
+        id: key_2
+        source: 'assets/images/emerald_64.png'
+        x: key_0.x
+        y: key_1.y - 64
+        size: 64, 64
+
+    Image:
+        id: key_3
+        source: 'assets/images/amethyst_64.png'
+        x: key_0.x
+        y: key_2.y - 64
+        size: 64, 64
+
+    Image:
+        id: key_4
+        source: 'assets/images/gold_64.png'
+        x: key_0.x
+        y: key_3.y - 64
+        size: 64, 64
+
 
         # # # # # # # # # # # # #
         #                       #
@@ -41,7 +120,7 @@
         id: countdown
         text: "3"
         x: root.width + 100
-        y: 0
+        y: -128
         font_name: 'PixelFont'
         font_size: '400sp'
 
@@ -264,6 +343,8 @@
         x:root.width - 64 - 16
         y: root.height - 64 * 9
         size: 64, 64
+
+
 
 
 
