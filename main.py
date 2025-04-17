@@ -31,6 +31,8 @@ from leaderboard import Leaderboard
 # sound (PRIORITY)
 # combos?
 # points pop off target when hit?
+# no transition between screens
+
 
 time = time
 
@@ -471,9 +473,9 @@ class TargetScreen(Screen):
             # Create a list to track which LEDs have been lit
             lit_leds = []
 
-            # Pick at least one LED to light up
             available_leds = self.player1_leds.copy()
 
+            # if an LED was previously lit, don't light it
             for led in self.prev_lit_leds:
                 if led in available_leds:
                     available_leds.remove(led)
@@ -521,11 +523,22 @@ class TargetScreen(Screen):
                 self.p1_target_move_time = self.time_ms
 
             # Print the lit LED names
-            print(f"Got LEDs to light up, they are: {lit_led_names}")
-            print(f"Got LEDs to light up, they are: {lit_led_indices}")
+            #print(f"Got LEDs to light up, they are: {lit_led_names}")
+            #print(f"Got LEDs to light up, they are: {lit_led_indices}")
 
             self.p1_state = "wait_for_target_hit"
 
+
+    def target_hit(self, target_num):
+        #print(f"target {target_num} hit")
+        if self.time_s <= 15:
+            if target_num > 99 and self.p2_state == "wait_for_target_hit":
+                print("Player two target hit!")
+                self.update_points(self.targets_p2[target_num - 100])
+                self.p2_state = "get_new_leds"
+            elif target_num <= 100 and self.p1_state == "wait_for_target_hit":
+                self.update_points(self.targets_p1[target_num])
+                self.p1_state = "get_new_leds"
 
     def update_points(self, target):
         points = 0
@@ -552,18 +565,6 @@ class TargetScreen(Screen):
             self.ids.player_2_points.text = str(self.p2_points)
         target.quality = "prismatic_shard" #resets the target to its original quality
 
-
-
-    def target_hit(self, target_num):
-        #print(f"target {target_num} hit")
-        if self.time_s <= 15:
-            if target_num > 99 and self.p2_state == "wait_for_target_hit":
-                print("Player two target hit!")
-                self.update_points(self.targets_p2[target_num - 100])
-                self.p2_state = "get_new_leds"
-            elif target_num <= 100 and self.p1_state == "wait_for_target_hit":
-                self.update_points(self.targets_p1[target_num])
-                self.p1_state = "get_new_leds"
 
     def update_countdown_image(self, num):
         if num > 0:
