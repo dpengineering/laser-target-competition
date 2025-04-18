@@ -1,14 +1,17 @@
 from kivy import Config
+from orca.sound import Player
+
 Config.set('kivy', 'keyboard_mode', 'systemanddock')
 from pynput import keyboard
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.text import LabelBase
 from kivy.lang import Builder
-from kivy.uix.screenmanager import ScreenManager, Screen
+from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.core.window import Window
 from kivy.uix.textinput import TextInput
 import random
+from enum import Enum
 from termcolor import cprint
 
 
@@ -44,6 +47,20 @@ instructions_screen_name = 'instructions'
 leaderboard = Leaderboard()
 
 
+
+class GameState(Enum):
+    IDLE = 1
+    GET_NEW_LEDS = 2
+    WAIT_FOR_TARGET_HIT = 3
+
+
+class SubmitState(Enum):
+    PLAYER_ONE = 1
+    PLAYER_TWO = 2
+
+
+
+
 class LaserTargetCompetitionUI(App):
     """
         Handles running the app
@@ -59,6 +76,10 @@ fullscreen = (1920, 1080)
 Window.size = fullscreen
 
 
+class EndScreen(Screen):
+    def __init__(self, **kw):
+        super(EndScreen, self).__init__(**kw)
+
 class InstructionsScreen(Screen):
     """
         Class to handle instructions screen
@@ -70,11 +91,12 @@ class InstructionsScreen(Screen):
         self.player_one_name = "HENRY" #default name for all the cool people who think they can just put no name (nope! it's gonna be my name!).
         self.player_two_name = "HENRY"
         self.keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
-        self.state = "player_one_submit"
+        self.state = SubmitState.PLAYER_ONE
         self.listener = keyboard.Listener(
             on_press=self.on_press,
             on_release=self.on_release)
         self.listener.start()
+
 
 
     def on_press(self, key):
@@ -113,16 +135,15 @@ class InstructionsScreen(Screen):
         return self.player_two_name
 
     def submit_text(self):
-        if self.state == "player_one_submit":
+        if self.state == SubmitState.PLAYER_ONE:
             self.player_one_name = self.ids.name.text
             self.ids.name.text = ''
             self.ids.player_one_name.text = self.player_one_name
             self.ids.instructions.text = "PLAYER TWO, ENTER YOUR NAME OR INITIALS"
-            self.state = "player_two_submit"
-        elif self.state == "player_two_submit":
+            self.state = SubmitState.PLAYER_TWO
+        elif self.state == SubmitState.PLAYER_TWO:
             self.player_two_name = self.ids.name.text
             self.ids.player_two_name.text = self.player_two_name
-            self.state = "play_button_shown"
             self.ids.play.x = 0
             self.ids.play_button.x = self.width / 2 - 110
             self.ids.submit.x = 1245
@@ -139,13 +160,13 @@ class InstructionsScreen(Screen):
 
     @staticmethod
     def transition_to_player_screen():
-        screen_manager.transition.direction = "left"
+        screen_manager.transition = NoTransition()
         screen_manager.current = player_screen_name
 
 
     @staticmethod
     def transition_to_target_screen():
-        screen_manager.transition.direction = "left"
+        screen_manager.transition = NoTransition()
         screen_manager.current = target_screen_name
 
 
@@ -200,12 +221,12 @@ class PlayerScreen(Screen):
 
     @staticmethod
     def transition_to_target_screen():
-        screen_manager.transition.direction = "left"
+        screen_manager.transition = NoTransition()
         screen_manager.current = target_screen_name
 
     @staticmethod
     def transition_to_instructions_screen():
-        screen_manager.transition.direction = "right"
+        screen_manager.transition = NoTransition()
         screen_manager.current = instructions_screen_name
 
 
@@ -226,9 +247,10 @@ class TargetScreen(Screen):
         """
 
 
-        self.prev_lit_leds = []
+
         Builder.load_file('TargetScreen.kv')
         super(TargetScreen, self).__init__(**kwargs)
+
         self.clock_scheduled = False
         self.time_start = None
         self.time_s = None
@@ -236,8 +258,7 @@ class TargetScreen(Screen):
         self.countdown_time_s = None
         self.countdown_timer_start = None
         self.countdown = None
-
-
+        self.prev_lit_leds = []
 
         #Player Variables
         self.p1_points = None
@@ -254,14 +275,15 @@ class TargetScreen(Screen):
         self.p2_state = "idle"
         self.player1_leds = [self.ids.get(f'led_{i}') for i in range(13)]  # led_0 to led_12
         self.player2_leds = [self.ids.get(f'led_{100 + i}') for i in range(13)]  # led_100 to led_112
+        self.p1_visible_targets = []
+        self.p2_visible_targets = []
 
         # List of states:
         #   - idle -> doing nothing, game hasn't started yet
         #   - get_new_leds -> get new leds to light up
         #   - wait_for_target_hit -> we lit up the leds, now we have to wait for the correct target to be hit
         #   - game_ending(unused) -> game is ending, score is calculating
-        self.p1_visible_targets = []
-        self.p2_visible_targets = []
+
 
 
         #unused(for now)
@@ -591,7 +613,7 @@ class TargetScreen(Screen):
 
     @staticmethod
     def transition_to_player_screen():
-        screen_manager.transition.direction = "right"
+        screen_manager.transition = NoTransition()
         screen_manager.current = player_screen_name
 
 
