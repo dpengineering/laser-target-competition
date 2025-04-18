@@ -60,9 +60,12 @@ class SubmitState(Enum):
 
 
 class Player:
-    def __init__(self, name, score):
-        self.name = name
-        self.score = score
+    def __init__(self):
+        self.name = "Henry"
+        self.score = 0
+        self.targets = None
+        self.target_move_time = 0
+        self.target_time = 0
 
 
     def get_name(self):
@@ -73,13 +76,24 @@ class Player:
 
     def get_score(self):
         return self.score
-    
+
     def set_score(self, score):
         self.score = score
 
 
-player_one = Player("Henry", 0)
-player_two = Player("Peter", 0)
+player_one = Player()
+player_two = Player()
+
+self.p1_target_appearance_time = 0
+        self.p2_target_appearance_time = 0
+        self.p1_target_lifetime = 0
+        self.p2_target_lifetime = 0
+        self.p1_state = "idle"
+        self.p2_state = "idle"
+        self.player1_leds = [self.ids.get(f'led_{i}') for i in range(13)]  # led_0 to led_12
+        self.player2_leds = [self.ids.get(f'led_{100 + i}') for i in range(13)]  # led_100 to led_112
+        self.p1_visible_targets = []
+        self.p2_visible_targets = []
 
 class LaserTargetCompetitionUI(App):
     """
@@ -287,10 +301,10 @@ class TargetScreen(Screen):
         self.p2_name = None
         self.targets_p1 = [self.ids.get(f'target_{i}') for i in range(13)]  # target_1 to target_12
         self.targets_p2 = [self.ids.get(f'target_{100 + i}') for i in range(13)]
-        self.p1_target_move_time = 0
-        self.p2_target_move_time = 0
-        self.p1_target_time = 0
-        self.p2_target_time = 0
+        self.p1_target_appearance_time = 0
+        self.p2_target_appearance_time = 0
+        self.p1_target_lifetime = 0
+        self.p2_target_lifetime = 0
         self.p1_state = "idle"
         self.p2_state = "idle"
         self.player1_leds = [self.ids.get(f'led_{i}') for i in range(13)]  # led_0 to led_12
@@ -363,8 +377,8 @@ class TargetScreen(Screen):
         self.update_time_left_image(self.update_time())
         if screen_manager.current == target_screen_name:
             if self.time_s > 15:
-                self.p1_target_move_time = self.time_ms
-                self.p2_target_move_time = self.time_ms
+                self.p1_target_appearance_time = self.time_ms
+                self.p2_target_appearance_time = self.time_ms
             if self.time_s > 0:
                 self.update_target_quality()
                 self.get_new_targets(self.difficulty)
@@ -385,21 +399,21 @@ class TargetScreen(Screen):
         self.time_s = -round((time_ns() / 1000000000) - (self.time_start / 1000000000 + 18.5)) # seconds counting down from 15 after start has been pressed
         self.time_ms = round((time_ns() / 1000000) - (self.time_start / 1000000)) # ms since start has been pressed
         self.countdown_time_s = -round((time_ns() / 1000000000) - (self.countdown_timer_start / 1000000000 + 3.5))
-        self.p1_target_time = self.time_ms - self.p1_target_move_time
-        self.p2_target_time = self.time_ms - self.p2_target_move_time
+        self.p1_target_lifetime = self.time_ms - self.p1_target_appearance_time
+        self.p2_target_lifetime = self.time_ms - self.p2_target_appearance_time
         #print(f"target_move_time={self.target_move_time}, time_ms={self.time_ms}, target_time={self.target_time}")
         return self.time_s
 
 
     def update_target_quality(self):
         p2_quality = "prismatic_shard"
-        if self.p2_target_time > 900:
+        if self.p2_target_lifetime > 900:
             p2_quality = "gold"
-        elif self.p2_target_time > 650:
+        elif self.p2_target_lifetime > 650:
             p2_quality = "amethyst"
-        elif self.p2_target_time > 450:
+        elif self.p2_target_lifetime > 450:
             p2_quality = "emerald"
-        elif self.p2_target_time > 325:
+        elif self.p2_target_lifetime > 325:
             p2_quality = "diamond"
 
         for i in range(0, len(self.p2_visible_targets)):
@@ -410,13 +424,13 @@ class TargetScreen(Screen):
                 print("Attribute Error")
 
         p1_quality = "prismatic_shard"
-        if self.p1_target_time > 900:
+        if self.p1_target_lifetime > 900:
             p1_quality = "gold"
-        elif self.p1_target_time > 650:
+        elif self.p1_target_lifetime > 650:
             p1_quality = "amethyst"
-        elif self.p1_target_time > 450:
+        elif self.p1_target_lifetime > 450:
             p1_quality = "emerald"
-        elif self.p1_target_time > 325:
+        elif self.p1_target_lifetime > 325:
             p1_quality = "diamond"
 
         for i in range(0, len(self.p1_visible_targets)):
@@ -492,7 +506,7 @@ class TargetScreen(Screen):
                 #print(f"Player 2: Moving target_{101 + i} to x={self.targets_p2[i].x}, y={self.targets_p2[i].y} next to LED {i}")
                 self.p2_visible_targets.append(self.targets_p2[i])
 
-                self.p2_target_move_time = self.time_ms
+                self.p2_target_appearance_time = self.time_ms
 
             # Print the lit LED names
             print(f"Got p2 LEDs to light up, they are: {lit_led_names}")
@@ -562,7 +576,7 @@ class TargetScreen(Screen):
                 self.p1_visible_targets.append(self.targets_p1[i])
                 
                 
-                self.p1_target_move_time = self.time_ms
+                self.p1_target_appearance_time = self.time_ms
 
             # Print the lit LED names
             #print(f"Got LEDs to light up, they are: {lit_led_names}")
