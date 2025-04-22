@@ -1,3 +1,4 @@
+from keyring.backends.libsecret import available
 from kivy import Config
 from orca.sound import Player
 
@@ -47,6 +48,8 @@ instructions_screen_name = 'instructions'
 leaderboard = Leaderboard()
 
 
+green_source = 'assets/images/buttons/green.png'
+red_source = 'assets/images/buttons/red.png'
 
 class GameState(Enum):
     IDLE = 1
@@ -57,6 +60,14 @@ class GameState(Enum):
 class SubmitState(Enum):
     PLAYER_ONE = 1
     PLAYER_TWO = 2
+
+class TargetQuality(Enum):
+    PRISMATIC_SHARD = 1
+    DIAMOND = 2
+    EMERALD = 3
+    AMETHYST = 4
+    GOLD = 5
+
 
 
 class Player:
@@ -71,57 +82,13 @@ class Player:
         self.visible_targets = []
 
 
-    def get_name(self):
-        return self.name
-
-    def set_name(self, name):
-        self.name = name
-
-    def get_score(self):
-        return self.score
-
-    def set_score(self, score):
-        self.score = score
-
-    def get_targets(self):
-        return self.targets
-
-    def set_targets(self, targets):
-        self.targets = targets
-
-    def get_target_appearance_time(self):
-        return self.target_appearance_time
-
-    def set_target_appearance_time(self, t):
-        self.target_appearance_time = t
-
-    def get_target_lifetime(self):
-        return self.target_lifetime
-
-    def set_target_lifetime(self, t):
-        self.target_lifetime = t
-
-    def set_state(self, s):
-        self.state = s
-
-    def get_state(self):
-        return self.state
-
-    def set_leds(self, l):
-        self.leds = l
-
-    def get_leds(self):
-        return self.leds
-
-    def set_visible_targets(self, v):
-        self.visible_targets = v
-
-    def get_visible_targets(self):
-        return self.visible_targets
+    def add_score(self, add):
+        self.score += add
 
 
 player_one = Player()
 player_two = Player()
+players = [player_one, player_two]
 
 
 class LaserTargetCompetitionUI(App):
@@ -324,22 +291,27 @@ class TargetScreen(Screen):
         self.prev_lit_leds = []
 
         #Player Variables
-        self.p1_points = None
-        self.p2_points = None
-        self.p1_name = None
-        self.p2_name = None
-        self.targets_p1 = [self.ids.get(f'target_{i}') for i in range(13)]  # target_1 to target_12
-        self.targets_p2 = [self.ids.get(f'target_{100 + i}') for i in range(13)]
-        self.p1_target_appearance_time = 0
-        self.p2_target_appearance_time = 0
-        self.p1_target_lifetime = 0
-        self.p2_target_lifetime = 0
-        self.p1_state = "idle"
-        self.p2_state = "idle"
-        self.player1_leds = [self.ids.get(f'led_{i}') for i in range(13)]  # led_0 to led_12
-        self.player2_leds = [self.ids.get(f'led_{100 + i}') for i in range(13)]  # led_100 to led_112
-        self.p1_visible_targets = []
-        self.p2_visible_targets = []
+        self.p1_points = None # todo unused
+        self.p2_points = None # todo unused
+        self.p1_name = None # todo unused
+        self.p2_name = None # todo unused
+        player_one.targets = [self.ids.get(f'target_{i}') for i in range(13)]
+        player_two.targets = [self.ids.get(f'target_{100 + i}') for i in range(13)]
+        self.targets_p1 = [self.ids.get(f'target_{i}') for i in range(13)]  # todo unused target_1 to target_12
+        self.targets_p2 = [self.ids.get(f'target_{100 + i}') for i in range(13)]# todo unused
+
+        self.p1_target_appearance_time = 0 # todo unused
+        self.p2_target_appearance_time = 0 # todo unused
+        self.p1_target_lifetime = 0 # todo unused
+        self.p2_target_lifetime = 0 # todo unused
+        self.p1_state = "idle" # todo unused
+        self.p2_state = "idle" # todo unused
+        self.player1_leds = [self.ids.get(f'led_{i}') for i in range(13)]  # led_0 to led_12 # todo unused
+        self.player2_leds = [self.ids.get(f'led_{100 + i}') for i in range(13)]  # led_100 to led_112 # todo unused
+        player_two.leds = [self.ids.get(f'led_{100 + i}') for i in range(13)]  # led_100 to led_112
+        player_one.leds = [self.ids.get(f'led_{i}') for i in range(13)]  # led_0 to led_12
+        self.p1_visible_targets = [] # todo unused
+        self.p2_visible_targets = [] # todo unused
 
         # List of states:
         #   - idle -> doing nothing, game hasn't started yet
@@ -357,10 +329,12 @@ class TargetScreen(Screen):
         self.difficulty = easy
 
     def on_enter(self, *args):
-        self.p1_name = InstructionsScreen.get_player_one_name(screen_manager.get_screen(instructions_screen_name))
-        self.p2_name = InstructionsScreen.get_player_two_name(screen_manager.get_screen(instructions_screen_name))
-        self.ids.player_1_name.text = self.p1_name
-        self.ids.player_2_name.text = self.p2_name
+        self.p1_name = InstructionsScreen.get_player_one_name(screen_manager.get_screen(instructions_screen_name)) # todo unused
+        self.p2_name = InstructionsScreen.get_player_two_name(screen_manager.get_screen(instructions_screen_name)) # todo unused
+        self.ids.player_1_name.text = player_one.name
+        self.ids.player_2_name.text = player_two.name
+        self.ids.player_1_name.text = self.p1_name  # todo unused
+        self.ids.player_2_name.text = self.p2_name # todo unused
 
 
     def startup_countdown(self):
@@ -371,34 +345,40 @@ class TargetScreen(Screen):
     def start(self):
         print("Starting target game - setting state to targets")
         self.startup_countdown()
-        self.p1_state = "get_new_leds"
-        self.p2_state = "get_new_leds"
+        self.p1_state = "get_new_leds" # todo unused
+        self.p2_state = "get_new_leds" # todo unused
+        player_two.state = GameState.GET_NEW_LEDS
+        player_one.state = GameState.GET_NEW_LEDS
         self.ids.start.center_x = self.width + 300
         self.schedule_clock()
         self.time_start = time_ns()
         self.time_s = 0
-        self.p1_points = 0
-        self.p2_points = 0
+        player_two.score = 0
+        player_one.score = 0
+
+        self.p1_points = 0 # todo unused
+        self.p2_points = 0 # todo unused
         self.ids.player_1_points.text = "00000"
         self.ids.player_2_points.text = "00000"
-        print(f"Player one name: {self.p1_name} Player two name: {self.p2_name}")
+        # print(f"Player one name: {self.p1_name} Player two name: {self.p2_name}")
 
 
 
     def end(self):
-        self.p1_state = "idle"
-        self.p2_state = "idle"
+        player_one.state = "idle"
+        player_two.state = "idle"
+        self.p1_state = "idle" # todo unused
+        self.p2_state = "idle" # todo unused
         print(f"p1_state={self.p1_state}")
         print(f"p2_state={self.p2_state}")
         self.ids.start.center_x = self.width / 2
         self.update_time_left_image(15)
         print(f"Your score is: {self.p1_points}, Player one")
-        leaderboard.add_score(self.p1_name, self.p1_points, 1)
-        self.transition_to_player_screen()
 
-        print(f"Your score is: {self.p2_points}, Player two")
-        leaderboard.add_score(self.p2_name, self.p2_points, 1)
-        self.transition_to_player_screen()
+        for player in players:
+            leaderboard.add_score(player.name, player.score, 1)
+            self.transition_to_player_screen()
+
 
 
     def update_all(self, dt=None): # dt for clock scheduling
@@ -406,6 +386,8 @@ class TargetScreen(Screen):
         self.update_time_left_image(self.update_time())
         if screen_manager.current == target_screen_name:
             if self.time_s > 15:
+                player_one.target_appearance_time = self.time_ms
+                player_two.target_appearance_time = self.time_ms
                 self.p1_target_appearance_time = self.time_ms
                 self.p2_target_appearance_time = self.time_ms
             if self.time_s > 0:
@@ -428,202 +410,107 @@ class TargetScreen(Screen):
         self.time_s = -round((time_ns() / 1000000000) - (self.time_start / 1000000000 + 18.5)) # seconds counting down from 15 after start has been pressed
         self.time_ms = round((time_ns() / 1000000) - (self.time_start / 1000000)) # ms since start has been pressed
         self.countdown_time_s = -round((time_ns() / 1000000000) - (self.countdown_timer_start / 1000000000 + 3.5))
-        self.p1_target_lifetime = self.time_ms - self.p1_target_appearance_time
-        self.p2_target_lifetime = self.time_ms - self.p2_target_appearance_time
+        player_one.target_lifetime = self.time_ms - player_one.target_appearance_time
+        player_two.target_lifetime = self.time_ms - player_two.target_appearance_time
+        self.p1_target_lifetime = self.time_ms - self.p1_target_appearance_time # todo unused
+        self.p2_target_lifetime = self.time_ms - self.p2_target_appearance_time # todo unused
         #print(f"target_move_time={self.target_move_time}, time_ms={self.time_ms}, target_time={self.target_time}")
         return self.time_s
 
 
     def update_target_quality(self):
-        p2_quality = "prismatic_shard"
-        if self.p2_target_lifetime > 900:
-            p2_quality = "gold"
-        elif self.p2_target_lifetime > 650:
-            p2_quality = "amethyst"
-        elif self.p2_target_lifetime > 450:
-            p2_quality = "emerald"
-        elif self.p2_target_lifetime > 325:
-            p2_quality = "diamond"
+        player_quality = TargetQuality.PRISMATIC_SHARD
+        for player in players:
+            player_quality = TargetQuality.PRISMATIC_SHARD
+            if player.target_lifetime > 900:
+                player_quality = TargetQuality.GOLD
+            elif player.target_lifetime > 650:
+                player_quality = TargetQuality.AMETHYST
+            elif player.target_lifetime > 450:
+                player_quality = TargetQuality.EMERALD
+            elif player.target_lifetime > 325:
+                player_quality = TargetQuality.DIAMOND
 
-        for i in range(0, len(self.p2_visible_targets)):
+        for i in range(0, len(player.visible_targets)):
             try:
-                self.p2_visible_targets[i].source = f"assets/images/{p2_quality}_64.png"
-                self.p2_visible_targets[i].quality = p2_quality
+                player.visible_targets[i].source = f"assets/images/{player_quality}_64.png"
+                player.visible_targets[i].quality = str(player_quality)
             except AttributeError:
                 print("Attribute Error")
-
-        p1_quality = "prismatic_shard"
-        if self.p1_target_lifetime > 900:
-            p1_quality = "gold"
-        elif self.p1_target_lifetime > 650:
-            p1_quality = "amethyst"
-        elif self.p1_target_lifetime > 450:
-            p1_quality = "emerald"
-        elif self.p1_target_lifetime > 325:
-            p1_quality = "diamond"
-
-        for i in range(0, len(self.p1_visible_targets)):
-            try:
-                self.p1_visible_targets[i].source = f"assets/images/{p1_quality}_64.png"
-                self.p1_visible_targets[i].quality = p1_quality
-            except AttributeError:
-                print("Attribute Error")
-
 
     def get_new_targets(self, difficulty):
         #print("getting new targets, lighting up leds")
-        if self.p2_state == "get_new_leds":
-            x_offset = 64
-            y_offset = 0
+        for player in players:
+            if player.state == GameState.GET_NEW_LEDS:
+                x_offset = 64
+                y_offset = 0
 
-            for led in self.player2_leds:
-                led.source = 'assets/images/buttons/red.png'
+                for led in player.leds:
+                    led.source = red_source
 
+                for target in player.targets:
+                    target.x = self.width + 10
 
-            # Reset all targets off-screen
-            for target in self.targets_p2:
-                target.x = self.width + 10  # Move them off-screen
+                lit_leds = []
 
-            lit_leds = []
+                available_leds = player.leds.copy()
 
-            # Pick at least one LED to light up
-            available_leds = self.player2_leds.copy()
+                for led in self.prev_lit_leds:
+                    if led in available_leds:
+                        available_leds.remove(led)
 
-            for led in self.prev_lit_leds:
-                if led in available_leds:
-                    available_leds.remove(led)
+                first_led = random.choice(available_leds)
+                first_led.source = green_source
+                lit_leds.append(first_led)
+                available_leds.remove(first_led)
 
-            # Pick at least one LED at random
-            first_led = random.choice(available_leds)
-            first_led.source = 'assets/images/buttons/green.png'
-            lit_leds.append(first_led)
-            available_leds.remove(first_led)
-
-            # Chance to light up additional LEDs
-            led_chance = random.random()
-            while led_chance <= difficulty and available_leds:
-                next_led = random.choice(available_leds)
-                next_led.source = 'assets/images/buttons/green.png'
-                lit_leds.append(next_led)
-                available_leds.remove(next_led)
                 led_chance = random.random()
+                while led_chance <= difficulty and available_leds:
+                    next_led= random.choice(available_leds)
+                    next_led.source = green_source
+                    lit_leds.append(next_led)
+                    available_leds.remove(next_led)
+                    led_chance = random.random()
 
-            self.prev_lit_leds = set(lit_leds)
+                self.prev_lit_leds = set(lit_leds)
 
-            lit_led_names = [name for name, widget in self.ids.items() if widget in lit_leds]
-            # Find numeric indices of the lit LEDs
-            lit_led_indices = [self.player2_leds.index(led) for led in lit_leds]
+                lit_led_names = [name for name, widget in self.ids.items() if widget in lit_leds]
+                lit_led_indices = [player.leds.index(led) for led in lit_leds]
 
+                for i in lit_led_indices:
+                    player.leds[i].source = green_source
+                    if i < 4:
+                        x_offset = 0
+                        y_offset = -64
+                    elif i < 9:
+                        x_offset = 64
+                        y_offset = 0
+                    elif i < 13:
+                        x_offset = 0
+                        y_offset = 64
 
-            for i in lit_led_indices:
-                self.player2_leds[i].source = 'assets/images/buttons/green.png'
-                if i < 4:
-                    x_offset = 0
-                    y_offset = -64
-                elif i < 9:
-                    x_offset = 64
-                    y_offset = 0
-                elif i < 13:
-                    x_offset = 0
-                    y_offset = 64
+                    led_x, led_y = player.leds[i].x, player.leds[i].y
+                    # Move Player 2's target next to the lit LED
+                    player.targets[i].x, player.targets[i].y = led_x + x_offset, led_y + y_offset
+                    player.visible_targets.append(player.targets[i])
+                    player.target_appearance_time = self.time_ms
 
-                led_x_p2, led_y_p2 = self.player2_leds[i].x, self.player2_leds[i].y
+                    print(f"Got p2 LEDs to light up, they are: {lit_led_names}")
+                    print(f"Got p2 LEDs to light up, they are: {lit_led_indices}")
 
-                # Move Player 2's target next to the lit LED
-                self.targets_p2[i].x, self.targets_p2[i].y = led_x_p2 + x_offset, led_y_p2 + y_offset
-
-                #print(f"Player 2: Moving target_{101 + i} to x={self.targets_p2[i].x}, y={self.targets_p2[i].y} next to LED {i}")
-                self.p2_visible_targets.append(self.targets_p2[i])
-
-                self.p2_target_appearance_time = self.time_ms
-
-            # Print the lit LED names
-            print(f"Got p2 LEDs to light up, they are: {lit_led_names}")
-            print(f"Got p2 LEDs to light up, they are: {lit_led_indices}")
-            self.p2_state = "wait_for_target_hit"
-
-        if self.p1_state == "get_new_leds":
-            x_offset = 64
-            y_offset = 0
-
-
-            # Reset all LEDs to red first
-            for led in self.player1_leds:
-                led.source = 'assets/images/buttons/red.png'
-
-                # Reset all targets off-screen
-            for target in self.targets_p1:
-                target.x = self.width + 10  # Move them off-screen
-
-            # Create a list to track which LEDs have been lit
-            lit_leds = []
-
-            available_leds = self.player1_leds.copy()
-
-            # if an LED was previously lit, don't light it
-            for led in self.prev_lit_leds:
-                if led in available_leds:
-                    available_leds.remove(led)
-
-            # Pick at least one LED at random
-            first_led = random.choice(available_leds)
-            first_led.source = 'assets/images/buttons/green.png'
-            lit_leds.append(first_led)
-            available_leds.remove(first_led)
-
-            # Chance to light up additional LEDs
-            led_chance = random.random()
-            while led_chance <= difficulty and available_leds:
-                next_led = random.choice(available_leds)
-                next_led.source = 'assets/images/buttons/green.png'
-                lit_leds.append(next_led)
-                available_leds.remove(next_led)
-                led_chance = random.random()
-
-            self.prev_lit_leds = set(lit_leds)
-
-            lit_led_names = [name for name, widget in self.ids.items() if widget in lit_leds]
-            # Find numeric indices of the lit LEDs
-            lit_led_indices = [self.player1_leds.index(led) for led in lit_leds]
-
-
-            for i in lit_led_indices:
-                self.player1_leds[i].source = 'assets/images/buttons/green.png'
-                if i < 4:
-                    x_offset = 0
-                    y_offset = -64
-                elif i < 9:
-                    x_offset = -64
-                    y_offset = 0
-                elif i < 13:
-                    x_offset = 0
-                    y_offset = 64
-                led_x, led_y = self.player1_leds[i].x, self.player1_leds[i].y
-
-                # Move Player 1's target next to the lit LED
-                self.targets_p1[i].x, self.targets_p1[i].y = led_x + x_offset, led_y + y_offset # Offset to the right
-                self.p1_visible_targets.append(self.targets_p1[i])
-                
-                
-                self.p1_target_appearance_time = self.time_ms
-
-            # Print the lit LED names
-            #print(f"Got LEDs to light up, they are: {lit_led_names}")
-            #print(f"Got LEDs to light up, they are: {lit_led_indices}")
-
-            self.p1_state = "wait_for_target_hit"
+                    player.state = GameState.WAIT_FOR_TARGET_HIT
 
 
     def target_hit(self, target_num):
         #print(f"target {target_num} hit")
         if self.time_s <= 15:
-            if target_num > 99 and self.p2_state == "wait_for_target_hit":
-                print("Player two target hit!")
-                self.update_points(self.targets_p2[target_num - 100])
-                self.p2_state = "get_new_leds"
-            elif target_num <= 100 and self.p1_state == "wait_for_target_hit":
-                self.update_points(self.targets_p1[target_num])
-                self.p1_state = "get_new_leds"
+            for player in players:
+                if target_num > 99 and player.state == GameState.WAIT_FOR_TARGET_HIT:
+                    self.update_points(player.targets[target_num - 100])
+                    player.state = GameState.GET_NEW_LEDS
+                elif target_num <= 100 and player.state == GameState.WAIT_FOR_TARGET_HIT:
+                    self.update_points(player.targets[target_num])
+                    player.state = GameState.GET_NEW_LEDS
 
     def update_points(self, target):
         points = 0
@@ -643,13 +530,12 @@ class TargetScreen(Screen):
             points += 250
             cprint(f"Hit gold! You have {points} points", "yellow")
         if target.player == 1:
-            self.p1_points += points
-            self.ids.player_1_points.text = str(self.p1_points)
+            player_one.add_score(points)
+            self.ids.player_1_points.text = str(player_one.score)
         else:
-            self.p2_points += points
-            self.ids.player_2_points.text = str(self.p2_points)
+            player_two.add_score(points)
+            self.ids.player_2_points.text = str(player_two.score)
         target.quality = "prismatic_shard" #resets the target to its original quality
-
 
     def update_countdown_image(self, num):
         if num > 0:
