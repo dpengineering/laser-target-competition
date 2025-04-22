@@ -64,8 +64,11 @@ class Player:
         self.name = "Henry"
         self.score = 0
         self.targets = None
-        self.target_move_time = 0
-        self.target_time = 0
+        self.target_appearance_time = 0
+        self.target_lifetime = 0
+        self.state = "idle"
+        self.leds = []
+        self.visible_targets = []
 
 
     def get_name(self):
@@ -80,20 +83,46 @@ class Player:
     def set_score(self, score):
         self.score = score
 
+    def get_targets(self):
+        return self.targets
+
+    def set_targets(self, targets):
+        self.targets = targets
+
+    def get_target_appearance_time(self):
+        return self.target_appearance_time
+
+    def set_target_appearance_time(self, t):
+        self.target_appearance_time = t
+
+    def get_target_lifetime(self):
+        return self.target_lifetime
+
+    def set_target_lifetime(self, t):
+        self.target_lifetime = t
+
+    def set_state(self, s):
+        self.state = s
+
+    def get_state(self):
+        return self.state
+
+    def set_leds(self, l):
+        self.leds = l
+
+    def get_leds(self):
+        return self.leds
+
+    def set_visible_targets(self, v):
+        self.visible_targets = v
+
+    def get_visible_targets(self):
+        return self.visible_targets
+
 
 player_one = Player()
 player_two = Player()
 
-self.p1_target_appearance_time = 0
-        self.p2_target_appearance_time = 0
-        self.p1_target_lifetime = 0
-        self.p2_target_lifetime = 0
-        self.p1_state = "idle"
-        self.p2_state = "idle"
-        self.player1_leds = [self.ids.get(f'led_{i}') for i in range(13)]  # led_0 to led_12
-        self.player2_leds = [self.ids.get(f'led_{100 + i}') for i in range(13)]  # led_100 to led_112
-        self.p1_visible_targets = []
-        self.p2_visible_targets = []
 
 class LaserTargetCompetitionUI(App):
     """
