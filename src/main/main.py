@@ -50,8 +50,8 @@ instructions_screen_name = 'instructions'
 leaderboard = Leaderboard()
 
 
-green_source = 'assets/images/buttons/green.png'
-red_source = 'assets/images/buttons/red.png'
+GREEN_SOURCE = 'assets/images/buttons/green.png'
+RED_SOURCE = 'assets/images/buttons/red.png'
 
 SOUND_FILES = {
     "target_hit": 'assets/sounds/target_hit.wav',
@@ -378,14 +378,13 @@ class TargetScreen(Screen):
                     print("Attribute Error")
 
     def get_new_targets(self, difficulty):
-        #print("getting new targets, lighting up leds")
         for player in players:
             if player.state == GameState.GET_NEW_LEDS:
                 x_offset = 64
                 y_offset = 0
 
                 for led in player.leds:
-                    led.source = red_source
+                    led.source = RED_SOURCE
 
                 for target in player.targets:
                     target.x = self.width + 10
@@ -399,14 +398,14 @@ class TargetScreen(Screen):
                         available_leds.remove(led)
 
                 first_led = random.choice(available_leds)
-                first_led.source = green_source
+                first_led.source = GREEN_SOURCE
                 lit_leds.append(first_led)
                 available_leds.remove(first_led)
 
                 led_chance = random.random()
                 while led_chance <= difficulty and available_leds:
                     next_led= random.choice(available_leds)
-                    next_led.source = green_source
+                    next_led.source = GREEN_SOURCE
                     lit_leds.append(next_led)
                     available_leds.remove(next_led)
                     led_chance = random.random()
@@ -417,7 +416,7 @@ class TargetScreen(Screen):
                 lit_led_indices = [player.leds.index(led) for led in lit_leds]
 
                 for i in lit_led_indices:
-                    player.leds[i].source = green_source
+                    player.leds[i].source = GREEN_SOURCE
                     if i < 4:
                         x_offset = 0
                         y_offset = -64
