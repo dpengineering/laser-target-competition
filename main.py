@@ -62,11 +62,13 @@ class SubmitState(Enum):
     PLAYER_TWO = 2
 
 class TargetQuality(Enum):
-    PRISMATIC_SHARD = 1
-    DIAMOND = 2
-    EMERALD = 3
-    AMETHYST = 4
-    GOLD = 5
+    PRISMATIC_SHARD = "prismatic_shard"
+    DIAMOND = "diamond"
+    EMERALD = "emerald"
+    AMETHYST = "amethyst"
+    GOLD = "gold"
+
+
 
 
 
@@ -291,27 +293,13 @@ class TargetScreen(Screen):
         self.prev_lit_leds = []
 
         #Player Variables
-        self.p1_points = None # todo unused
-        self.p2_points = None # todo unused
-        self.p1_name = None # todo unused
-        self.p2_name = None # todo unused
         player_one.targets = [self.ids.get(f'target_{i}') for i in range(13)]
         player_two.targets = [self.ids.get(f'target_{100 + i}') for i in range(13)]
-        self.targets_p1 = [self.ids.get(f'target_{i}') for i in range(13)]  # todo unused target_1 to target_12
-        self.targets_p2 = [self.ids.get(f'target_{100 + i}') for i in range(13)]# todo unused
 
-        self.p1_target_appearance_time = 0 # todo unused
-        self.p2_target_appearance_time = 0 # todo unused
-        self.p1_target_lifetime = 0 # todo unused
-        self.p2_target_lifetime = 0 # todo unused
-        self.p1_state = "idle" # todo unused
-        self.p2_state = "idle" # todo unused
-        self.player1_leds = [self.ids.get(f'led_{i}') for i in range(13)]  # led_0 to led_12 # todo unused
-        self.player2_leds = [self.ids.get(f'led_{100 + i}') for i in range(13)]  # led_100 to led_112 # todo unused
+
+
         player_two.leds = [self.ids.get(f'led_{100 + i}') for i in range(13)]  # led_100 to led_112
         player_one.leds = [self.ids.get(f'led_{i}') for i in range(13)]  # led_0 to led_12
-        self.p1_visible_targets = [] # todo unused
-        self.p2_visible_targets = [] # todo unused
 
         # List of states:
         #   - idle -> doing nothing, game hasn't started yet
@@ -329,12 +317,8 @@ class TargetScreen(Screen):
         self.difficulty = easy
 
     def on_enter(self, *args):
-        self.p1_name = InstructionsScreen.get_player_one_name(screen_manager.get_screen(instructions_screen_name)) # todo unused
-        self.p2_name = InstructionsScreen.get_player_two_name(screen_manager.get_screen(instructions_screen_name)) # todo unused
         self.ids.player_1_name.text = player_one.name
         self.ids.player_2_name.text = player_two.name
-        self.ids.player_1_name.text = self.p1_name  # todo unused
-        self.ids.player_2_name.text = self.p2_name # todo unused
 
 
     def startup_countdown(self):
@@ -345,8 +329,6 @@ class TargetScreen(Screen):
     def start(self):
         print("Starting target game - setting state to targets")
         self.startup_countdown()
-        self.p1_state = "get_new_leds" # todo unused
-        self.p2_state = "get_new_leds" # todo unused
         player_two.state = GameState.GET_NEW_LEDS
         player_one.state = GameState.GET_NEW_LEDS
         self.ids.start.center_x = self.width + 300
@@ -356,8 +338,7 @@ class TargetScreen(Screen):
         player_two.score = 0
         player_one.score = 0
 
-        self.p1_points = 0 # todo unused
-        self.p2_points = 0 # todo unused
+
         self.ids.player_1_points.text = "00000"
         self.ids.player_2_points.text = "00000"
         # print(f"Player one name: {self.p1_name} Player two name: {self.p2_name}")
@@ -367,13 +348,10 @@ class TargetScreen(Screen):
     def end(self):
         player_one.state = "idle"
         player_two.state = "idle"
-        self.p1_state = "idle" # todo unused
-        self.p2_state = "idle" # todo unused
-        print(f"p1_state={self.p1_state}")
-        print(f"p2_state={self.p2_state}")
+
+
         self.ids.start.center_x = self.width / 2
         self.update_time_left_image(15)
-        print(f"Your score is: {self.p1_points}, Player one")
 
         for player in players:
             leaderboard.add_score(player.name, player.score, 1)
@@ -412,14 +390,11 @@ class TargetScreen(Screen):
         self.countdown_time_s = -round((time_ns() / 1000000000) - (self.countdown_timer_start / 1000000000 + 3.5))
         player_one.target_lifetime = self.time_ms - player_one.target_appearance_time
         player_two.target_lifetime = self.time_ms - player_two.target_appearance_time
-        self.p1_target_lifetime = self.time_ms - self.p1_target_appearance_time # todo unused
-        self.p2_target_lifetime = self.time_ms - self.p2_target_appearance_time # todo unused
         #print(f"target_move_time={self.target_move_time}, time_ms={self.time_ms}, target_time={self.target_time}")
         return self.time_s
 
 
     def update_target_quality(self):
-        player_quality = TargetQuality.PRISMATIC_SHARD
         for player in players:
             player_quality = TargetQuality.PRISMATIC_SHARD
             if player.target_lifetime > 900:
@@ -431,12 +406,12 @@ class TargetScreen(Screen):
             elif player.target_lifetime > 325:
                 player_quality = TargetQuality.DIAMOND
 
-        for i in range(0, len(player.visible_targets)):
-            try:
-                player.visible_targets[i].source = f"assets/images/{player_quality}_64.png"
-                player.visible_targets[i].quality = str(player_quality)
-            except AttributeError:
-                print("Attribute Error")
+            for i in range(0, len(player.visible_targets)):
+                try:
+                    player.visible_targets[i].source = f"assets/images/{player_quality.value}_64.png"
+                    player.visible_targets[i].quality = player_quality.value
+                except AttributeError:
+                    print("Attribute Error")
 
     def get_new_targets(self, difficulty):
         #print("getting new targets, lighting up leds")
@@ -504,13 +479,13 @@ class TargetScreen(Screen):
     def target_hit(self, target_num):
         #print(f"target {target_num} hit")
         if self.time_s <= 15:
-            for player in players:
-                if target_num > 99 and player.state == GameState.WAIT_FOR_TARGET_HIT:
-                    self.update_points(player.targets[target_num - 100])
-                    player.state = GameState.GET_NEW_LEDS
-                elif target_num <= 100 and player.state == GameState.WAIT_FOR_TARGET_HIT:
-                    self.update_points(player.targets[target_num])
-                    player.state = GameState.GET_NEW_LEDS
+
+            if target_num > 99 and player_two.state == GameState.WAIT_FOR_TARGET_HIT:
+                self.update_points(player_two.targets[target_num - 100])
+                player_two.state = GameState.GET_NEW_LEDS
+            elif target_num <= 100 and player_one.state == GameState.WAIT_FOR_TARGET_HIT:
+                self.update_points(player_one.targets[target_num])
+                player_one.state = GameState.GET_NEW_LEDS
 
     def update_points(self, target):
         points = 0
