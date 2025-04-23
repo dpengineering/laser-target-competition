@@ -1,3 +1,6 @@
+from typing import overload
+
+from gi.overrides import override
 from keyring.backends.libsecret import available
 from kivy import Config
 from orca.sound import Player
@@ -24,7 +27,6 @@ from pidev.kivy.selfupdatinglabel import SelfUpdatingLabel
 from pidev.kivy.ImageButton import ImageButton
 from pidev.kivy import DPEAButton
 
-from keyboard_handler import on_press, on_release
 from leaderboard import Leaderboard
 # I know these are grey buts it's required trust me
 
@@ -118,16 +120,13 @@ class InstructionsScreen(Screen):
     """
 
     def __init__(self, **kw):
-        Builder.load_file('InstructionsScreen.kv')
+        Builder.load_file('../kv/InstructionsScreen.kv')
         super(InstructionsScreen, self).__init__(**kw)
-        self.player_one_name = "HENRY" #default name for all the cool people who think they can just put no name (nope! it's gonna be my name!).
-        self.player_two_name = "HENRY"
         self.keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
         self.state = SubmitState.PLAYER_ONE
         self.listener = keyboard.Listener(
             on_press=self.on_press,
             on_release=self.on_release)
-        self.listener.start()
 
 
 
@@ -149,46 +148,40 @@ class InstructionsScreen(Screen):
             print('special key {0} pressed'.format(
                 key))
 
+    @staticmethod
+    def on_release(key):
+        print('{0} released'.format(
+            key))
+
+    def on_enter(self, *args):
+        if not self.listener.is_alive():
+            self.listener.start()
+    def on_leave(self, *args):
+        self.listener.stop()
+
     def button_pressed(self, key):
         if self.ids.name.text == "l":
             self.ids.name.text = ""
-
         if key == "backspace":
             self.ids.name.text = self.ids.name.text[:-1]
         elif key in self.keys:
             self.ids.name.text += key.upper()
 
-    def get_player_one_name(self):
-        print(f"p1 name: {self.player_one_name}")
-        return self.player_one_name
-
-    def get_player_two_name(self):
-        print(f"p2 name: {self.player_two_name}")
-        return self.player_two_name
-
     def submit_text(self):
         if self.state == SubmitState.PLAYER_ONE:
-            self.player_one_name = self.ids.name.text
+            player_one.name = self.ids.name.text
             self.ids.name.text = ''
-            self.ids.player_one_name.text = self.player_one_name
+            self.ids.player_one_name.text = player_one.name
             self.ids.instructions.text = "PLAYER TWO, ENTER YOUR NAME OR INITIALS"
             self.state = SubmitState.PLAYER_TWO
         elif self.state == SubmitState.PLAYER_TWO:
-            self.player_two_name = self.ids.name.text
-            self.ids.player_two_name.text = self.player_two_name
+            player_two.name = self.ids.name.text
+            self.ids.player_two_name.text = player_two.name
             self.ids.play.x = 0
             self.ids.play_button.x = self.width / 2 - 110
             self.ids.submit.x = 1245
             self.ids.submit_button.x = self.width + 500
 
-
-    @staticmethod
-    def on_release(key):
-        print('{0} released'.format(
-            key))
-        if key == keyboard.Key.esc:
-            # Stop listener
-            return False
 
     @staticmethod
     def transition_to_player_screen():
@@ -208,8 +201,6 @@ class PlayerScreen(Screen):
     """
     def __init__(self, **kw):
         super().__init__(**kw)
-        self.get_leaderboard()
-
 
     def on_enter(self, *args):
         self.get_leaderboard()
@@ -246,10 +237,6 @@ class PlayerScreen(Screen):
             elif (i+1) == 10:
                 self.ids.name_10.text = str(score['name'])
                 self.ids.score_10.text = str(score['points'])
-            #print(str((i + 1)) + ". " + str(score['name']) + " " + str(score['points']))
-
-
-
 
     @staticmethod
     def transition_to_target_screen():
@@ -260,9 +247,6 @@ class PlayerScreen(Screen):
     def transition_to_instructions_screen():
         screen_manager.transition = NoTransition()
         screen_manager.current = instructions_screen_name
-
-
-
 
 
 class TargetScreen(Screen):
@@ -278,11 +262,8 @@ class TargetScreen(Screen):
         **kwargs is normal kivy.uix.screenmanager.Screen attributes
         """
 
-
-
-        Builder.load_file('TargetScreen.kv')
+        Builder.load_file('../kv/TargetScreen.kv')
         super(TargetScreen, self).__init__(**kwargs)
-
         self.clock_scheduled = False
         self.time_start = None
         self.time_s = None
@@ -292,22 +273,11 @@ class TargetScreen(Screen):
         self.countdown = None
         self.prev_lit_leds = []
 
-        #Player Variables
+        #Player Variables set
         player_one.targets = [self.ids.get(f'target_{i}') for i in range(13)]
         player_two.targets = [self.ids.get(f'target_{100 + i}') for i in range(13)]
-
-
-
         player_two.leds = [self.ids.get(f'led_{100 + i}') for i in range(13)]  # led_100 to led_112
         player_one.leds = [self.ids.get(f'led_{i}') for i in range(13)]  # led_0 to led_12
-
-        # List of states:
-        #   - idle -> doing nothing, game hasn't started yet
-        #   - get_new_leds -> get new leds to light up
-        #   - wait_for_target_hit -> we lit up the leds, now we have to wait for the correct target to be hit
-        #   - game_ending(unused) -> game is ending, score is calculating
-
-
 
         #unused(for now)
         easy = 0.1
@@ -319,7 +289,6 @@ class TargetScreen(Screen):
     def on_enter(self, *args):
         self.ids.player_1_name.text = player_one.name
         self.ids.player_2_name.text = player_two.name
-
 
     def startup_countdown(self):
         self.countdown = True
@@ -337,27 +306,18 @@ class TargetScreen(Screen):
         self.time_s = 0
         player_two.score = 0
         player_one.score = 0
-
-
         self.ids.player_1_points.text = "00000"
         self.ids.player_2_points.text = "00000"
-        # print(f"Player one name: {self.p1_name} Player two name: {self.p2_name}")
-
-
 
     def end(self):
         player_one.state = "idle"
         player_two.state = "idle"
-
-
         self.ids.start.center_x = self.width / 2
         self.update_time_left_image(15)
 
         for player in players:
             leaderboard.add_score(player.name, player.score, 1)
             self.transition_to_player_screen()
-
-
 
     def update_all(self, dt=None): # dt for clock scheduling
         #print(f"state={self.state}, target_move_to_pedestal_num={self.target_move_to_pedestal_num}, points={self.points}")
@@ -366,8 +326,6 @@ class TargetScreen(Screen):
             if self.time_s > 15:
                 player_one.target_appearance_time = self.time_ms
                 player_two.target_appearance_time = self.time_ms
-                self.p1_target_appearance_time = self.time_ms
-                self.p2_target_appearance_time = self.time_ms
             if self.time_s > 0:
                 self.update_target_quality()
                 self.get_new_targets(self.difficulty)
@@ -383,14 +341,12 @@ class TargetScreen(Screen):
         else:
             self.clock_scheduled = False
 
-
     def update_time(self):
         self.time_s = -round((time_ns() / 1000000000) - (self.time_start / 1000000000 + 18.5)) # seconds counting down from 15 after start has been pressed
         self.time_ms = round((time_ns() / 1000000) - (self.time_start / 1000000)) # ms since start has been pressed
         self.countdown_time_s = -round((time_ns() / 1000000000) - (self.countdown_timer_start / 1000000000 + 3.5))
         player_one.target_lifetime = self.time_ms - player_one.target_appearance_time
         player_two.target_lifetime = self.time_ms - player_two.target_appearance_time
-        #print(f"target_move_time={self.target_move_time}, time_ms={self.time_ms}, target_time={self.target_time}")
         return self.time_s
 
 
@@ -469,17 +425,13 @@ class TargetScreen(Screen):
                     player.targets[i].x, player.targets[i].y = led_x + x_offset, led_y + y_offset
                     player.visible_targets.append(player.targets[i])
                     player.target_appearance_time = self.time_ms
-
-                    print(f"Got p2 LEDs to light up, they are: {lit_led_names}")
-                    print(f"Got p2 LEDs to light up, they are: {lit_led_indices}")
-
                     player.state = GameState.WAIT_FOR_TARGET_HIT
+                    print(f"Got LEDs to light up, they are: {lit_led_names}")
+                    print(f"Got LEDs to light up, they are: {lit_led_indices}")
 
 
     def target_hit(self, target_num):
-        #print(f"target {target_num} hit")
         if self.time_s <= 15:
-
             if target_num > 99 and player_two.state == GameState.WAIT_FOR_TARGET_HIT:
                 self.update_points(player_two.targets[target_num - 100])
                 player_two.state = GameState.GET_NEW_LEDS
@@ -506,9 +458,11 @@ class TargetScreen(Screen):
             cprint(f"Hit gold! You have {points} points", "yellow")
         if target.player == 1:
             player_one.add_score(points)
+            print(f"Player one Score: {player_one.score}")
             self.ids.player_1_points.text = str(player_one.score)
         else:
             player_two.add_score(points)
+            print(f"Player two Score: {player_two.score}")
             self.ids.player_2_points.text = str(player_two.score)
         target.quality = "prismatic_shard" #resets the target to its original quality
 
@@ -518,7 +472,6 @@ class TargetScreen(Screen):
         else:
             self.countdown = False
             self.ids.countdown.x = self.width + 100
-
 
     def update_time_left_image(self, num):
         if num > 15:
@@ -534,19 +487,16 @@ class TargetScreen(Screen):
         else:
             self.ids.time_left.text = "0" + str(num)
 
-
     @staticmethod
     def transition_to_player_screen():
         screen_manager.transition = NoTransition()
         screen_manager.current = player_screen_name
 
-
-Builder.load_file('main.kv')
+Builder.load_file('../kv/main.kv')
 LabelBase.register(name='PixelFont', fn_regular='assets/fonts/Tiny5-Regular.ttf')
 screen_manager.add_widget(PlayerScreen(name=player_screen_name))
 screen_manager.add_widget(TargetScreen(name=target_screen_name))
 screen_manager.add_widget(InstructionsScreen(name=instructions_screen_name))
-
 
 if __name__ == "__main__":
 

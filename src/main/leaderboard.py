@@ -52,6 +52,8 @@ class Leaderboard:
             print(f"i={i}score={score['points']}")
             if points == score['points']:
                 return i+1
+            return None
+        return None
 
     def save_to_json(self):
         with open("assets/data/leaderboard/leaderboard.json", 'w') as file:
