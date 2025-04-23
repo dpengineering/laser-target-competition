@@ -3,6 +3,7 @@ from typing import overload
 from gi.overrides import override
 from keyring.backends.libsecret import available
 from kivy import Config
+from kivy.core.audio import SoundLoader
 from orca.sound import Player
 
 Config.set('kivy', 'keyboard_mode', 'systemanddock')
@@ -42,7 +43,6 @@ from leaderboard import Leaderboard
 
 time = time
 
-
 screen_manager = ScreenManager()
 target_screen_name = 'target'
 player_screen_name = 'player'
@@ -52,6 +52,11 @@ leaderboard = Leaderboard()
 
 green_source = 'assets/images/buttons/green.png'
 red_source = 'assets/images/buttons/red.png'
+
+SOUND_FILES = {
+    "target_hit": 'assets/sounds/target_hit.wav',
+    "select": 'assets/sounds/select.wav'
+}
 
 class GameState(Enum):
     IDLE = 1
@@ -71,7 +76,10 @@ class TargetQuality(Enum):
     GOLD = "gold"
 
 
-
+def play_sound(s):
+    sound = SoundLoader.load(SOUND_FILES[s])
+    sound.stop()
+    sound.play()
 
 
 class Player:
@@ -431,6 +439,7 @@ class TargetScreen(Screen):
 
 
     def target_hit(self, target_num):
+        play_sound("target_hit")
         if self.time_s <= 15:
             if target_num > 99 and player_two.state == GameState.WAIT_FOR_TARGET_HIT:
                 self.update_points(player_two.targets[target_num - 100])
