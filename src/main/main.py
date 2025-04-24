@@ -39,6 +39,10 @@ from leaderboard import Leaderboard
 # combos?
 # points pop off target when hit?
 # no transition between screens
+# set levels?
+# medals for set levels?
+# medals in general - copper - silver - electrum - gold - platinum - diamond(author medal)
+
 
 
 time = time
