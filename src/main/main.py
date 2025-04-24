@@ -350,9 +350,11 @@ class TargetScreen(Screen):
             self.clock_scheduled = False
 
     def update_time(self):
-        self.time_s = -round((time_ns() / 1000000000) - (self.time_start / 1000000000 + 18.5)) # seconds counting down from 15 after start has been pressed
+        countdown_time = 3.5
+        play_time = 15
+        self.time_s = -round((time_ns() / 1000000000) - (self.time_start / 1000000000 + countdown_time + play_time)) # seconds counting down from 15 after start has been pressed
         self.time_ms = round((time_ns() / 1000000) - (self.time_start / 1000000)) # ms since start has been pressed
-        self.countdown_time_s = -round((time_ns() / 1000000000) - (self.countdown_timer_start / 1000000000 + 3.5))
+        self.countdown_time_s = -round((time_ns() / 1000000000) - (self.countdown_timer_start / 1000000000 + countdown_time))
         player_one.target_lifetime = self.time_ms - player_one.target_appearance_time
         player_two.target_lifetime = self.time_ms - player_two.target_appearance_time
         return self.time_s
