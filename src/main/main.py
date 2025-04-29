@@ -35,7 +35,7 @@ from leaderboard import Leaderboard
 # space bar in name entry (MAYBE NOT NEEDED)
 # key for targets and points awarded DONE
 # two player?  maybe a laser that you move with the arrow keys and wasd
-# sound (PRIORITY)
+# sound (DONE!)
 # combos?
 # points pop off target when hit?
 # no transition between screens
@@ -54,8 +54,8 @@ instructions_screen_name = 'instructions'
 leaderboard = Leaderboard()
 
 
-GREEN_SOURCE = 'assets/images/buttons/green.png'
-RED_SOURCE = 'assets/images/buttons/red.png'
+GREEN_SOURCE = 'assets/images/buttons/leds/green.png'
+RED_SOURCE = 'assets/images/buttons/leds/red.png'
 
 SOUND_FILES = {
     "target_hit": 'assets/sounds/target_hit.wav',
@@ -378,7 +378,7 @@ class TargetScreen(Screen):
 
             for i in range(0, len(player.visible_targets)):
                 try:
-                    player.visible_targets[i].source = f"assets/images/{player_quality.value}_64.png"
+                    player.visible_targets[i].source = f"assets/images/targets/{player_quality.value}_64.png"
                     player.visible_targets[i].quality = player_quality.value
                 except AttributeError:
                     print("Attribute Error")
