@@ -85,6 +85,7 @@ def play_sound(s):
     sound.stop()
     sound.play()
 
+player_count = 0
 
 class Player:
     def __init__(self):
@@ -96,13 +97,15 @@ class Player:
         self.state = "idle"
         self.leds = []
         self.visible_targets = []
+        self.player_number = player_count
 
 
     def add_score(self, add):
         self.score += add
 
-
+player_count += 1
 player_one = Player()
+player_count += 1
 player_two = Player()
 players = [player_one, player_two]
 
@@ -296,7 +299,7 @@ class TargetScreen(Screen):
         medium = 0.3
         hard = 0.5
         impossible = 0.7
-        self.difficulty = easy
+        self.difficulty = impossible
 
     def on_enter(self, *args):
         self.ids.player_1_name.text = player_one.name
@@ -378,7 +381,7 @@ class TargetScreen(Screen):
 
             for i in range(0, len(player.visible_targets)):
                 try:
-                    player.visible_targets[i].source = f"assets/images/targets/{player_quality.value}_64.png"
+                    player.visible_targets[i].source = f"assets/images/buttons/targets/{player_quality.value}_64.png"
                     player.visible_targets[i].quality = player_quality.value
                 except AttributeError:
                     print("Attribute Error")
@@ -427,7 +430,10 @@ class TargetScreen(Screen):
                         x_offset = 0
                         y_offset = -64
                     elif i < 9:
-                        x_offset = 64
+                        if player.player_number == 1:
+                            x_offset = -64
+                        else:
+                            x_offset = 64
                         y_offset = 0
                     elif i < 13:
                         x_offset = 0
