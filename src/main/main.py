@@ -33,16 +33,22 @@ from leaderboard import Leaderboard
 
 # TODO
 # space bar in name entry (MAYBE NOT NEEDED)
-# key for targets and points awarded DONE
-# two player?  maybe a laser that you move with the arrow keys and wasd (LOW PRIORITY)
+# key for targets and points awarded (DONE!)
+# click all targets instead of just one (DONE!)
+# no transition between screens (DONE)
 # sound (DONE!)
+# two player?  maybe a laser that you move with the arrow keys and wasd (LOW PRIORITY)
 # combos?
 # points pop off target when hit?
-# no transition between screens (DONE)
-# set levels?
-# medals for set levels?
-# medals in general - copper - silver - electrum - gold - platinum - diamond(author medal)
-# click all targets instead of just one (HIGH PRIORITY)
+# set levels - (PRIORITY)
+#  -  each level is a list of a list of each set of leds to light up
+#  -  example list:
+level_1 = [[1, 3], [2], [7, 8, 9], [12, 3, 5]]
+#  -  first, leds one and three will light up, then led two, then seven, eight, and nine, then etc...
+#  -  for levels, time is tracked as well as points(or maybe just time, or just points??)
+#  -  medals for set levels?
+#  -  medals in general - copper - silver - electrum - gold - platinum - diamond(author medal)
+
 
 
 
@@ -355,7 +361,7 @@ class TargetScreen(Screen):
                 player_two.target_appearance_time = self.time_ms
             if self.time_s > 0:
                 self.update_target_quality()
-                self.get_new_targets(self.difficulty)
+                self.activate_random_targets(self.difficulty)
             elif self.time_s == 0:
                 self.clock_scheduled = False
                 self.end()
@@ -409,7 +415,14 @@ class TargetScreen(Screen):
                     led.source = RED_SOURCE
 
 
-    def get_new_targets(self, difficulty):
+
+
+    def activate_specific_targets(self, t):
+        for target in t:
+            print()
+
+
+    def activate_random_targets(self, difficulty):
         for p in players:
             if p.state == GameState.GET_NEW_LEDS:
                 x_offset = 64
