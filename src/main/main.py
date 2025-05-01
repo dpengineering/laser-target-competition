@@ -341,7 +341,7 @@ class TargetScreen(Screen):
         player_two.state = "idle"
         self.ids.start.center_x = self.width / 2
         self.update_time_left_image(15)
-
+        self.ids.go.x = self.width = 1
         for player in players:
             leaderboard.add_score(player.name, player.score, 1)
             self.transition_to_player_screen()
