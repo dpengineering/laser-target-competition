@@ -34,14 +34,15 @@ from leaderboard import Leaderboard
 # TODO
 # space bar in name entry (MAYBE NOT NEEDED)
 # key for targets and points awarded DONE
-# two player?  maybe a laser that you move with the arrow keys and wasd
+# two player?  maybe a laser that you move with the arrow keys and wasd (LOW PRIORITY)
 # sound (DONE!)
 # combos?
 # points pop off target when hit?
-# no transition between screens
+# no transition between screens (DONE)
 # set levels?
 # medals for set levels?
 # medals in general - copper - silver - electrum - gold - platinum - diamond(author medal)
+# click all targets instead of just one (HIGH PRIORITY)
 
 
 
@@ -98,6 +99,7 @@ class Player:
         self.leds = []
         self.visible_targets = []
         self.player_number = player_count
+        self.lit_leds = []
 
 
     def add_score(self, add):
@@ -108,6 +110,8 @@ player_one = Player()
 player_count += 1
 player_two = Player()
 players = [player_one, player_two]
+targets = []
+leds = []
 
 
 class LaserTargetCompetitionUI(App):
@@ -293,6 +297,10 @@ class TargetScreen(Screen):
         player_two.targets = [self.ids.get(f'target_{100 + i}') for i in range(13)]
         player_two.leds = [self.ids.get(f'led_{100 + i}') for i in range(13)]  # led_100 to led_112
         player_one.leds = [self.ids.get(f'led_{i}') for i in range(13)]  # led_0 to led_12
+        targets.append(player_one.targets)
+        targets.append(player_two.targets)
+        leds.append(player_one.leds)
+        leds.append(player_one.leds)
 
         #unused(for now)
         easy = 0.1
@@ -386,21 +394,32 @@ class TargetScreen(Screen):
                 except AttributeError:
                     print("Attribute Error")
 
+    def remove_target(self, target, led):
+        for p in targets:
+            for t in p:
+                if t == target:
+                    t.x = self.width + 10
+        for p in leds:
+            for l in p:
+                if l == led:
+                    led.source = RED_SOURCE
+
+
     def get_new_targets(self, difficulty):
-        for player in players:
-            if player.state == GameState.GET_NEW_LEDS:
+        for p in players:
+            if p.state == GameState.GET_NEW_LEDS:
                 x_offset = 64
                 y_offset = 0
 
-                for led in player.leds:
+                for led in p.leds:
                     led.source = RED_SOURCE
 
-                for target in player.targets:
+                for target in p.targets:
                     target.x = self.width + 10
 
-                lit_leds = []
+                p.lit_leds = []
 
-                available_leds = player.leds.copy()
+                available_leds = p.leds.copy()
 
                 for led in self.prev_lit_leds:
                     if led in available_leds:
@@ -408,29 +427,29 @@ class TargetScreen(Screen):
 
                 first_led = random.choice(available_leds)
                 first_led.source = GREEN_SOURCE
-                lit_leds.append(first_led)
+                p.lit_leds.append(first_led)
                 available_leds.remove(first_led)
 
                 led_chance = random.random()
                 while led_chance <= difficulty and available_leds:
                     next_led= random.choice(available_leds)
                     next_led.source = GREEN_SOURCE
-                    lit_leds.append(next_led)
+                    p.lit_leds.append(next_led)
                     available_leds.remove(next_led)
                     led_chance = random.random()
 
-                self.prev_lit_leds = set(lit_leds)
+                self.prev_lit_leds = set(p.lit_leds)
 
-                lit_led_names = [name for name, widget in self.ids.items() if widget in lit_leds]
-                lit_led_indices = [player.leds.index(led) for led in lit_leds]
+                lit_led_names = [name for name, widget in self.ids.items() if widget in p.lit_leds]
+                lit_led_indices = [p.leds.index(led) for led in p.lit_leds]
 
                 for i in lit_led_indices:
-                    player.leds[i].source = GREEN_SOURCE
+                    p.leds[i].source = GREEN_SOURCE
                     if i < 4:
                         x_offset = 0
                         y_offset = -64
                     elif i < 9:
-                        if player.player_number == 1:
+                        if p.player_number == 1:
                             x_offset = -64
                         else:
                             x_offset = 64
@@ -439,25 +458,31 @@ class TargetScreen(Screen):
                         x_offset = 0
                         y_offset = 64
 
-                    led_x, led_y = player.leds[i].x, player.leds[i].y
+                    led_x, led_y = p.leds[i].x, p.leds[i].y
                     # Move Player 2's target next to the lit LED
-                    player.targets[i].x, player.targets[i].y = led_x + x_offset, led_y + y_offset
-                    player.visible_targets.append(player.targets[i])
-                    player.target_appearance_time = self.time_ms
-                    player.state = GameState.WAIT_FOR_TARGET_HIT
+                    p.targets[i].x, p.targets[i].y = led_x + x_offset, led_y + y_offset
+                    p.visible_targets.append(p.targets[i])
+                    p.target_appearance_time = self.time_ms
+                    p.state = GameState.WAIT_FOR_TARGET_HIT
                     print(f"Got LEDs to light up, they are: {lit_led_names}")
                     print(f"Got LEDs to light up, they are: {lit_led_indices}")
 
 
-    def target_hit(self, target_num):
-        play_sound("target_hit")
+    def target_hit(self, target, led):
         if self.time_s <= 15:
-            if target_num > 99 and player_two.state == GameState.WAIT_FOR_TARGET_HIT:
-                self.update_points(player_two.targets[target_num - 100])
-                player_two.state = GameState.GET_NEW_LEDS
-            elif target_num <= 100 and player_one.state == GameState.WAIT_FOR_TARGET_HIT:
-                self.update_points(player_one.targets[target_num])
-                player_one.state = GameState.GET_NEW_LEDS
+            self.remove_target(target, led)
+            play_sound("target_hit")
+            if target.player == 2 and player_two.state == GameState.WAIT_FOR_TARGET_HIT:
+                player_two.lit_leds.remove(led)
+                if not player_two.lit_leds:
+                    player_two.state = GameState.GET_NEW_LEDS
+                self.update_points(target)
+            elif target.player == 1 and player_one.state == GameState.WAIT_FOR_TARGET_HIT:
+                player_one.lit_leds.remove(led)
+                if not player_one.lit_leds:
+                    player_one.state = GameState.GET_NEW_LEDS
+                self.update_points(target)
+
 
     def update_points(self, target):
         points = 0
