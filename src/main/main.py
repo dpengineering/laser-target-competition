@@ -62,6 +62,9 @@ SOUND_FILES = {
     "target_hit": 'assets/sounds/target_hit.wav',
     "select": 'assets/sounds/select.wav'
 }
+class Gamemode(Enum):
+    RANDOM = 1
+    LEVELS = 2
 
 class GameState(Enum):
     IDLE = 1
@@ -291,6 +294,7 @@ class TargetScreen(Screen):
         self.countdown_timer_start = None
         self.countdown = None
         self.prev_lit_leds = []
+        self.gamemode = Gamemode.RANDOM
 
         #Player Variables set
         player_one.targets = [self.ids.get(f'target_{i}') for i in range(13)]
@@ -307,7 +311,7 @@ class TargetScreen(Screen):
         medium = 0.3
         hard = 0.5
         impossible = 0.7
-        self.difficulty = impossible
+        self.difficulty = easy
 
     def on_enter(self, *args):
         self.ids.player_1_name.text = player_one.name
