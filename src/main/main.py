@@ -38,12 +38,14 @@ from leaderboard import Leaderboard
 # no transition between screens (DONE)
 # sound (DONE!)
 # two player?  maybe a laser that you move with the arrow keys and wasd (LOW PRIORITY)
+# numbers to username creation (LOW PRIORITY)
 # combos?
 # points pop off target when hit?
+# END SCREEN (kinda priority)
+#  -  Show points and position on leaderboard
+#  -  leaderboard continues after 10th place
 # set levels - (PRIORITY)
 #  -  each level is a list of a list of each set of leds to light up
-#  -  example list:
-level_1 = [[1, 3], [2], [7, 8, 9], [12, 3, 5]]
 #  -  first, leds one and three will light up, then led two, then seven, eight, and nine, then etc...
 #  -  for levels, time is tracked as well as points(or maybe just time, or just points??)
 #  -  medals for set levels?
@@ -57,6 +59,7 @@ time = time
 screen_manager = ScreenManager()
 target_screen_name = 'target'
 player_screen_name = 'player'
+end_screen_name = 'end'
 instructions_screen_name = 'instructions'
 leaderboard = Leaderboard()
 
@@ -109,6 +112,7 @@ class Player:
         self.visible_targets = []
         self.player_number = player_count
         self.lit_leds = []
+        self.prev_lit_leds = []
 
 
     def add_score(self, add):
@@ -140,7 +144,13 @@ Window.size = fullscreen
 
 class EndScreen(Screen):
     def __init__(self, **kw):
+        Builder.load_file('../kv/EndScreen.kv')
         super(EndScreen, self).__init__(**kw)
+
+    @staticmethod
+    def transition_to_player_screen():
+        screen_manager.transition = NoTransition()
+        screen_manager.current = player_screen_name
 
 class InstructionsScreen(Screen):
     """
@@ -299,7 +309,7 @@ class TargetScreen(Screen):
         self.countdown_time_s = None
         self.countdown_timer_start = None
         self.countdown = None
-        self.prev_lit_leds = []
+
         self.gamemode = Gamemode.RANDOM
 
         #Player Variables set
@@ -311,6 +321,13 @@ class TargetScreen(Screen):
         targets.append(player_two.targets)
         leds.append(player_one.leds)
         leds.append(player_one.leds)
+
+        # Levels
+        self.level_1 = [[self.ids.get('target_1'), self.ids.get('target_3')],
+                   [self.ids.get('target_2')],
+                   [self.ids.get('target_7'), self.ids.get('target_8'), self.ids.get('target_9')],
+                   [self.ids.get('target_12'), self.ids.get('target_3'), self.ids.get('target_5')]]
+
 
         #unused(for now)
         easy = 0.1
@@ -417,9 +434,52 @@ class TargetScreen(Screen):
 
 
 
-    def activate_specific_targets(self, t):
-        for target in t:
-            print()
+    def activate_specific_targets(self, level_round):
+        for p in players:
+            if p.state == GameState.GET_NEW_LEDS:
+                x_offset = 64
+                y_offset = 0
+
+                for led in p.leds:
+                    led.source = RED_SOURCE
+
+                for target in p.targets:
+                    target.x = self.width + 10
+
+                p.lit_leds = []
+
+
+                for led in self.level_1[level_round]:
+                    led.source = GREEN_SOURCE
+                    p.lit_leds.append(led)
+
+                lit_led_names = [name for name, widget in self.ids.items() if widget in p.lit_leds]
+                lit_led_indices = [p.leds.index(led) for led in p.lit_leds]
+
+                for i in lit_led_indices:
+                    p.leds[i].source = GREEN_SOURCE
+                    if i < 4:
+                        x_offset = 0
+                        y_offset = -64
+                    elif i < 9:
+                        if p.player_number == 1:
+                            x_offset = -64
+                        else:
+                            x_offset = 64
+                        y_offset = 0
+                    elif i < 13:
+                        x_offset = 0
+                        y_offset = 64
+
+                    led_x, led_y = p.leds[i].x, p.leds[i].y
+                    # Move Player 2's target next to the lit LED
+                    p.targets[i].x, p.targets[i].y = led_x + x_offset, led_y + y_offset
+                    p.visible_targets.append(p.targets[i])
+                    p.target_appearance_time = self.time_ms
+                    p.state = GameState.WAIT_FOR_TARGET_HIT
+                    print(f"Got LEDs to light up, they are: {lit_led_names}")
+                    print(f"Got LEDs to light up, they are: {lit_led_indices}")
+
 
 
     def activate_random_targets(self, difficulty):
@@ -438,8 +498,7 @@ class TargetScreen(Screen):
 
                 available_leds = p.leds.copy()
 
-                for led in self.prev_lit_leds:
-                    if led in available_leds:
+                for led in p.prev_lit_leds:
                         available_leds.remove(led)
 
                 first_led = random.choice(available_leds)
@@ -455,7 +514,7 @@ class TargetScreen(Screen):
                     available_leds.remove(next_led)
                     led_chance = random.random()
 
-                self.prev_lit_leds = set(p.lit_leds)
+                p.prev_lit_leds = set(p.lit_leds)
 
                 lit_led_names = [name for name, widget in self.ids.items() if widget in p.lit_leds]
                 lit_led_indices = [p.leds.index(led) for led in p.lit_leds]

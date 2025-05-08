@@ -8,14 +8,13 @@ class Leaderboard:
         self.load_from_json()
 
     def add_score(self, player_name, points, level):
-
         new_score = {'name': player_name, 'points': points}
         self.scores[level].append(new_score)
         if self.replace_existing_entry(level, points, player_name):
             self.scores[level].remove(self.temp_entry)
         elif self.no_new_entry(level, points, player_name):
             self.scores[level].remove(new_score)
-        elif self.in_top_ten(level, points):
+        elif self.in_top_thousand(level, points):
             print(f"Adding score to leaderboard: {player_name} with {points} points")
             #do nothing, just don't run the else statement
         else:
@@ -23,11 +22,11 @@ class Leaderboard:
         self.scores[level] = sorted(self.scores[level], key=lambda x: x['points'], reverse=True)
         self.save_to_json()
 
-    def in_top_ten(self, level, points):
-        if len(self.scores[level]) < 10:
-            print("Score should be in top 10")
+    def in_top_thousand(self, level, points):
+        if len(self.scores[level]) < 1000:
+            print("Score should be in top 1000")
             return True
-        return points > self.scores[level][9]['points']
+        return points > self.scores[level][1000]['points']
 
     def no_new_entry(self, level, points, name):
         for player in self.scores[level]:
@@ -45,7 +44,6 @@ class Leaderboard:
         return False
 
 
-
     def get_placement(self, level, points):
         print(f"level={level}, points={points}")
         for i, score in enumerate(self.scores[level]):
@@ -57,7 +55,7 @@ class Leaderboard:
 
     def save_to_json(self):
         with open("assets/data/leaderboard/leaderboard.json", 'w') as file:
-            truncated_scores = {level: self.scores[level][:10] for level in self.scores}
+            truncated_scores = {level: self.scores[level][:1000] for level in self.scores}
             json.dump(truncated_scores, file)
             # json.dump(self.scores, file) IDK why this is here
 

@@ -12,3 +12,23 @@
         center_x: root.width / 2
         center_y: root.height / 2 - 128
         size: 216, 44
+
+    Label:
+        id: points
+        center_x: 800 / 16
+        y: root.height / 2 - 24
+        color: 1, 1, 1, 1
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
+
+    DPEAButton:
+        id: next
+        text: "Next"
+        size: 200, 65
+        x: root.width + 100
+        y: root.height / 2 - 100
+        color: 0, 0, 1, 1
+        on_press: root.transition_to_player_screen()
+        font_name: 'PixelFont'
+        font_size: '80sp'
