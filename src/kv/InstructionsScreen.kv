@@ -6,6 +6,17 @@
         size_hint: None, None
 
     DPEAButton:
+        id: test_button
+        text: "TEST"
+        size: 200, 65
+        center_x: 800 / 8
+        y: root.height / 2 - 24
+        color: 0.25, 0.25, 0.25, 1
+        on_press: root.transition_to_end_screen()
+        font_name: 'PixelFont'
+        font_size: '80sp'
+
+    DPEAButton:
         id: transition_target
         text: ""
         size: 142, 50

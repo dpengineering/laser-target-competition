@@ -11,22 +11,47 @@
         source: 'assets/images/medals/author_medal.png'
         center_x: root.width / 2
         center_y: root.height / 2 - 128
-        size: 216, 44
+        size: 64, 64
 
     Label:
-        id: points
-        center_x: 800 / 16
-        y: root.height / 2 - 24
-        color: 1, 1, 1, 1
+        id:player_1_points
+        text: "00000"
+        x: - 250
+        center_y: root.height * 0.532 - 64
         font_name: 'PixelFont'
         font_size: '55sp'
+
+    Label:
+        id:player_2_points
+        text: "00000"
+        x: 250
+        center_y: root.height * 0.532 - 64
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
+    Label:
+        id:player_1_name
+        text: "HENRY"
+        x: player_1_points.x
+        center_y: player_1_points.y + 100
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
+    Label:
+        id:player_2_name
+        text: "PETER"
+        x: player_2_points.x
+        center_y: player_2_points.y + 100
+        font_name: 'PixelFont'
+        font_size: '55sp'
+
 
 
     DPEAButton:
         id: next
         text: "Next"
         size: 200, 65
-        x: root.width + 100
+        center_x: root.width / 2
         y: root.height / 2 - 100
         color: 0, 0, 1, 1
         on_press: root.transition_to_player_screen()

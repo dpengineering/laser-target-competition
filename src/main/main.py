@@ -166,11 +166,16 @@ class InstructionsScreen(Screen):
             on_press=self.on_press,
             on_release=self.on_release)
 
+    def start_thread(self):
+        if not self.listener.is_alive():
+            self.listener.start()
+
+    def stop_thread(self):
+        if self.listener.is_alive():
+            self.listener.stop()
 
 
     def on_press(self, key):
-        if self.ids.name.text == "l":
-            self.ids.name.text = ""
         try:
             if key.char.isalpha():
                 self.ids.name.text += key.char.upper()
@@ -192,10 +197,10 @@ class InstructionsScreen(Screen):
             key))
 
     def on_enter(self, *args):
-        if not self.listener.is_alive():
-            self.listener.start()
+        self.start_thread()
+
     def on_leave(self, *args):
-        self.listener.stop()
+        self.stop_thread()
 
     def button_pressed(self, key):
         if self.ids.name.text == "l":
@@ -231,6 +236,11 @@ class InstructionsScreen(Screen):
     def transition_to_target_screen():
         screen_manager.transition = NoTransition()
         screen_manager.current = target_screen_name
+
+    @staticmethod
+    def transition_to_end_screen():
+        screen_manager.transition = NoTransition()
+        screen_manager.current = end_screen_name
 
 
 class PlayerScreen(Screen):
@@ -285,6 +295,8 @@ class PlayerScreen(Screen):
     def transition_to_instructions_screen():
         screen_manager.transition = NoTransition()
         screen_manager.current = instructions_screen_name
+
+
 
 
 class TargetScreen(Screen):
@@ -367,7 +379,7 @@ class TargetScreen(Screen):
         self.ids.go.x = self.width = 1
         for player in players:
             leaderboard.add_score(player.name, player.score, 1)
-            self.transition_to_player_screen()
+            self.transition_to_end_screen()
 
     def update_all(self, dt=None): # dt for clock scheduling
         #print(f"state={self.state}, target_move_to_pedestal_num={self.target_move_to_pedestal_num}, points={self.points}")
@@ -613,11 +625,17 @@ class TargetScreen(Screen):
         screen_manager.transition = NoTransition()
         screen_manager.current = player_screen_name
 
+    @staticmethod
+    def transition_to_end_screen():
+        screen_manager.transition = NoTransition()
+        screen_manager.current = end_screen_name
+
 Builder.load_file('../kv/main.kv')
 LabelBase.register(name='PixelFont', fn_regular='assets/fonts/Tiny5-Regular.ttf')
 screen_manager.add_widget(PlayerScreen(name=player_screen_name))
 screen_manager.add_widget(TargetScreen(name=target_screen_name))
 screen_manager.add_widget(InstructionsScreen(name=instructions_screen_name))
+screen_manager.add_widget(EndScreen(name=end_screen_name))
 
 if __name__ == "__main__":
 
