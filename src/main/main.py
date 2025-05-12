@@ -146,6 +146,61 @@ class EndScreen(Screen):
     def __init__(self, **kw):
         Builder.load_file('../kv/EndScreen.kv')
         super(EndScreen, self).__init__(**kw)
+        self.final_score_one = 40000
+        self.final_score_two = 39300
+        self.scores = {self.final_score_one: self.current_score_one, self.final_score_two: self.current_score_two}
+        # self.final_score_one = player_one.score
+        # self.final_score_two = player_two.score
+        self.current_score_one = 0
+        self.current_score_two = 0
+        self.update_interval = 0.01
+        self.scheduled_event = None
+        self.slower = 0
+
+    def on_enter(self):
+        self.scheduled_event = Clock.schedule_interval(self.update_score, self.update_interval)
+
+
+    def update_score(self, dt):
+        # Increase score faster at first, then slow down
+        for key in self.scores:
+            remaining2 = key - self.scores[key]
+            print(remaining2)
+
+        remaining = self.final_score - self.current_score
+        if remaining > 10000:
+            self.current_score += 200
+        if remaining > 5000:
+            self.current_score += 107
+        elif remaining > 2500:
+            self.current_score += 51
+        elif remaining > 125:
+            self.current_score += 28
+        elif remaining > 65:
+            self.current_score += 13
+        elif remaining > 10:
+            self.slower += 1
+            if self.slower == 2:
+                self.current_score += 1
+                self.slower = 0
+        elif remaining > 3:
+            self.slower += 1
+            if self.slower == 16:
+                self.current_score += 1
+                self.slower = 0
+        else:
+            self.slower += 1
+            if self.slower == 32:
+                self.current_score += 1
+                self.slower = 0
+
+        if self.current_score >= self.final_score:
+            self.current_score = self.final_score
+            self.ids.player_1_points.text = str(self.current_score)
+            self.scheduled_event.cancel()
+            return
+
+        self.ids.player_1_points.text = str(self.current_score)
 
     @staticmethod
     def transition_to_player_screen():
