@@ -1,3 +1,4 @@
+from statistics import median_low
 from typing import overload
 
 from gi.overrides import override
@@ -118,6 +119,9 @@ class Player:
     def add_score(self, add):
         self.score += add
 
+    def get_leaderboard_position(self):
+        return leaderboard.get_placement(1, self.score)
+
 player_count += 1
 player_one = Player()
 player_count += 1
@@ -142,8 +146,34 @@ fullscreen = (1920, 1080)
 Window.size = fullscreen
 
 
+class Medal(Enum):
+    CHAMPION = 1
+    AUTHOR = 2
+    GOLD = 3
+    SILVER = 4
+    BRONZE = 5
+    NONE = 6
+
+
+def get_medals(player):
+    if player.score > 50000:
+        medal = Medal.CHAMPION
+    elif player.score > 37000:
+        medal = Medal.AUTHOR
+    elif player.score > 29000:
+        medal = Medal.GOLD
+    elif player.score > 20000:
+        medal = Medal.SILVER
+    elif player.score > 10000:
+        medal = Medal.BRONZE
+    else:
+        medal = Medal.NONE
+    return medal
+
+
 class EndScreen(Screen):
     def __init__(self, **kw):
+
         Builder.load_file('../kv/EndScreen.kv')
         super(EndScreen, self).__init__(**kw)
         self.final_score_one = 40000
@@ -151,19 +181,30 @@ class EndScreen(Screen):
         self.current_score_one = 0
         self.current_score_two = 0
         self.scores = {self.final_score_one: self.current_score_one, self.final_score_two: self.current_score_two}
-        # self.final_score_one = player_one.score
-        # self.final_score_two = player_two.score
         self.update_interval = 0.01
         self.scheduled_event = None
         self.slower = 0
         self.slower2 = 0
         self.score_one_done = False
         self.score_two_done = False
+        self.lpos_1 = 12
+        self.lpos_2 = 3
 
     def on_enter(self):
+        # self.lpos_1 = player_one.get_leaderboard_position()
+        # self.lpos_2 = player_two.get_leaderboard_position()
+        # self.final_score_one = player_one.score
+        # self.final_score_two = player_two.score
         self.scheduled_event = Clock.schedule_interval(self.update_score, self.update_interval)
 
+
     def update_score(self, dt):
+        if self.score_two_done and self.score_one_done:
+            self.set_leaderboard_position()
+            self.set_medals()
+            self.scheduled_event.cancel()
+
+
         remaining_two = self.final_score_two - self.current_score_two
         remaining_one = self.final_score_one - self.current_score_one
         if remaining_one > 10000:
@@ -214,8 +255,15 @@ class EndScreen(Screen):
 
         self.ids.player_2_points.text = str(self.current_score_two)
 
-        if self.score_two_done and self.score_one_done:
-            self.scheduled_event.cancel()
+
+    def set_leaderboard_position(self):
+        self.ids.player_1_lpos.text = f"Top {str(self.lpos_1)} World"
+        self.ids.player_2_lpos.text = f"TOP {str(self.lpos_2)} WORLD"
+
+
+    def set_medals(self):
+        medal_one = get_medals(player_one)
+        medal_two = get_medals(player_two)
 
 
     @staticmethod
@@ -244,7 +292,6 @@ class InstructionsScreen(Screen):
     def stop_thread(self):
         if self.listener.is_alive():
             self.listener.stop()
-
 
     def on_press(self, key):
         try:
