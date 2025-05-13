@@ -4,6 +4,7 @@ from typing import overload
 from gi.overrides import override
 from keyring.backends.libsecret import available
 from kivy import Config
+from kivy.animation import Animation
 from kivy.core.audio import SoundLoader
 from orca.sound import Player
 
@@ -147,28 +148,31 @@ Window.size = fullscreen
 
 
 class Medal(Enum):
-    CHAMPION = 1
-    AUTHOR = 2
-    GOLD = 3
-    SILVER = 4
-    BRONZE = 5
-    NONE = 6
+    CHAMPION = "champion_medal"
+    AUTHOR = "author_medal"
+    GOLD = "gold_medal"
+    SILVER = "silver_medal"
+    BRONZE = "bronze_medal"
+    NONE = "no_medal"
 
 
 def get_medals(player):
+    medals = []
     if player.score > 50000:
-        medal = Medal.CHAMPION
-    elif player.score > 37000:
-        medal = Medal.AUTHOR
-    elif player.score > 29000:
-        medal = Medal.GOLD
-    elif player.score > 20000:
-        medal = Medal.SILVER
-    elif player.score > 10000:
-        medal = Medal.BRONZE
+        medals.append(Medal.CHAMPION)
+    if player.score > 37000:
+        medals.append(Medal.AUTHOR)
+    if player.score > 29000:
+        medals.append(Medal.GOLD)
+    if player.score > 20000:
+        medals.append(Medal.SILVER)
+    if player.score > 10000:
+        medals.append(Medal.BRONZE)
     else:
-        medal = Medal.NONE
-    return medal
+        medals.append(Medal.NONE)
+
+    medals.reverse()
+    return medals
 
 
 class EndScreen(Screen):
@@ -262,8 +266,19 @@ class EndScreen(Screen):
 
 
     def set_medals(self):
-        medal_one = get_medals(player_one)
-        medal_two = get_medals(player_two)
+        medals_one = get_medals(player_one)
+        medals_one = [Medal.AUTHOR, Medal.GOLD, Medal.SILVER, Medal.BRONZE]
+        medals_two = get_medals(player_two)
+
+        anim = Animation(x=250,y=100, size=(64, 64), duration=0.5)
+        if len(medals_one) == 6:
+            print()
+            # make bronze appear, then silver(etc)
+        elif len(medals_one) == 5:
+            anim.start(self.ids.author_medal)
+
+
+
 
 
     @staticmethod
