@@ -2,7 +2,6 @@ from statistics import median_low
 from typing import overload
 
 from gi.overrides import override
-from keyring.backends.libsecret import available
 from kivy import Config
 from kivy.animation import Animation
 from kivy.core.audio import SoundLoader
@@ -22,9 +21,8 @@ from enum import Enum
 from termcolor import cprint
 
 
-
 from datetime import datetime
-from time import time, time_ns
+from time import time, time_ns, sleep
 
 from pidev.kivy.selfupdatinglabel import SelfUpdatingLabel
 from pidev.kivy.ImageButton import ImageButton
@@ -71,7 +69,8 @@ RED_SOURCE = 'assets/images/buttons/leds/red.png'
 
 SOUND_FILES = {
     "target_hit": 'assets/sounds/target_hit.wav',
-    "select": 'assets/sounds/select.wav'
+    "select": 'assets/sounds/select.wav',
+    "bronze_ding": 'assets/sounds/bronze_ding.wav'
 }
 class Gamemode(Enum):
     RANDOM = 1
@@ -96,6 +95,7 @@ class TargetQuality(Enum):
 
 
 def play_sound(s):
+    print(f"Playing Sound {s}")
     sound = SoundLoader.load(SOUND_FILES[s])
     sound.stop()
     sound.play()
@@ -205,9 +205,9 @@ class EndScreen(Screen):
     def update_score(self, dt):
         if self.score_two_done and self.score_one_done:
             self.set_leaderboard_position()
+
             self.set_medals()
             self.scheduled_event.cancel()
-
 
         remaining_two = self.final_score_two - self.current_score_two
         remaining_one = self.final_score_one - self.current_score_one
@@ -266,18 +266,24 @@ class EndScreen(Screen):
 
 
     def set_medals(self):
-        medals_one = get_medals(player_one)
+        print("running")
+        # medals_one = get_medals(player_one)
         medals_one = [Medal.AUTHOR, Medal.GOLD, Medal.SILVER, Medal.BRONZE]
-        medals_two = get_medals(player_two)
+        # medals_two = get_medals(player_two)
 
-        anim = Animation(x=250,y=100, size=(64, 64), duration=0.5)
-        if len(medals_one) == 6:
+        anim1 = Animation(x=400,y=(self.height / 2), size=(64, 64), duration=0.5)
+        anim2 = Animation(x=400, y=(self.height / 2), size=(64, 64), duration=0.5)
+        anim3 = Animation(x=400, y=(self.height / 2), size=(64, 64), duration=0.5)
+        anim4 = Animation(x=400, y=(self.height / 2), size=(64, 64), duration=0.5)
+        if len(medals_one) == 5:
             print()
             # make bronze appear, then silver(etc)
-        elif len(medals_one) == 5:
-            anim.start(self.ids.author_medal)
+        elif len(medals_one) == 4:
+            print("running")
+            anim1.start(self.ids.bronze_medal)
+            play_sound("bronze_ding")
 
-
+            play_sound("bronze_ding")
 
 
 
