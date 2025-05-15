@@ -1,3 +1,5 @@
+import os
+os.environ["DISPLAY"] = ":0.0"
 from statistics import median_low
 from typing import overload
 
@@ -5,10 +7,9 @@ from gi.overrides import override
 from kivy import Config
 from kivy.animation import Animation
 from kivy.core.audio import SoundLoader
-from orca.sound import Player
 
-Config.set('kivy', 'keyboard_mode', 'systemanddock')
-from pynput import keyboard
+#Config.set('kivy', 'keyboard_mode', 'systemanddock')
+
 from kivy.app import App
 from kivy.clock import Clock
 from kivy.core.text import LabelBase
@@ -30,6 +31,9 @@ from pidev.kivy import DPEAButton
 
 from leaderboard import Leaderboard
 # I know these are grey buts it's required trust me
+
+
+
 
 # TODO
 # space bar in name entry (MAYBE NOT NEEDED)
@@ -64,13 +68,13 @@ instructions_screen_name = 'instructions'
 leaderboard = Leaderboard()
 
 
-GREEN_SOURCE = 'assets/images/buttons/leds/green.png'
-RED_SOURCE = 'assets/images/buttons/leds/red.png'
+GREEN_SOURCE = '../../assets/images/buttons/leds/green.png'
+RED_SOURCE = '../../assets/images/buttons/leds/red.png'
 
 SOUND_FILES = {
-    "target_hit": 'assets/sounds/target_hit.wav',
-    "select": 'assets/sounds/select.wav',
-    "bronze_ding": 'assets/sounds/bronze_ding.wav'
+    "target_hit": '../../assets/sounds/target_hit.wav',
+    "select": '../../assets/sounds/select.wav',
+    "bronze_ding": '../../assets/sounds/bronze_ding.wav'
 }
 class Gamemode(Enum):
     RANDOM = 1
@@ -142,9 +146,9 @@ class LaserTargetCompetitionUI(App):
 
 
 Window.clearcolor = (0, 0, 0, 1)
-fullscreen = (1920, 1080)
+#fullscreen = (1920, 1080)
 
-Window.size = fullscreen
+#Window.size = fullscreen
 
 
 class Medal(Enum):
@@ -302,44 +306,6 @@ class InstructionsScreen(Screen):
         super(InstructionsScreen, self).__init__(**kw)
         self.keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
         self.state = SubmitState.PLAYER_ONE
-        self.listener = keyboard.Listener(
-            on_press=self.on_press,
-            on_release=self.on_release)
-
-    def start_thread(self):
-        if not self.listener.is_alive():
-            self.listener.start()
-
-    def stop_thread(self):
-        if self.listener.is_alive():
-            self.listener.stop()
-
-    def on_press(self, key):
-        try:
-            if key.char.isalpha():
-                self.ids.name.text += key.char.upper()
-
-        except AttributeError:
-            if key == keyboard.Key.backspace:
-                self.ids.name.text = self.ids.name.text[:-1]
-
-        try:
-            print('alphanumeric key {0} pressed'.format(
-                key.char))
-        except AttributeError:
-            print('special key {0} pressed'.format(
-                key))
-
-    @staticmethod
-    def on_release(key):
-        print('{0} released'.format(
-            key))
-
-    def on_enter(self, *args):
-        self.start_thread()
-
-    def on_leave(self, *args):
-        self.stop_thread()
 
     def button_pressed(self, key):
         if self.ids.name.text == "l":
@@ -567,7 +533,7 @@ class TargetScreen(Screen):
 
             for i in range(0, len(player.visible_targets)):
                 try:
-                    player.visible_targets[i].source = f"assets/images/buttons/targets/{player_quality.value}_64.png"
+                    player.visible_targets[i].source = f"../../assets/images/buttons/targets/{player_quality.value}_64.png"
                     player.visible_targets[i].quality = player_quality.value
                 except AttributeError:
                     print("Attribute Error")
@@ -576,7 +542,7 @@ class TargetScreen(Screen):
         for p in targets:
             for t in p:
                 if t == target:
-                    t.x = self.width + 10
+                    t.x = -65
         for p in leds:
             for l in p:
                 if l == led:
@@ -595,7 +561,7 @@ class TargetScreen(Screen):
                     led.source = RED_SOURCE
 
                 for target in p.targets:
-                    target.x = self.width + 10
+                    target.x = -65
 
                 p.lit_leds = []
 
@@ -770,7 +736,7 @@ class TargetScreen(Screen):
         screen_manager.current = end_screen_name
 
 Builder.load_file('../kv/main.kv')
-LabelBase.register(name='PixelFont', fn_regular='assets/fonts/Tiny5-Regular.ttf')
+LabelBase.register(name='PixelFont', fn_regular='../../assets/fonts/Tiny5-Regular.ttf')
 screen_manager.add_widget(PlayerScreen(name=player_screen_name))
 screen_manager.add_widget(TargetScreen(name=target_screen_name))
 screen_manager.add_widget(InstructionsScreen(name=instructions_screen_name))
@@ -778,5 +744,5 @@ screen_manager.add_widget(EndScreen(name=end_screen_name))
 
 if __name__ == "__main__":
 
-    # Window.fullscreen = 'auto' #uncomment this when actually loading on a screen, not computer screen
+    Window.fullscreen = 'auto' #uncomment this when actually loading on a screen, not computer screen
     LaserTargetCompetitionUI().run()

@@ -54,12 +54,12 @@ class Leaderboard:
         return None
 
     def save_to_json(self):
-        with open("assets/data/leaderboard/leaderboard.json", 'w') as file:
+        with open("../../assets/data/leaderboard/leaderboard.json", 'w') as file:
             truncated_scores = {level: self.scores[level][:1000] for level in self.scores}
             json.dump(truncated_scores, file)
             # json.dump(self.scores, file) IDK why this is here
 
     def load_from_json(self):
-        with open("assets/data/leaderboard/leaderboard.json", 'r') as file:
+        with open("../../assets/data/leaderboard/leaderboard.json", 'r') as file:
             loaded_scores = json.load(file)
             self.scores = {int(level): scores for level, scores in loaded_scores.items()}
