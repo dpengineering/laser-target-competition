@@ -5,7 +5,7 @@ from typing import overload
 
 from gi.overrides import override
 from kivy import Config
-from kivy.animation import Animation
+from kivy.animation import Animation, CompoundAnimation, Sequence
 from kivy.core.audio import SoundLoader
 
 #Config.set('kivy', 'keyboard_mode', 'systemanddock')
@@ -276,7 +276,8 @@ class EndScreen(Screen):
         # medals_two = get_medals(player_two)
 
         anim1 = Animation(x=400,y=(self.height / 2), size=(64, 64), duration=0.5)
-        anim2 = Animation(x=400, y=(self.height / 2), size=(64, 64), duration=0.5)
+        anim2 = Animation(x=600, y=(self.height / 2), size=(64, 64), duration=0.5)
+
         anim3 = Animation(x=400, y=(self.height / 2), size=(64, 64), duration=0.5)
         anim4 = Animation(x=400, y=(self.height / 2), size=(64, 64), duration=0.5)
         if len(medals_one) == 5:
@@ -286,7 +287,7 @@ class EndScreen(Screen):
             print("running")
             anim1.start(self.ids.bronze_medal)
             play_sound("bronze_ding")
-
+            anim1.on_complete(anim2.start(self.ids.silver_medal))
             play_sound("bronze_ding")
 
 
@@ -346,6 +347,10 @@ class InstructionsScreen(Screen):
     def transition_to_end_screen():
         screen_manager.transition = NoTransition()
         screen_manager.current = end_screen_name
+
+    @staticmethod
+    def exit():
+        Window.close()
 
 
 class PlayerScreen(Screen):

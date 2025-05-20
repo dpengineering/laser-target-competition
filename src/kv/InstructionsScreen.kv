@@ -14,7 +14,7 @@
         color: 0.25, 0.25, 0.25, 1
         on_press: root.transition_to_end_screen()
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         id: transition_target
@@ -33,7 +33,18 @@
         y: root.height / 2 - 24
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '55sp'
+        font_size: '20sp'
+
+    DPEAButton:
+        id: exit
+        text: "EXIT"
+        size: 200, 65
+        x: 0
+        y: 0
+        color: 0, 1, 1, 1
+        on_press: root.exit()
+        font_name: 'PixelFont'
+        font_size: '20sp'
 
     DPEAButton:
         id: play_button
@@ -53,7 +64,7 @@
         y: -70
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
 
     Label:
@@ -63,7 +74,7 @@
         y: 55 * 4
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         id: submit_button
@@ -83,7 +94,7 @@
         y: -(70)
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     Label:
         id: player_list
@@ -92,7 +103,7 @@
         y: -300
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     Label:
         id: player_one_name
@@ -101,7 +112,7 @@
         y: player_list.y - 60
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     Label:
         id: player_two_name
@@ -110,7 +121,7 @@
         y: player_one_name.y - 60
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     Label:
         id: name
@@ -119,7 +130,7 @@
         y: 55 * 3 + 5
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '55sp'
+        font_size: '20sp'
     DPEAButton:
         color: 0, 0, 0, 1
         center_x: root.width / 2 + q.x - 5
@@ -134,7 +145,7 @@
         y: 55 * 2
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -150,7 +161,7 @@
         y: 55 * 2
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -166,7 +177,7 @@
         y: 55 * 2
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -182,7 +193,7 @@
         y: 55 * 2
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -198,7 +209,7 @@
         y: 55 * 2
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -214,7 +225,7 @@
         y: 55 * 2
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -230,7 +241,7 @@
         y: 55 * 2
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -246,7 +257,7 @@
         y: 55 * 2
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -262,7 +273,7 @@
         y: 55 * 2
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -278,7 +289,7 @@
         y: 55 * 2
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
 
     DPEAButton:
@@ -295,7 +306,7 @@
         y: 55 * 2
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -311,7 +322,7 @@
         y: 55
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -327,7 +338,7 @@
         y: 55
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -343,7 +354,7 @@
         y: 55
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -360,7 +371,7 @@
         y: 55
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -376,7 +387,7 @@
         y: 55
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -392,7 +403,7 @@
         y: 55
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -408,7 +419,7 @@
         y: 55
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -424,7 +435,7 @@
         y: 55
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -440,7 +451,7 @@
         y: 55
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -456,7 +467,7 @@
         y: 0
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -472,7 +483,7 @@
         y: 0
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -488,7 +499,7 @@
         y: 0
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -504,7 +515,7 @@
         y: 0
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -520,7 +531,7 @@
         y: 0
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -536,7 +547,7 @@
         y: 0
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
     DPEAButton:
         color: 0, 0, 0, 1
@@ -552,7 +563,7 @@
         y: 0
         color: 1, 1, 1, 1
         font_name: 'PixelFont'
-        font_size: '80sp'
+        font_size: '20sp'
 
 
 
