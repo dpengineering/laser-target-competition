@@ -74,7 +74,11 @@ RED_SOURCE = '../../assets/images/buttons/leds/red.png'
 SOUND_FILES = {
     "target_hit": '../../assets/sounds/target_hit.wav',
     "select": '../../assets/sounds/select.wav',
-    "bronze_ding": '../../assets/sounds/bronze_ding.wav'
+    "bronze_ding": '../../assets/sounds/bronze_ding.wav',
+    "silver_ding": '../../assets/sounds/bronze_ding.wav',
+    "gold_ding": '../../assets/sounds/bronze_ding.wav',
+    "author_ding": '../../assets/sounds/bronze_ding.wav',
+    "champion_ding": '../../assets/sounds/bronze_ding.wav'
 }
 class Gamemode(Enum):
     RANDOM = 1
@@ -121,6 +125,7 @@ class Player:
         self.prev_lit_leds = []
 
 
+
     def add_score(self, add):
         self.score += add
 
@@ -161,22 +166,18 @@ class Medal(Enum):
 
 
 def get_medals(player):
-    medals = []
+    medal = Medal.NONE
     if player.score > 50000:
-        medals.append(Medal.CHAMPION)
+        medal = Medal.CHAMPION
     if player.score > 37000:
-        medals.append(Medal.AUTHOR)
+        medal = Medal.AUTHOR
     if player.score > 29000:
-        medals.append(Medal.GOLD)
+        medal = Medal.GOLD
     if player.score > 20000:
-        medals.append(Medal.SILVER)
+        medal = Medal.SILVER
     if player.score > 10000:
-        medals.append(Medal.BRONZE)
-    else:
-        medals.append(Medal.NONE)
-
-    medals.reverse()
-    return medals
+        medal = Medal.BRONZE
+    return medal
 
 
 class EndScreen(Screen):
@@ -265,32 +266,32 @@ class EndScreen(Screen):
 
 
     def set_leaderboard_position(self):
-        self.ids.player_1_lpos.text = f"Top {str(self.lpos_1)} World"
-        self.ids.player_2_lpos.text = f"TOP {str(self.lpos_2)} WORLD"
+        self.ids.player_1_lpos.text = f"Top {str(player_one.get_leaderboard_position())} World"
+        self.ids.player_2_lpos.text = f"TOP {str(player_two.get_leaderboard_position())} WORLD"
 
 
     def set_medals(self):
         print("running")
-        # medals_one = get_medals(player_one)
-        medals_one = [Medal.AUTHOR, Medal.GOLD, Medal.SILVER, Medal.BRONZE]
+        medals_one = get_medals(player_one)
+        medals_one = Medal.AUTHOR
         # medals_two = get_medals(player_two)
 
         anim1 = Animation(x=400,y=(self.height / 2), size=(64, 64), duration=0.5)
-        anim2 = Animation(x=600, y=(self.height / 2), size=(64, 64), duration=0.5)
-
-        anim3 = Animation(x=400, y=(self.height / 2), size=(64, 64), duration=0.5)
-        anim4 = Animation(x=400, y=(self.height / 2), size=(64, 64), duration=0.5)
-        if len(medals_one) == 5:
-            print()
-            # make bronze appear, then silver(etc)
-        elif len(medals_one) == 4:
-            print("running")
+        if medals_one == Medal.CHAMPION:
+            anim1.start(self.ids.champion_medal)
+            play_sound("champion_ding")
+        elif medals_one == Medal.AUTHOR:
+            anim1.start(self.ids.author_medal)
+            play_sound("author_ding")
+        elif medals_one == Medal.GOLD:
+            anim1.start(self.ids.gold_medal)
+            play_sound("gold_ding")
+        elif medals_one == Medal.SILVER:
+            anim1.start(self.ids.silver_medal)
+            play_sound("silver_ding")
+        elif medals_one == Medal.BRONZE:
             anim1.start(self.ids.bronze_medal)
             play_sound("bronze_ding")
-            anim1.on_complete(anim2.start(self.ids.silver_medal))
-            play_sound("bronze_ding")
-
-
 
     @staticmethod
     def transition_to_player_screen():
