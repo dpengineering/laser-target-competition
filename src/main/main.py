@@ -166,17 +166,19 @@ class Medal(Enum):
 
 
 def get_medals(player):
+    print(f"getting medals for player {player.name}")
     medal = Medal.NONE
     if player.score > 50000:
         medal = Medal.CHAMPION
-    if player.score > 37000:
+    elif player.score > 37000:
         medal = Medal.AUTHOR
-    if player.score > 29000:
+    elif player.score > 29000:
         medal = Medal.GOLD
-    if player.score > 20000:
+    elif player.score > 20000:
         medal = Medal.SILVER
-    if player.score > 10000:
+    elif player.score > 10000:
         medal = Medal.BRONZE
+    print(f"{player.name} has the {medal}")
     return medal
 
 
@@ -200,10 +202,10 @@ class EndScreen(Screen):
         self.lpos_2 = 3
 
     def on_enter(self):
-        # self.lpos_1 = player_one.get_leaderboard_position()
-        # self.lpos_2 = player_two.get_leaderboard_position()
-        # self.final_score_one = player_one.score
-        # self.final_score_two = player_two.score
+        self.lpos_1 = player_one.get_leaderboard_position()
+        self.lpos_2 = player_two.get_leaderboard_position()
+        self.final_score_one = player_one.score
+        self.final_score_two = player_two.score
         self.scheduled_event = Clock.schedule_interval(self.update_score, self.update_interval)
 
 
@@ -271,27 +273,48 @@ class EndScreen(Screen):
 
 
     def set_medals(self):
-        print("running")
-        medals_one = get_medals(player_one)
-        medals_one = Medal.AUTHOR
-        # medals_two = get_medals(player_two)
 
-        anim1 = Animation(x=400,y=(self.height / 2), size=(64, 64), duration=0.5)
-        if medals_one == Medal.CHAMPION:
-            anim1.start(self.ids.champion_medal)
-            play_sound("champion_ding")
-        elif medals_one == Medal.AUTHOR:
-            anim1.start(self.ids.author_medal)
-            play_sound("author_ding")
-        elif medals_one == Medal.GOLD:
-            anim1.start(self.ids.gold_medal)
-            play_sound("gold_ding")
-        elif medals_one == Medal.SILVER:
-            anim1.start(self.ids.silver_medal)
-            play_sound("silver_ding")
-        elif medals_one == Medal.BRONZE:
-            anim1.start(self.ids.bronze_medal)
+        medal_one = get_medals(player_one)
+        # medal_one = Medal.CHAMPION
+
+        print(f"Getting Medals - p1:{medal_one}")
+        if not medal_one == Medal.NONE:
+            self.animate_medal(Medal.BRONZE, medal_one, player_one)
+
+    def animate_medal(self, medal, top_medal, player):
+        if top_medal == Medal.NONE:
+            medal = top_medal
+            print("empty medal")
+        if player == player_one:
+            print(f"animating medal for player one: {medal}")
+            x = 400
+            widget = '_1'
+        else:
+            print(f"animating medal for player two: {medal}")
+            x = 700
+            widget = '_2'
+        anim = Animation(x=x, y=(self.height / 2), size=(64, 64), duration=0.4)
+        if medal == Medal.BRONZE and not top_medal == Medal.BRONZE:
+            anim.bind(on_complete=lambda  *args: self.animate_medal(Medal.SILVER, top_medal, player))
             play_sound("bronze_ding")
+        elif medal == Medal.SILVER and not top_medal == Medal.SILVER:
+            anim.bind(on_complete=lambda  *args: self.animate_medal(Medal.GOLD, top_medal, player))
+            play_sound("silver_ding")
+        elif medal == Medal.GOLD and not top_medal == Medal.GOLD:
+            anim.bind(on_complete=lambda  *args: self.animate_medal(Medal.AUTHOR, top_medal, player))
+            play_sound("gold_ding")
+        elif medal == Medal.AUTHOR and not top_medal == Medal.AUTHOR:
+            anim = Animation(x=x, y=(self.height / 2), size=(64, 64), duration=0.7)
+            anim.bind(on_complete=lambda  *args: self.animate_medal(Medal.CHAMPION, top_medal, player))
+            play_sound("author_ding")
+        elif medal == Medal.CHAMPION:
+            anim = Animation(x=x, y=(self.height / 2), size=(64, 64), duration=0.7)
+            print("last medal")
+            play_sound("champion_ding")
+        if medal == top_medal and player == player_one:
+            anim.bind(on_complete= lambda *args: self.animate_medal(Medal.BRONZE, get_medals(player_two), player_two))
+        if not medal == Medal.NONE:
+            anim.start(widget=self.ids[medal.value + widget])
 
     @staticmethod
     def transition_to_player_screen():
