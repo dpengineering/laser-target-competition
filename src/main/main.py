@@ -1,3 +1,21 @@
+"""
+Hi there! This is main.py, where everything happens(mostly). It's unfinished, but I wanted to outline what I had planned.
+I created three categories of importance.
+- VITAL, things that need to be implemented for the game to work. Mostly just hardware integration things, like stepper motor movement etc.
+- NON-VITAL, things that don't technically need to be implemented, but are pretty fun/cool features.
+- AESTHETIC, things that don't need to be implemented, but make the project look good. Add these last(or don't if you are good at pixel art).
+
+--Stepper motor movement (VITAL)
+    -Connection between two physical buttons and a stepper motor that houses the laser.
+    -Most important thing is to stop the stepper if it goes too far. Remember it houses a very powerful laser than can cause serious eye
+    damage.
+    -Each button should move the stepper left or right.
+
+
+
+
+
+"""
 import os
 os.environ["DISPLAY"] = ":0.0"
 from statistics import median_low
