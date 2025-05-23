@@ -66,6 +66,7 @@ player_screen_name = 'player'
 end_screen_name = 'end'
 instructions_screen_name = 'instructions'
 leaderboard = Leaderboard()
+player_count = 0 # probably can be phased out at some point
 
 
 GREEN_SOURCE = '../../assets/images/buttons/leds/green.png'
@@ -81,36 +82,67 @@ SOUND_FILES = {
     "champion_ding": '../../assets/sounds/bronze_ding.wav'
 }
 class Gamemode(Enum):
+    """
+        Planned Gamemode differentiation for the physical game. Physical game is supposed to have set levels, with players competing
+        for top times on those individual levels. In theory(not written), if the gamemode is set to LEVELS, then pressing play takes
+        you to a level selector screen.
+    """
     RANDOM = 1
     LEVELS = 2
 
 class GameState(Enum):
+    """
+        Enum for handling the state of the game.
+    """
     IDLE = 1
     GET_NEW_LEDS = 2
     WAIT_FOR_TARGET_HIT = 3
 
 
 class SubmitState(Enum):
+    """
+        Enum for handling player name entry on InstructionScreen.
+    """
     PLAYER_ONE = 1
     PLAYER_TWO = 2
 
 class TargetQuality(Enum):
+    """
+        Enum of each target quality
+    """
     PRISMATIC_SHARD = "prismatic_shard"
     DIAMOND = "diamond"
     EMERALD = "emerald"
     AMETHYST = "amethyst"
     GOLD = "gold"
 
+class Medal(Enum):
+    """
+        Enum of each medal
+    """
+    CHAMPION = "champion_medal"
+    AUTHOR = "author_medal"
+    GOLD = "gold_medal"
+    SILVER = "silver_medal"
+    BRONZE = "bronze_medal"
+    NONE = "no_medal"
 
 def play_sound(s):
+    """
+    :param s: one of the key's on line 75(SOUND_FILES)
+    Plays the sound file at the value that the key refers to.
+    """
     print(f"Playing Sound {s}")
     sound = SoundLoader.load(SOUND_FILES[s])
     sound.stop()
     sound.play()
 
-player_count = 0
+
 
 class Player:
+    """
+        Class for each player
+    """
     def __init__(self):
         self.name = "Henry"
         self.score = 0
@@ -127,9 +159,17 @@ class Player:
 
 
     def add_score(self, add):
+        """
+        Adds add to score.
+        :param add: int value to add
+        :return: No return
+        """
         self.score += add
 
     def get_leaderboard_position(self):
+        """
+        :return: int -> Place on the leaderboard for this players score
+        """
         return leaderboard.get_placement(1, self.score)
 
 player_count += 1
@@ -156,35 +196,33 @@ Window.clearcolor = (0, 0, 0, 1)
 #Window.size = fullscreen
 
 
-class Medal(Enum):
-    CHAMPION = "champion_medal"
-    AUTHOR = "author_medal"
-    GOLD = "gold_medal"
-    SILVER = "silver_medal"
-    BRONZE = "bronze_medal"
-    NONE = "no_medal"
-
-
 def get_medals(player):
+    """
+    Gets what medal each player should have based on their score.
+    :param player: The player ;)
+    :return:
+    """
     print(f"getting medals for player {player.name}")
     medal = Medal.NONE
-    if player.score > 50000:
+    if player.score > 30000:
         medal = Medal.CHAMPION
-    elif player.score > 37000:
+    elif player.score > 25000:
         medal = Medal.AUTHOR
-    elif player.score > 29000:
-        medal = Medal.GOLD
     elif player.score > 20000:
-        medal = Medal.SILVER
+        medal = Medal.GOLD
     elif player.score > 10000:
+        medal = Medal.SILVER
+    elif player.score > 5000:
         medal = Medal.BRONZE
     print(f"{player.name} has the {medal}")
     return medal
 
 
 class EndScreen(Screen):
+    """
+        Class for the EndScreen, which opens after a game is finished.
+    """
     def __init__(self, **kw):
-
         Builder.load_file('../kv/EndScreen.kv')
         super(EndScreen, self).__init__(**kw)
         self.final_score_one = 40000
@@ -202,6 +240,9 @@ class EndScreen(Screen):
         self.lpos_2 = 3
 
     def on_enter(self):
+        """
+        On screen enter, get the players leaderboard position, score, and start the clock.
+        """
         self.lpos_1 = player_one.get_leaderboard_position()
         self.lpos_2 = player_two.get_leaderboard_position()
         self.final_score_one = player_one.score
@@ -210,6 +251,11 @@ class EndScreen(Screen):
 
 
     def update_score(self, dt):
+        """
+        Clock function that's run every frame
+        :param dt: Clock var(IDK)
+        :return:
+        """
         if self.score_two_done and self.score_one_done:
             self.set_leaderboard_position()
 
@@ -268,20 +314,35 @@ class EndScreen(Screen):
 
 
     def set_leaderboard_position(self):
-        self.ids.player_1_lpos.text = f"Top {str(player_one.get_leaderboard_position())} World"
-        self.ids.player_2_lpos.text = f"TOP {str(player_two.get_leaderboard_position())} WORLD"
+        """
+        Sets the text on the screen to the players leaderboard position.
+        """
+        self.ids.player_1_lpos.text = f"Top {str(self.lpos_1)} World"
+        self.ids.player_2_lpos.text = f"Top {str(self.lpos_2)} World"
 
 
     def set_medals(self):
-
+        """
+        If either player has a medal, play the medal animation. If neither do, do nothing.
+        """
         medal_one = get_medals(player_one)
+        medal_two = get_medals(player_two)
         # medal_one = Medal.CHAMPION
 
         print(f"Getting Medals - p1:{medal_one}")
         if not medal_one == Medal.NONE:
             self.animate_medal(Medal.BRONZE, medal_one, player_one)
+        elif not medal_two == Medal.NONE:
+            self.animate_medal(Medal.BRONZE, medal_two, player_two)
 
     def animate_medal(self, medal, top_medal, player):
+        """
+        Recursive function. Animates a medal if the player has one. Keeps calling itself until the medal it's animating equals
+        the top medal for the player.
+        :param medal: The medal to animate
+        :param top_medal: The last medal to animate
+        :param player: Which player's medals to animate
+        """
         if top_medal == Medal.NONE:
             medal = top_medal
             print("empty medal")
@@ -318,6 +379,9 @@ class EndScreen(Screen):
 
     @staticmethod
     def transition_to_player_screen():
+        """
+        Transition to player screen, with no transition animation
+        """
         screen_manager.transition = NoTransition()
         screen_manager.current = player_screen_name
 
@@ -333,6 +397,11 @@ class InstructionsScreen(Screen):
         self.state = SubmitState.PLAYER_ONE
 
     def button_pressed(self, key):
+        """
+        Calls when an image button on the keyboard is pressed. Appends the name with the key.
+        :param key: Which key was pressed
+
+        """
         if self.ids.name.text == "l":
             self.ids.name.text = ""
         if key == "backspace":
@@ -341,6 +410,10 @@ class InstructionsScreen(Screen):
             self.ids.name.text += key.upper()
 
     def submit_text(self):
+        """
+        Calls when the submit button is pressed. If the state was PLAYER_ONE, then submit to player ones name, and set the state
+        to player two. If the state was set to player two, remove the submit button and add a play button.
+        """
         if self.state == SubmitState.PLAYER_ONE:
             player_one.name = self.ids.name.text
             self.ids.name.text = ''
@@ -356,6 +429,11 @@ class InstructionsScreen(Screen):
             self.ids.submit_button.x = self.width + 500
 
 
+
+
+    """
+    All of these methods below are self explanatory.
+    """
     @staticmethod
     def transition_to_player_screen():
         screen_manager.transition = NoTransition()
@@ -374,6 +452,10 @@ class InstructionsScreen(Screen):
 
     @staticmethod
     def exit():
+        """
+        Close the application. VERY IMPORTANT SO THAT YOU CAN LEAVE THE APP WHEN RUNNING ON RASPBERRY PI.
+        :return:
+        """
         Window.close()
 
 
@@ -388,6 +470,10 @@ class PlayerScreen(Screen):
         self.get_leaderboard()
 
     def get_leaderboard(self):
+        """
+        Gets the top 10 names and scores from leaderboard and display's them
+
+        """
         for i, score in enumerate(leaderboard.scores[1]): # 1 is the level
             if (i + 1) == 1:
                 self.ids.name_1.text = str(score['name'])
@@ -475,7 +561,11 @@ class TargetScreen(Screen):
                    [self.ids.get('target_12'), self.ids.get('target_3'), self.ids.get('target_5')]]
 
 
-        #unused(for now)
+        """
+        Difficulty determines how likely additional targets besides the fist target are lit up. After the first target, the program runs
+        a random number generator between 0 and 1. If the random number is <= 0.1, then light up a second target. 0.1 can be changed so 
+        that it's more likely for additional targets to be lit up, which makes the game harder.
+        """
         easy = 0.1
         medium = 0.3
         hard = 0.5
