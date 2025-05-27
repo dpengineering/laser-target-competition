@@ -27,6 +27,8 @@ import os
 os.environ["DISPLAY"] = ":0.0"
 from statistics import median_low
 from typing import overload
+from dpeaDPi import DPiStepper
+from dpeaDPi.DPiStepper import DPiStepper
 
 from gi.overrides import override
 from kivy import Config
@@ -92,7 +94,7 @@ end_screen_name = 'end'
 instructions_screen_name = 'instructions'
 leaderboard = Leaderboard()
 player_count = 0 # probably can be phased out at some point
-
+dpiStepper = DPiStepper()
 
 GREEN_SOURCE = '../../assets/images/buttons/leds/green.png'
 RED_SOURCE = '../../assets/images/buttons/leds/red.png'
@@ -231,9 +233,9 @@ def get_medals(player):
     medal = Medal.NONE
     if player.score > 30000:
         medal = Medal.CHAMPION
-    elif player.score > 25950:
+    elif player.score > 27500:
         medal = Medal.AUTHOR
-    elif player.score > 20000:
+    elif player.score > 21000:
         medal = Medal.GOLD
     elif player.score > 10000:
         medal = Medal.SILVER
@@ -561,6 +563,16 @@ class TargetScreen(Screen):
         **kwargs is normal kivy.uix.screenmanager.Screen attributes
         """
 
+        # enable the stepper motors, when disabled the motors are turned off and spin freely
+        dpiStepper.enableMotors(True)
+        # set the microstepping to 1, 2, 4, 8, 16 or 32. 8 results in 1600 steps per
+        # revolution of the motor's shaft
+        dpiStepper.setMicrostepping(8)
+        stepper_num = 0
+        # set the speed in steps/second and acceleration in steps/second/second
+        dpiStepper.setSpeedInStepsPerSecond(stepper_num, 1600)
+        dpiStepper.setAccelerationInStepsPerSecondPerSecond(stepper_num, 1600)
+
         Builder.load_file('../kv/TargetScreen.kv')
         super(TargetScreen, self).__init__(**kwargs)
         self.clock_scheduled = False
@@ -602,8 +614,12 @@ class TargetScreen(Screen):
         self.difficulty = easy
 
     def on_enter(self, *args):
+        dpiStepper.enableMotors(True)
         self.ids.player_1_name.text = player_one.name
         self.ids.player_2_name.text = player_two.name
+
+    def enable(self, *args):
+        dpiStepper.enableMotors(True)
 
     def startup_countdown(self):
         self.countdown = True
@@ -672,11 +688,11 @@ class TargetScreen(Screen):
             player_quality = TargetQuality.PRISMATIC_SHARD
             if player.target_lifetime > 900:
                 player_quality = TargetQuality.GOLD
-            elif player.target_lifetime > 650:
+            elif player.target_lifetime > 675:
                 player_quality = TargetQuality.AMETHYST
-            elif player.target_lifetime > 450:
+            elif player.target_lifetime > 475:
                 player_quality = TargetQuality.EMERALD
-            elif player.target_lifetime > 325:
+            elif player.target_lifetime > 350:
                 player_quality = TargetQuality.DIAMOND
 
             for i in range(0, len(player.visible_targets)):
@@ -834,7 +850,7 @@ class TargetScreen(Screen):
             points += 1000
             cprint(f"Hit a diamond! You have {points} points", "cyan")
         elif target.quality == "emerald":
-            points += 700
+            points += 750
             cprint(f"Hit an emerald! You have {points} points", "light_green")
         elif target.quality == "amethyst":
             points += 500
@@ -872,6 +888,22 @@ class TargetScreen(Screen):
             self.ids.time_left.text = str(num)
         else:
             self.ids.time_left.text = "0" + str(num)
+
+    @staticmethod
+    def left():
+        dpiStepper.enableMotors(True)
+        wait_to_finish_moving_flg = True
+        # move 1600 steps in the backward direction, this function will return after the
+        # motor stops because "wait_to_finish_moving_flg" is set to True
+        dpiStepper.moveToRelativePositionInSteps(0, -1600, wait_to_finish_moving_flg)
+
+    @staticmethod
+    def right():
+        dpiStepper.enableMotors(True)
+        wait_to_finish_moving_flg = True
+        # move 1600 steps in the backward direction, this function will return after the
+        # motor stops because "wait_to_finish_moving_flg" is set to True
+        dpiStepper.moveToRelativePositionInSteps(0, 1600, wait_to_finish_moving_flg)
 
     @staticmethod
     def transition_to_player_screen():
