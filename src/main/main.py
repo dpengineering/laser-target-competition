@@ -5,13 +5,20 @@ I created three categories of importance.
 - NON-VITAL, things that don't technically need to be implemented, but are pretty fun/cool features.
 - AESTHETIC, things that don't need to be implemented, but make the project look good. Add these last(or don't if you are good at pixel art).
 
---Stepper motor movement (VITAL)
+--Stepper Motor Movement (VITAL)
     -Connection between two physical buttons and a stepper motor that houses the laser.
     -Most important thing is to stop the stepper if it goes too far. Remember it houses a very powerful laser than can cause serious eye
     damage.
     -Each button should move the stepper left or right.
-
-
+--Level Selector Screen (VITAL)
+    -New screen that appears after each player enters their name.
+    -Is vital because of how the physical game works.
+    -In the physical game, the player places blocks that bend or split the laser beam.
+    -If we were to use truly random target generation, there is a chance that an impossible set of targets could be generated.
+    -Levels could increase in difficulty with the leading number. 1-1, and 1-2 are easy, 2-1 is medium, 3-1 is difficult.
+--Player Two score on EndScreen (VITAL)
+    -Bug causes player two's score not to be displayed on the EndScreen.
+    -pls fix
 
 
 
@@ -138,11 +145,11 @@ class Medal(Enum):
     """
         Enum of each medal
     """
-    CHAMPION = "champion_medal"
-    AUTHOR = "author_medal"
-    GOLD = "gold_medal"
-    SILVER = "silver_medal"
-    BRONZE = "bronze_medal"
+    CHAMPION = "Champion"
+    AUTHOR = "Author"
+    GOLD = "Gold"
+    SILVER = "Silver"
+    BRONZE = "Bronze"
     NONE = "no_medal"
 
 def play_sound(s):
@@ -224,7 +231,7 @@ def get_medals(player):
     medal = Medal.NONE
     if player.score > 30000:
         medal = Medal.CHAMPION
-    elif player.score > 25000:
+    elif player.score > 25950:
         medal = Medal.AUTHOR
     elif player.score > 20000:
         medal = Medal.GOLD
@@ -391,7 +398,11 @@ class EndScreen(Screen):
             print("last medal")
             play_sound("champion_ding")
         if medal == top_medal and player == player_one:
+            if not medal == Medal.NONE:
+                self.ids.player_1_medal_text.text = f"You got the {str(medal._value_)} medal!"
             anim.bind(on_complete= lambda *args: self.animate_medal(Medal.BRONZE, get_medals(player_two), player_two))
+        if medal == top_medal and player == player_two and not medal == Medal.NONE:
+            self.ids.player_2_medal_text.text = f"You got the {str(medal._value_)} medal!"
         if not medal == Medal.NONE:
             anim.start(widget=self.ids[medal.value + widget])
 
