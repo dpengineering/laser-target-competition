@@ -10,32 +10,50 @@ I created three categories of importance.
     -Most important thing is to stop the stepper if it goes too far. Remember it houses a very powerful laser than can cause serious eye
     damage.
     -Each button should move the stepper left or right.
+--Hardware Integration (MOST OF MOST VITAL)
+    -Integrate with the completed physical project
 --Level Selector Screen (VITAL)
     -New screen that appears after each player enters their name.
     -Is vital because of how the physical game works.
     -In the physical game, the player places blocks that bend or split the laser beam.
     -If we were to use truly random target generation, there is a chance that an impossible set of targets could be generated.
     -Levels could increase in difficulty with the leading number. 1-1, and 1-2 are easy, 2-1 is medium, 3-1 is difficult.
---Player Two score on EndScreen (VITAL)
+--EndScreen Functionality (VITAL)
     -Bug causes player two's score not to be displayed on the EndScreen.
     -pls fix
+    -Leaderboard position display doesn't work either
+    -Neither does player name display
+--Background Pixel Art (AESTHETIC)
+    -I planned on adding some background art to this project.
+    -Vibe is crystal mining oriented right now, with lasers and refraction/reflection.
+    -I was prolly gonna do a mining vibe, but you could do whatever you want
+--Change Image Scaling (NON-VITAL)
+    -Make images scale as nearest neighbor interpolation instead of bilinear interpolation
+    -So that you don't have to manually scale images(most noticeable with medals right now).
+    -Not technically vital as you could scale every image by hand to the correct res, but that sucks. Thumbs down.
+    -I already did this for the targets and leds, it was annoying
+--Improve EndScreen Aesthetics and Functionality (NON-VITAL)
+    -EndScreen looks like crap rn
+    -Maybe display medals and score bigger?
+    -Add some stats(like avg time between target's, fastest target hit, etc...)
+--Fix Double-Click Touch or Implement Workaround (VITAL)
+    -When clicking the physical screen it always double-clicks, which isn't great
+    -fix or move buttons
+--Add Additional Sounds (NON-VITAL)
+    -Perhaps an increasing in pitch ding sound for every medal acquired, like TMNF.
+    -Sounds for each button press when navigating the screens
+    -Background music for menu, game start, and a fanfare for EndScreen.
 
 
 
 """
 import os
 os.environ["DISPLAY"] = ":0.0"
-from statistics import median_low
-from typing import overload
 from dpeaDPi import DPiStepper
 from dpeaDPi.DPiStepper import DPiStepper
 
-from gi.overrides import override
-from kivy import Config
-from kivy.animation import Animation, CompoundAnimation, Sequence
+from kivy.animation import Animation
 from kivy.core.audio import SoundLoader
-
-#Config.set('kivy', 'keyboard_mode', 'systemanddock')
 
 from kivy.app import App
 from kivy.clock import Clock
@@ -43,24 +61,16 @@ from kivy.core.text import LabelBase
 from kivy.lang import Builder
 from kivy.uix.screenmanager import ScreenManager, Screen, NoTransition
 from kivy.core.window import Window
-from kivy.uix.textinput import TextInput
 import random
 from enum import Enum
 from termcolor import cprint
 
-
-from datetime import datetime
-from time import time, time_ns, sleep
-
-from pidev.kivy.selfupdatinglabel import SelfUpdatingLabel
+from time import time, time_ns
+# I know these are grey buts it's required trust me
 from pidev.kivy.ImageButton import ImageButton
 from pidev.kivy import DPEAButton
 
 from leaderboard import Leaderboard
-# I know these are grey buts it's required trust me
-
-
-
 
 # TODO
 # space bar in name entry (MAYBE NOT NEEDED)
@@ -82,9 +92,6 @@ from leaderboard import Leaderboard
 #  -  medals for set levels?
 #  -  medals in general - copper - silver - electrum - gold - platinum - diamond(author medal)
 
-
-
-
 time = time
 
 screen_manager = ScreenManager()
@@ -95,6 +102,19 @@ instructions_screen_name = 'instructions'
 leaderboard = Leaderboard()
 player_count = 0 # probably can be phased out at some point
 dpiStepper = DPiStepper()
+
+dpiStepper.setBoardNumber(0)
+
+# enable the stepper motors, when disabled the motors are turned off and spin freely
+dpiStepper.enableMotors(True)
+# set the microstepping to 1, 2, 4, 8, 16 or 32. 8 results in 1600 steps per
+# revolution of the motor's shaft
+dpiStepper.setMicrostepping(8)
+stepper_num = 0
+# set the speed in steps/second and acceleration in steps/second/second
+dpiStepper.setSpeedInStepsPerSecond(stepper_num, 1600)
+dpiStepper.setAccelerationInStepsPerSecondPerSecond(stepper_num, 1600)
+
 
 GREEN_SOURCE = '../../assets/images/buttons/leds/green.png'
 RED_SOURCE = '../../assets/images/buttons/leds/red.png'
@@ -487,6 +507,7 @@ class InstructionsScreen(Screen):
         Close the application. VERY IMPORTANT SO THAT YOU CAN LEAVE THE APP WHEN RUNNING ON RASPBERRY PI.
         :return:
         """
+        dpiStepper.enableMotors(False)
         Window.close()
 
 
@@ -563,15 +584,6 @@ class TargetScreen(Screen):
         **kwargs is normal kivy.uix.screenmanager.Screen attributes
         """
 
-        # enable the stepper motors, when disabled the motors are turned off and spin freely
-        dpiStepper.enableMotors(True)
-        # set the microstepping to 1, 2, 4, 8, 16 or 32. 8 results in 1600 steps per
-        # revolution of the motor's shaft
-        dpiStepper.setMicrostepping(8)
-        stepper_num = 0
-        # set the speed in steps/second and acceleration in steps/second/second
-        dpiStepper.setSpeedInStepsPerSecond(stepper_num, 1600)
-        dpiStepper.setAccelerationInStepsPerSecondPerSecond(stepper_num, 1600)
 
         Builder.load_file('../kv/TargetScreen.kv')
         super(TargetScreen, self).__init__(**kwargs)
@@ -891,6 +903,7 @@ class TargetScreen(Screen):
 
     @staticmethod
     def left():
+        print("Running left")
         dpiStepper.enableMotors(True)
         wait_to_finish_moving_flg = True
         # move 1600 steps in the backward direction, this function will return after the
@@ -899,6 +912,7 @@ class TargetScreen(Screen):
 
     @staticmethod
     def right():
+        print("Running right")
         dpiStepper.enableMotors(True)
         wait_to_finish_moving_flg = True
         # move 1600 steps in the backward direction, this function will return after the
