@@ -16,6 +16,27 @@
         font_name: 'PixelFont'
         font_size: '20sp'
 
+    Image:
+        id: duck
+        source: '../../assets/questionmark/questionmark_1.png'
+        size: 16, 16
+        x: 125
+        y: 300
+
+
+    DPEAButton:
+        id: questionmark
+        text: ""
+        size: 280, 35
+        center_x: root.width / 2
+        y: root.height - 115
+        color: 0, 0, 0, 1
+        on_press: root.duck()
+        font_name: 'PixelFont'
+        font_size: '20sp'
+
+
+
     Label:
         text: "PLAY"
         center_x: 800 / 16

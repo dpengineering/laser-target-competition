@@ -43,6 +43,10 @@ I created three categories of importance.
     -Perhaps an increasing in pitch ding sound for every medal acquired, like TMNF.
     -Sounds for each button press when navigating the screens
     -Background music for menu, game start, and a fanfare for EndScreen.
+--Target Click Effects (AESTHETIC)
+    -When clicking targets have particles fly off denoting what score you got
+    -Rainbow = 2000, blue = 1000 etc...
+    -It's currently hard to tell what score you got each time you click.
 
 
 
@@ -71,26 +75,6 @@ from pidev.kivy.ImageButton import ImageButton
 from pidev.kivy import DPEAButton
 
 from leaderboard import Leaderboard
-
-# TODO
-# space bar in name entry (MAYBE NOT NEEDED)
-# key for targets and points awarded (DONE!)
-# click all targets instead of just one (DONE!)
-# no transition between screens (DONE)
-# sound (DONE!)
-# two player?  maybe a laser that you move with the arrow keys and wasd (LOW PRIORITY)
-# numbers to username creation (LOW PRIORITY)
-# combos?
-# points pop off target when hit?
-# END SCREEN (kinda priority)
-#  -  Show points and position on leaderboard
-#  -  leaderboard continues after 10th place
-# set levels - (PRIORITY)
-#  -  each level is a list of a list of each set of leds to light up
-#  -  first, leds one and three will light up, then led two, then seven, eight, and nine, then etc...
-#  -  for levels, time is tracked as well as points(or maybe just time, or just points??)
-#  -  medals for set levels?
-#  -  medals in general - copper - silver - electrum - gold - platinum - diamond(author medal)
 
 time = time
 
@@ -126,7 +110,12 @@ SOUND_FILES = {
     "silver_ding": '../../assets/sounds/bronze_ding.wav',
     "gold_ding": '../../assets/sounds/bronze_ding.wav',
     "author_ding": '../../assets/sounds/bronze_ding.wav',
-    "champion_ding": '../../assets/sounds/bronze_ding.wav'
+    "champion_ding": '../../assets/sounds/bronze_ding.wav',
+    "quack": '../../assets/sounds/quack.mp3',
+    "hit_1": '../../assets/sounds/hit_1.wav',
+    "hit_2": '../../assets/sounds/hit_2.wav',
+    "hit_3": '../../assets/sounds/hit_3.wav',
+    "hit_4": '../../assets/sounds/hit_4.wav',
 }
 class Gamemode(Enum):
     """
@@ -517,6 +506,9 @@ class PlayerScreen(Screen):
     """
     def __init__(self, **kw):
         super().__init__(**kw)
+        self.scheduled_event = None
+        self.duck_counter = 0  # important trust
+        self.duck_state = 0
 
     def on_enter(self, *args):
         self.get_leaderboard()
@@ -524,7 +516,6 @@ class PlayerScreen(Screen):
     def get_leaderboard(self):
         """
         Gets the top 10 names and scores from leaderboard and display's them
-
         """
         for i, score in enumerate(leaderboard.scores[1]): # 1 is the level
             if (i + 1) == 1:
@@ -557,6 +548,32 @@ class PlayerScreen(Screen):
             elif (i+1) == 10:
                 self.ids.name_10.text = str(score['name'])
                 self.ids.score_10.text = str(score['points'])
+
+    def duck(self):
+        self.duck_counter += 1
+        if self.duck_counter == 5:
+            play_sound("quack")
+            self.scheduled_event = Clock.schedule_interval(self.update_duck, 0.1)
+            return
+        play_sound(f"hit_{self.duck_counter}")
+
+
+    def update_duck(self, dt):
+        stationary = '../../assets/questionmark/questionmark_1.png'
+        walking = '../../assets/questionmark/questionmark_2.png'
+        print()
+        print("running update_duck")
+        if self.ids.duck.x > self.width:
+            self.scheduled_event = False
+        if self.duck_state == 4:
+            self.ids.duck.source = stationary
+            self.duck_state = 0
+        elif self.duck_state == 2:
+            self.ids.duck.source = walking
+        self.duck_state += 1
+        self.ids.duck.x += 1
+        return self.scheduled_event
+
 
     @staticmethod
     def transition_to_target_screen():
@@ -594,7 +611,6 @@ class TargetScreen(Screen):
         self.countdown_time_s = None
         self.countdown_timer_start = None
         self.countdown = None
-
         self.gamemode = Gamemode.RANDOM
 
         #Player Variables set
