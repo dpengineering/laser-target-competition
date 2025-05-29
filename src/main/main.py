@@ -50,6 +50,9 @@ I created three categories of importance.
 --Game Replayability (VITAL)
     -Currently lots of things break when after the game has completed, you play another
     -pls fix
+--Add an Easter Egg (AESTHETIC)
+    -Make sure to make it findable and fun!
+    -Did you find mine yet? HINT: l##de#b#ard
 
 
 
