@@ -47,6 +47,9 @@ I created three categories of importance.
     -When clicking targets have particles fly off denoting what score you got
     -Rainbow = 2000, blue = 1000 etc...
     -It's currently hard to tell what score you got each time you click.
+--Game Replayability (VITAL)
+    -Currently lots of things break when after the game has completed, you play another
+    -pls fix
 
 
 
