@@ -6,13 +6,24 @@
         size_hint: None, None
 
     DPEAButton:
-        id: test_button
-        text: "TEST"
+        id: nebulizer
+        text: "nebulizer"
         size: 200, 65
         center_x: 800 / 8
         y: root.height / 2 - 24
         color: 0.25, 0.25, 0.25, 1
-        on_press: root.transition_to_end_screen()
+        on_press: root.nebulizer()
+        font_name: 'PixelFont'
+        font_size: '20sp'
+
+    DPEAButton:
+        id: laser
+        text: "laser"
+        size: 200, 65
+        center_x: 800 / 8
+        y: root.height / 2 - 50
+        color: 0.25, 0.25, 0.25, 1
+        on_press: root.laser()
         font_name: 'PixelFont'
         font_size: '20sp'
 

@@ -62,6 +62,7 @@ os.environ["DISPLAY"] = ":0.0"
 from dpeaDPi import DPiStepper
 from dpeaDPi.DPiStepper import DPiStepper
 from dpeaDPi.DPiComputer import DPiComputer
+from dpeaDPi.DPiPowerDrive import DPiPowerDrive
 
 from kivy.animation import Animation
 from kivy.core.audio import SoundLoader
@@ -94,10 +95,12 @@ leaderboard = Leaderboard()
 player_count = 0 # probably can be phased out at some point
 dpiStepper = DPiStepper()
 dpiComputer = DPiComputer()
+dpiPowerDriver = DPiPowerDrive()
 
-
-
+dpiPowerDriver.setBoardNumber(0)
+print(f"Pinging PowerDriver Board:{dpiPowerDriver.ping()}")
 dpiStepper.setBoardNumber(0)
+print(f"Pinging Stepper Board:{dpiStepper.ping()}")
 
 # enable the stepper motors, when disabled the motors are turned off and spin freely
 dpiStepper.enableMotors(True)
@@ -447,6 +450,7 @@ class InstructionsScreen(Screen):
         self.state = SubmitState.PLAYER_ONE
         self.anti_double_click = False
 
+
     def button_pressed(self, key):
         """
         Calls when an image button on the keyboard is pressed. Appends the name with the key.
@@ -484,9 +488,10 @@ class InstructionsScreen(Screen):
             self.ids.submit.x = 1245
             self.ids.submit_button.x = self.width + 500
 
-
-
-
+    @staticmethod
+    def nebulizer():
+        dpiPowerDriver.switchDriverOnOrOff(0, True)
+        dpiPowerDriver.switchDriverOnOrOff(2, True)
     """
     All of these methods below are self explanatory.
     """
