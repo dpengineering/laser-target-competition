@@ -441,6 +441,7 @@ class InstructionsScreen(Screen):
         super(InstructionsScreen, self).__init__(**kw)
         self.keys = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
         self.state = SubmitState.PLAYER_ONE
+        self.anti_double_click = False
 
     def button_pressed(self, key):
         """
@@ -448,12 +449,17 @@ class InstructionsScreen(Screen):
         :param key: Which key was pressed
 
         """
+        if self.anti_double_click:
+            self.anti_double_click = False
+            return
         if self.ids.name.text == "l":
             self.ids.name.text = ""
         if key == "backspace":
             self.ids.name.text = self.ids.name.text[:-1]
         elif key in self.keys:
             self.ids.name.text += key.upper()
+        self.anti_double_click = True
+
 
     def submit_text(self):
         """
