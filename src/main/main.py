@@ -204,6 +204,7 @@ class Player:
         self.player_number = player_count
         self.lit_leds = []
         self.prev_lit_leds = []
+        self.photoresistors = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
 
 
 
@@ -492,6 +493,11 @@ class InstructionsScreen(Screen):
     def nebulizer():
         dpiPowerDriver.switchDriverOnOrOff(0, True)
         dpiPowerDriver.switchDriverOnOrOff(2, True)
+
+    @staticmethod
+    def laser():
+        dpiPowerDriver.switchDriverOnOrOff(1, True)
+
     """
     All of these methods below are self explanatory.
     """
@@ -667,8 +673,6 @@ class TargetScreen(Screen):
         self.ids.player_1_name.text = player_one.name
         self.ids.player_2_name.text = player_two.name
 
-    def enable(self, *args):
-        dpiStepper.enableMotors(True)
 
     def startup_countdown(self):
         self.countdown = True
