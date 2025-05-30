@@ -61,6 +61,7 @@ import os
 os.environ["DISPLAY"] = ":0.0"
 from dpeaDPi import DPiStepper
 from dpeaDPi.DPiStepper import DPiStepper
+from dpeaDPi.DPiComputer import DPiComputer
 
 from kivy.animation import Animation
 from kivy.core.audio import SoundLoader
@@ -92,6 +93,9 @@ instructions_screen_name = 'instructions'
 leaderboard = Leaderboard()
 player_count = 0 # probably can be phased out at some point
 dpiStepper = DPiStepper()
+dpiComputer = DPiComputer()
+
+
 
 dpiStepper.setBoardNumber(0)
 
@@ -690,9 +694,16 @@ class TargetScreen(Screen):
             leaderboard.add_score(player.name, player.score, 1)
             self.transition_to_end_screen()
 
+    def spin_stepper(self, left, right):
+        if left:
+            self.left()
+        elif right:
+            self.right()
+
     def update_all(self, dt=None): # dt for clock scheduling
         #print(f"state={self.state}, target_move_to_pedestal_num={self.target_move_to_pedestal_num}, points={self.points}")
         self.update_time_left_image(self.update_time())
+        self.spin_stepper(dpiComputer.readDigitalIn(0), dpiComputer.readDigitalIn(1))
         if screen_manager.current == target_screen_name:
             if self.time_s > 15:
                 player_one.target_appearance_time = self.time_ms
