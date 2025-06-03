@@ -583,6 +583,8 @@ class PlayerScreen(Screen):
             play_sound("quack")
             self.scheduled_event = Clock.schedule_interval(self.update_duck, 0.1)
             return
+        elif self.duck_counter > 5:
+            return
         play_sound(f"hit_{self.duck_counter}")
 
 
