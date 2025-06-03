@@ -509,6 +509,7 @@ class InstructionsScreen(Screen):
 
     @staticmethod
     def transition_to_target_screen():
+        print("transitioning to target_screen")
         screen_manager.transition = NoTransition()
         screen_manager.current = target_screen_name
 
@@ -628,7 +629,7 @@ class TargetScreen(Screen):
         **kwargs is normal kivy.uix.screenmanager.Screen attributes
         """
 
-
+        self.fan_time_ms = None
         Builder.load_file('../kv/TargetScreen.kv')
         super(TargetScreen, self).__init__(**kwargs)
         self.clock_scheduled = False
@@ -711,7 +712,7 @@ class TargetScreen(Screen):
 
     def update_all(self, dt=None): # dt for clock scheduling
         #print(f"state={self.state}, target_move_to_pedestal_num={self.target_move_to_pedestal_num}, points={self.points}")
-        self.update_time_left_image(self.update_time())
+        self.update_time_left_image(self.update_time('s'))
         self.spin_stepper(dpiComputer.readDigitalIn(0), dpiComputer.readDigitalIn(1))
         if screen_manager.current == target_screen_name:
             if self.time_s > 15:
@@ -732,15 +733,19 @@ class TargetScreen(Screen):
         else:
             self.clock_scheduled = False
 
-    def update_time(self):
+    def update_time(self, s):
         countdown_time = 3.5
-        play_time = 15
+        play_time = 16
         self.time_s = -round((time_ns() / 1000000000) - (self.time_start / 1000000000 + countdown_time + play_time)) # seconds counting down from 15 after start has been pressed
         self.time_ms = round((time_ns() / 1000000) - (self.time_start / 1000000)) # ms since start has been pressed
-        self.countdown_time_s = -round((time_ns() / 1000000000) - (self.countdown_timer_start / 1000000000 + countdown_time))
         player_one.target_lifetime = self.time_ms - player_one.target_appearance_time
         player_two.target_lifetime = self.time_ms - player_two.target_appearance_time
-        return self.time_s
+        if s == 's':
+            return self.time_s
+        elif s == 'ms':
+            return self.time_ms
+        else:
+            return self.time_s
 
 
     def update_target_quality(self):
@@ -951,12 +956,17 @@ class TargetScreen(Screen):
 
     @staticmethod
     def left():
+        if dpiStepper.getStepperStatus(0)[1] == 1:
+            print("hitting a wall")
+            return
         print("Running left")
         dpiStepper.enableMotors(True)
         wait_to_finish_moving_flg = True
+        velocity = -1600
         # move 1600 steps in the backward direction, this function will return after the
         # motor stops because "wait_to_finish_moving_flg" is set to True
-        dpiStepper.moveToRelativePositionInSteps(0, -1600, wait_to_finish_moving_flg)
+        print(f"Attempting to move dpiStepper {stepper_num}, velocity={velocity}, wait_to_finish_moving_flg={wait_to_finish_moving_flg}")
+        dpiStepper.moveToRelativePositionInSteps(stepper_num, velocity, wait_to_finish_moving_flg)
 
     @staticmethod
     def right():
@@ -976,6 +986,15 @@ class TargetScreen(Screen):
     def transition_to_end_screen():
         screen_manager.transition = NoTransition()
         screen_manager.current = end_screen_name
+
+    @staticmethod
+    def exit():
+        """
+        Close the application. VERY IMPORTANT SO THAT YOU CAN LEAVE THE APP WHEN RUNNING ON RASPBERRY PI.
+        :return:
+        """
+        dpiStepper.enableMotors(False)
+        Window.close()
 
 Builder.load_file('../kv/main.kv')
 LabelBase.register(name='PixelFont', fn_regular='../../assets/fonts/Tiny5-Regular.ttf')
