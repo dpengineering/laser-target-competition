@@ -589,21 +589,21 @@ class PlayerScreen(Screen):
 
 
     def update_duck(self, dt):
-        stationary = '../../assets/questionmark/questionmark_1.png'
-        walking = '../../assets/questionmark/questionmark_2.png'
-        print()
-        print("running update_duck")
-        if self.ids.duck.x > self.width:
-            self.scheduled_event = False
-        if self.duck_state == 4:
-            self.ids.duck.source = stationary
-            self.duck_state = 0
-        elif self.duck_state == 2:
-            self.ids.duck.source = walking
-        self.duck_state += 1
-        self.ids.duck.x += 1
-        return self.scheduled_event
-
+        if screen_manager.current == player_screen_name:
+            stationary = '../../assets/questionmark/questionmark_1.png'
+            walking = '../../assets/questionmark/questionmark_2.png'
+            print("running update_duck")
+            if self.ids.duck.x > self.width:
+                self.scheduled_event = False
+            if self.duck_state == 4:
+                self.ids.duck.source = stationary
+                self.duck_state = 0
+            elif self.duck_state == 2:
+                self.ids.duck.source = walking
+            self.duck_state += 1
+            self.ids.duck.x += 1
+            return self.scheduled_event
+        return None
 
     @staticmethod
     def transition_to_target_screen():
@@ -630,7 +630,6 @@ class TargetScreen(Screen):
         Supers Screen's __init__
         **kwargs is normal kivy.uix.screenmanager.Screen attributes
         """
-
         self.fan_time_ms = None
         Builder.load_file('../kv/TargetScreen.kv')
         super(TargetScreen, self).__init__(**kwargs)
@@ -642,6 +641,7 @@ class TargetScreen(Screen):
         self.countdown_timer_start = None
         self.countdown = None
         self.gamemode = Gamemode.RANDOM
+        self.game_time = 20
 
         #Player Variables set
         player_one.targets = [self.ids.get(f'target_{i}') for i in range(13)]
@@ -652,14 +652,11 @@ class TargetScreen(Screen):
         targets.append(player_two.targets)
         leds.append(player_one.leds)
         leds.append(player_one.leds)
-
         # Levels
         self.level_1 = [[self.ids.get('target_1'), self.ids.get('target_3')],
                    [self.ids.get('target_2')],
                    [self.ids.get('target_7'), self.ids.get('target_8'), self.ids.get('target_9')],
                    [self.ids.get('target_12'), self.ids.get('target_3'), self.ids.get('target_5')]]
-
-
         """
         Difficulty determines how likely additional targets besides the fist target are lit up. After the first target, the program runs
         a random number generator between 0 and 1. If the random number is <= 0.1, then light up a second target. 0.1 can be changed so 
@@ -675,7 +672,7 @@ class TargetScreen(Screen):
         dpiStepper.enableMotors(True)
         self.ids.player_1_name.text = player_one.name
         self.ids.player_2_name.text = player_two.name
-
+        self.ids.time_left.text = str(self.game_time)
 
     def startup_countdown(self):
         self.countdown = True
@@ -700,7 +697,7 @@ class TargetScreen(Screen):
         player_one.state = "idle"
         player_two.state = "idle"
         self.ids.start.center_x = self.width / 2
-        self.update_time_left_image(15)
+        self.update_time_left_image(self.game_time)
         self.ids.go.x = self.width = 1
         for player in players:
             leaderboard.add_score(player.name, player.score, 1)
@@ -717,7 +714,7 @@ class TargetScreen(Screen):
         self.update_time_left_image(self.update_time('s'))
         self.spin_stepper(dpiComputer.readDigitalIn(0), dpiComputer.readDigitalIn(1))
         if screen_manager.current == target_screen_name:
-            if self.time_s > 15:
+            if self.time_s > self.game_time:
                 player_one.target_appearance_time = self.time_ms
                 player_two.target_appearance_time = self.time_ms
             if self.time_s > 0:
@@ -737,8 +734,7 @@ class TargetScreen(Screen):
 
     def update_time(self, s):
         countdown_time = 3.5
-        play_time = 16
-        self.time_s = -round((time_ns() / 1000000000) - (self.time_start / 1000000000 + countdown_time + play_time)) # seconds counting down from 15 after start has been pressed
+        self.time_s = -round((time_ns() / 1000000000) - (self.time_start / 1000000000 + countdown_time + self.game_time + 1)) # seconds counting down from 15 after start has been pressed
         self.time_ms = round((time_ns() / 1000000) - (self.time_start / 1000000)) # ms since start has been pressed
         player_one.target_lifetime = self.time_ms - player_one.target_appearance_time
         player_two.target_lifetime = self.time_ms - player_two.target_appearance_time
@@ -778,8 +774,6 @@ class TargetScreen(Screen):
             for l in p:
                 if l == led:
                     led.source = RED_SOURCE
-
-
 
 
     def activate_specific_targets(self, level_round):
@@ -827,7 +821,6 @@ class TargetScreen(Screen):
                     p.state = GameState.WAIT_FOR_TARGET_HIT
                     print(f"Got LEDs to light up, they are: {lit_led_names}")
                     print(f"Got LEDs to light up, they are: {lit_led_indices}")
-
 
 
     def activate_random_targets(self, difficulty):
@@ -891,9 +884,8 @@ class TargetScreen(Screen):
                     print(f"Got LEDs to light up, they are: {lit_led_names}")
                     print(f"Got LEDs to light up, they are: {lit_led_indices}")
 
-
     def target_hit(self, target, led):
-        if self.time_s <= 15:
+        if self.time_s <= self.game_time:
             self.remove_target(target, led)
             play_sound("target_hit")
             if target.player == 2 and player_two.state == GameState.WAIT_FOR_TARGET_HIT:
@@ -906,7 +898,6 @@ class TargetScreen(Screen):
                 if not player_one.lit_leds:
                     player_one.state = GameState.GET_NEW_LEDS
                 self.update_points(target)
-
 
     def update_points(self, target):
         points = 0
@@ -943,12 +934,12 @@ class TargetScreen(Screen):
             self.ids.countdown.x = self.width + 100
 
     def update_time_left_image(self, num):
-        if num > 15:
-            self.ids.countdown.text = str(num - 15)
-        elif num == 15:
+        if num > self.game_time:
+            self.ids.countdown.text = str(num - self.game_time)
+        elif num == self.game_time:
             self.ids.countdown.x = self.width + 100
             self.ids.go.x = 0
-        elif num == 14:
+        elif num == self.game_time - 1:
             self.ids.go.x = self.width + 100
             self.ids.time_left.text = str(num)
         elif num > 9:
@@ -962,7 +953,6 @@ class TargetScreen(Screen):
             print("hitting a wall")
             return
         print("Running left")
-        dpiStepper.enableMotors(True)
         wait_to_finish_moving_flg = True
         velocity = -1600
         # move 1600 steps in the backward direction, this function will return after the
@@ -973,11 +963,12 @@ class TargetScreen(Screen):
     @staticmethod
     def right():
         print("Running right")
-        dpiStepper.enableMotors(True)
         wait_to_finish_moving_flg = True
+        velocity = 1600
         # move 1600 steps in the backward direction, this function will return after the
         # motor stops because "wait_to_finish_moving_flg" is set to True
-        dpiStepper.moveToRelativePositionInSteps(0, 1600, wait_to_finish_moving_flg)
+        print(f"Attempting to move dpiStepper {stepper_num}, velocity={velocity}, wait_to_finish_moving_flg={wait_to_finish_moving_flg}")
+        dpiStepper.moveToRelativePositionInSteps(stepper_num, velocity, wait_to_finish_moving_flg)
 
     @staticmethod
     def transition_to_player_screen():
