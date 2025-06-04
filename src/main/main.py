@@ -615,6 +615,15 @@ class PlayerScreen(Screen):
         screen_manager.transition = NoTransition()
         screen_manager.current = instructions_screen_name
 
+    @staticmethod
+    def exit():
+        """
+        Close the application. VERY IMPORTANT SO THAT YOU CAN LEAVE THE APP WHEN RUNNING ON RASPBERRY PI.
+        :return:
+        """
+        dpiStepper.enableMotors(False)
+        Window.close()
+
 
 
 
@@ -642,6 +651,7 @@ class TargetScreen(Screen):
         self.countdown = None
         self.gamemode = Gamemode.RANDOM
         self.game_time = 20
+        self.level_1_1 = [1, 4, 13, 10, 12, 5, 7, 8, 2, 4]
 
         #Player Variables set
         player_one.targets = [self.ids.get(f'target_{i}') for i in range(13)]
