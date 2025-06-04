@@ -15,6 +15,17 @@
         on_press: root.start()
 
     DPEAButton:
+        id: test
+        text: "TEST"
+        size: 200, 65
+        x: 0
+        y: 0
+        color: 0, 1, 1, 1
+        on_press: root.test()
+        font_name: 'PixelFont'
+        font_size: '20sp'
+
+    DPEAButton:
         id: exit
         text: "EXIT"
         size: 200, 65
@@ -24,6 +35,8 @@
         on_press: root.exit()
         font_name: 'PixelFont'
         font_size: '20sp'
+
+
 
     DPEAButton:
         id: left

@@ -112,6 +112,9 @@ stepper_num = 0
 dpiStepper.setSpeedInStepsPerSecond(stepper_num, 1600)
 dpiStepper.setAccelerationInStepsPerSecondPerSecond(stepper_num, 1600)
 
+dpiComputer.initialize()
+
+
 
 GREEN_SOURCE = '../../assets/images/buttons/leds/green.png'
 RED_SOURCE = '../../assets/images/buttons/leds/red.png'
@@ -205,6 +208,11 @@ class Player:
         self.lit_leds = []
         self.prev_lit_leds = []
         self.photoresistors = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+
+
+    def test(self):
+        dpiComputer.writeDigitalOut(12, True)
+        dpiComputer.writeDigitalOut(13, True)
 
 
 
@@ -799,7 +807,6 @@ class TargetScreen(Screen):
                     target.x = -65
 
                 p.lit_leds = []
-
 
                 for led in self.level_1[level_round]:
                     led.source = GREEN_SOURCE
