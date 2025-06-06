@@ -208,11 +208,11 @@ class Player:
         self.lit_leds = []
         self.prev_lit_leds = []
         self.photoresistors = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-
-
-    def test(self):
         dpiComputer.writeDigitalOut(12, True)
         dpiComputer.writeDigitalOut(13, True)
+
+
+
 
 
 
